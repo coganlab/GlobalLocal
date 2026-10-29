@@ -66,7 +66,10 @@ SYNTHETIC_ENRICHMENT=${SYNTHETIC_ENRICHMENT:-0.6}
 # A MAIN_EFFECTS=1 segregation run (directory ends in _main_effects) also gets
 # the main-effect anatomy: dm = congruency - switch, and Tests 1 and 2 of
 # docs/analysis_plans.md#closing-figure-plan. Drop the suffix for the archived LWPC/LWPS-only run.
-SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_main_effects"
+# SUBJECT_SET (src/analysis/config/subjects.py) adds its suffix to every
+# segregation folder; read it from there so the rule lives in one place.
+SUBJECT_SET_SUFFIX=$(cd ../.. && python -c "from src.analysis.config.subjects import resolve_subject_set; print(resolve_subject_set()[1])") || exit 1
+SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_main_effects${SUBJECT_SET_SUFFIX}"
 
 ARM=${ARM:-continuous}
 SCORES_CSV=${SCORES_CSV:-"$SEG_RUN/electrodes.csv"}
@@ -92,8 +95,8 @@ USE_COORDS=${USE_COORDS:-1}
 # ---------------------------------------------------------------------------
 export FOLLOWUPS=${FOLLOWUPS:-15,16,19}
 SEG_RESULTS=$(dirname "$SEG_RUN")
-LONG_DF_CSV=${LONG_DF_CSV:-"$SEG_RESULTS/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_scatter_only_splits0/long_df.csv"}
-RT_SEG_RUN="$SEG_RESULTS/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200"
+LONG_DF_CSV=${LONG_DF_CSV:-"$SEG_RESULTS/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_scatter_only_splits0${SUBJECT_SET_SUFFIX}/long_df.csv"}
+RT_SEG_RUN="$SEG_RESULTS/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200${SUBJECT_SET_SUFFIX}"
 RT_LONG_DF_CSV=${RT_LONG_DF_CSV:-"$RT_SEG_RUN/long_df.csv"}
 RT_COUPLING_CSV=${RT_COUPLING_CSV:-"$RT_SEG_RUN/rt_adjustment_slopes.csv"}
 SUBSET_SCORES_CSV=${SUBSET_SCORES_CSV:-}   # §15 section 11: a subset run's scores_with_anatomy.csv
@@ -147,9 +150,15 @@ SEED=${SEED:-0}
 # Optional directory containing a precomputed electrodes-to-ROI atlas JSON.
 ROI_DICT_DIR=${ROI_DICT_DIR:-"/hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/config"}
 
+# Optional Slurm dependency, e.g. DEPENDENCY=afterok:123:124 to wait for the
+# segregation jobs that write the CSVs above. (This cluster's sbatch ignores
+# the SBATCH_DEPENDENCY environment variable, so it has to be a flag.)
+DEPENDENCY=${DEPENDENCY:-}
+
 mkdir -p out
 
 echo "Submitting stability/flexibility A3 anatomy (source=$DATA_SOURCE, arm=$ARM, labels=$LABEL_SOURCE, roi=${ROI_FILTER:-wholebrain}, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION, followups=$FOLLOWUPS)"
 sbatch --job-name="sf_anatomy_${LABEL_SOURCE}_${DATA_SOURCE}" \
+    ${DEPENDENCY:+--dependency="$DEPENDENCY"} \
     --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_ENRICHMENT="$SYNTHETIC_ENRICHMENT",ARM="$ARM",SCORES_CSV="$SCORES_CSV",PER_SPLIT_CSV="$PER_SPLIT_CSV",N_SPLITS="$N_SPLITS",USE_COORDS="$USE_COORDS",LONG_DF_CSV="$LONG_DF_CSV",RT_LONG_DF_CSV="$RT_LONG_DF_CSV",RT_COUPLING_CSV="$RT_COUPLING_CSV",SUBSET_SCORES_CSV="$SUBSET_SCORES_CSV",SHARED_N_SPLITS="$SHARED_N_SPLITS",LABEL_SOURCE="$LABEL_SOURCE",PT_RUN_DIR="$PT_RUN_DIR",PT_RUN_CPC="$PT_RUN_CPC",PT_RUN_SPS="$PT_RUN_SPS",PT_RUN_CPS="$PT_RUN_CPS",PT_RUN_SPC="$PT_RUN_SPC",PT_CORRECTION="$PT_CORRECTION",PT_ALPHA="$PT_ALPHA",PT_ROI="$PT_ROI",ROI_FILTER="$ROI_FILTER",ANAT_LEVEL="$ANAT_LEVEL",HIST_TOP_N="$HIST_TOP_N",MAKE_BRAIN="$MAKE_BRAIN",BRAIN_HEMI="$BRAIN_HEMI",BRAIN_ZOOM="$BRAIN_ZOOM",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",MIN_SUBJECTS="$MIN_SUBJECTS",N_PERM="$N_PERM",SEED="$SEED",ROI_DICT_DIR="$ROI_DICT_DIR" \
     sbatch_stability_flexibility_anatomy_dcc.sh

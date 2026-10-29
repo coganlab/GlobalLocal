@@ -374,6 +374,50 @@ TFR objects are saved to `derivatives/spec/<method>/<sub>/`. Convenience loaders
 combine compute+significance in one call. `plot_mask_pages` renders the
 significant-cluster masks per channel.
 
+### Example-electrode spectrogram (Fig 2c)
+
+`dcc_scripts/spec/plot_example_spectrogram_dcc.py` plots one channel's
+baseline-rescaled spectrogram (`plot_channel_spectrogram` in
+`wavelet_functions.py`), marking stimulus onset and the 70–150 Hz band. It only
+reads two saved TFRs, so run it directly; it needs no sbatch:
+
+```bash
+conda activate ieeg
+python dcc_scripts/spec/plot_example_spectrogram_dcc.py
+```
+
+- **Input:** `derivatives/spec/<SPEC_TYPE>/<SUBJECT_ID>/<condition>_rescaled-tfr.h5`
+  from `make_wavelets_dcc.py`. The default is multitaper, `Stimulus_c` +
+  `Stimulus_i` (all correct trials, averaged with equal weight). Multitaper is
+  used because its linear 2 Hz bins resolve high gamma, whereas the wavelets have
+  only ~6 log-spaced bins between 70 and 200 Hz. Wavelet TFRs for these
+  conditions exist for all 24 subjects. Multitaper TFRs exist for D0094 (made
+  2026-10-29). To use another subject, make its multitaper TFRs first:
+
+  ```bash
+  cd dcc_scripts/spec
+  sbatch --export=ALL,SUBJECT_ID=<sub>,CONDITION_LABEL=stimulus_congruency_conditions,SPEC_TYPE=multitaper \
+      sbatch_make_wavelets_dcc.sh
+  ```
+
+  `SPEC_TYPE` defaults to `wavelet` when it isn't exported. The multitaper settings
+  (10–198 Hz in 2 Hz steps, `n_cycles = f/2`, i.e. 0.5 s windows,
+  `time_bandwidth = 10`, baseline −0.5–0 s) are set in `run_make_wavelets_dcc.py`.
+- **Output:** `dcc_scripts/spec/figs/example_spectrogram_<sub>_<chan>_<conds>_<spec_type>_<tmin>to<tmax>s_vlim<v>dB.{png,pdf}`.
+- **Parameters** (top of the script): `SUBJECT_ID`, `CHANNEL`,
+  `CONDITION_NAMES`, `SPEC_TYPE`, `TIMES` (display window), `FREQ_RANGE`,
+  `HG_BAND`, `VLIM`, `YSCALE`, `FIGSIZE`, `FONT_SIZE`.
+- **Default electrode:** D0094 LFPM12 (`ctx_lh_S_front_inf`, in both the lPFC
+  and dlPFC ROIs). Of the 418 lPFC channels across all subjects, it had the
+  largest mean 70–150 Hz response 0.1–0.8 s after onset, with a quiet baseline.
+  The old panel's electrode (D0057 RAI7, from `multitaper_spec.ipynb`) is
+  labelled white matter, so don't reuse it.
+- **Units:** rescaled TFRs are dB relative to baseline: `20·log10` of the ratio
+  for wavelets, whose output is amplitude, and `10·log10` for multitaper, whose
+  output is power. Before 2026-10-29 the multitaper branch also used `20·log10`,
+  so multitaper `_rescaled` files written before then (D0057's
+  `CorrectTrials/ErrorTrials_Response_Locked`) hold doubled dB values.
+
 **Bridge to decoding:** the significant TFR masks produced here feed
 `decoding.decode_on_sig_tfr_clusters` (§7).
 

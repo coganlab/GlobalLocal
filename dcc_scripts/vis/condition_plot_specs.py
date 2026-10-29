@@ -72,6 +72,15 @@ def sig_chans(epochs_root_file, color=None, **extra):
     return cfg
 
 
+def all_chans(epochs_root_file, color=None, **extra):
+    """A condition holding every channel analyzed for ``epochs_root_file``.
+
+    The same channels the sig_chans files were computed from, so the matching
+    ``sig_chans(...)`` condition is always a subset of this one.
+    """
+    return sig_chans(epochs_root_file, color=color, all_chans=True, **extra)
+
+
 def anova_effect(anova_run_dir, effect, color=None, use_fdr=True, p_thresh=0.05,
                  anova_roi=None, **extra):
     """A condition whose electrodes are significant for ``effect`` in an ANOVA run.
@@ -187,10 +196,24 @@ N_SUBJECTS_IN_ANOVA = 24
 _FULL_RUN = anova_run("stimulus_experiment_conditions", N_SUBJECTS_IN_ANOVA)
 ANOVA_LABELS_CSV = os.environ.get("ANOVA_LABELS_CSV", "")
 
+LPFC_ROIS = {"lpfc": rois_dict["lpfc"]}
+
 ELECTRODE_PLOT_SETS = OrderedDict([
-    ("all_lpfc", {"all_roi": True, "color": (0.0, 0.7, 0.0)}),
+    ("all_lpfc", all_chans(ANOVA_EPOCHS_ROOT, color=(0.0, 0.7, 0.0))),
     ("task_relevant_lpfc", sig_chans(
         ANOVA_EPOCHS_ROOT, color=(1.0, 1.0, 0.0))),
+    # Fig 2 coverage. Hue = region (neutral whole brain, purple LPFC);
+    # lightness = significance (light all analyzed, dark task significant).
+    # Each sets its own ROI, so they can share a figure with any ROI.
+    ("all_recon_elecs", {"all_recon": True, "color": (0.5, 0.5, 0.5)}),
+    ("all_elecs", all_chans(
+        ANOVA_EPOCHS_ROOT, color=(0.6, 0.6, 0.6), rois_dict=None)),
+    ("all_lpfc_elecs", all_chans(
+        ANOVA_EPOCHS_ROOT, color=(0.55, 0.3, 0.8), rois_dict=LPFC_ROIS)),
+    ("sig_elecs", sig_chans(
+        ANOVA_EPOCHS_ROOT, color=(0.0, 0.0, 0.0), rois_dict=None)),
+    ("sig_lpfc_elecs", sig_chans(
+        ANOVA_EPOCHS_ROOT, color=(0.3, 0.0, 0.5), rois_dict=LPFC_ROIS)),
     ("congruency_only", power_trace_set(
         _FULL_RUN, color=(1.0, 0.0, 0.0),
         include_effects=("C(congruency)",),
@@ -219,10 +242,10 @@ ELECTRODE_PLOT_SETS = OrderedDict([
 PLOT_CONDITION_SETS = {
 
     # Choose any subset with PLOT_SETS=all_lpfc,task_relevant_lpfc,... .
-    # Registry order is draw order, so narrower sets are drawn over coverage.
+    # PLOT_SETS order is draw order: list narrower sets last to draw them on top.
     "lpfc_power_trace_sets": {
         "conditions": ELECTRODE_PLOT_SETS,
-        "rois_dict": {"lpfc": rois_dict["lpfc"]},
+        "rois_dict": LPFC_ROIS,
         "mutually_exclusive": False,
     },
 
@@ -286,8 +309,7 @@ def resolve_plot_set(label, palette=None):
         if unknown:
             raise KeyError(f"Unknown PLOT_SETS entries: {sorted(unknown)}; "
                            f"available: {list(conditions)}")
-        conditions = OrderedDict(
-            (name, cfg) for name, cfg in conditions.items() if name in requested)
+        conditions = OrderedDict((name, conditions[name]) for name in requested)
     return {
         "conditions": assign_colors(conditions, palette),
         "rois_dict": spec.get("rois_dict"),

@@ -36,6 +36,7 @@ from ieeg.calc.scaling import rescale
 from ieeg.calc.fast import mean_diff
 from ieeg.calc.stats import time_perm_cluster
 from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
+from ieeg.viz.parula import parula_map
 import numpy as np
 from src.analysis.utils.general_utils import calculate_RTs, get_good_data, get_trials, get_trials_with_outlier_analysis
 
@@ -912,6 +913,71 @@ def plot_mask_pages(mask: np.ndarray, ch_names: List[str],
         if show:
             plt.show()
     return pages
+
+def plot_channel_spectrogram(spec, ch_name: str, ax: Optional[plt.Axes] = None,
+                             fmin: Optional[float] = None, fmax: float = 200.,
+                             vlim: Tuple[float, float] = (-2., 2.),
+                             cmap=parula_map, yscale: str = 'linear',
+                             band: Optional[Tuple[float, float]] = (70., 150.),
+                             cbar_label: str = 'Power (dB)') -> plt.Figure:
+    """
+    Plot one channel's trial-averaged spectrogram, e.g. as an example-electrode panel.
+
+    Unlike ``spec.plot(picks=[ch])``, this draws into a given axis with paper-ready
+    labels, so the panel can sit inside a multi-panel figure without clearing MNE's
+    own labels afterwards. ``pcolormesh`` is used rather than ``imshow`` because
+    wavelet frequencies are log-spaced, so pixel rows aren't evenly spaced in Hz.
+    Gouraud shading interpolates between bin centres; without it the few wavelet
+    bins above ~70 Hz render as wide blocks on a linear axis.
+
+    Parameters
+    ----------
+    spec : mne.time_frequency.AverageTFR
+        Trial-averaged TFR, e.g. the rescaled output of ``load_wavelets``. Crop it
+        in time beforehand to drop edge artifacts.
+    ch_name : str
+        Channel to plot.
+    ax : plt.Axes, optional
+        Axis to draw into. If None, a new figure is made.
+    fmin, fmax : float
+        Frequency range shown, in Hz. fmin=None starts at the lowest frequency.
+    vlim : (float, float)
+        Colour limits, in the units of ``spec`` (dB for the rescaled TFRs).
+    cmap : colormap
+        Defaults to parula, matching ``chan_grid``.
+    yscale : {'linear', 'log'}
+        Frequency-axis scale. Linear gives high gamma most of the panel.
+    band : (float, float) or None
+        Frequency band (Hz) to mark with dashed lines; None marks nothing.
+    cbar_label : str
+        Colourbar label.
+
+    Returns
+    -------
+    plt.Figure
+        The figure containing ``ax``.
+    """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(4, 3))
+    else:
+        fig = ax.figure
+
+    fmin = spec.freqs[0] if fmin is None else fmin
+    keep = (spec.freqs >= fmin) & (spec.freqs <= fmax)
+    data = spec.data[spec.ch_names.index(ch_name)][keep]
+
+    mesh = ax.pcolormesh(spec.times, spec.freqs[keep], data, cmap=cmap,
+                         vmin=vlim[0], vmax=vlim[1], shading='gouraud',
+                         rasterized=True)
+    ax.set_yscale(yscale)
+    ax.axvline(0, color='k', linestyle='--', linewidth=1)  # stimulus onset
+    if band is not None:
+        for f in band:
+            ax.axhline(f, color='w', linestyle=':', linewidth=1)
+    ax.set_xlabel('Time from stimulus onset (s)')
+    ax.set_ylabel('Frequency (Hz)')
+    fig.colorbar(mesh, ax=ax, label=cbar_label)
+    return fig
 
 def load_and_get_sig_wavelet_ratio_differences(sub: str, layout, 
                                                  output_name_condition_1: str,

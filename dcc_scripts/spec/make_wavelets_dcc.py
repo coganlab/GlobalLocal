@@ -96,7 +96,8 @@ def main(args):
 
             spec_rescaled = rescale(spec, base, copy=True, mode='ratio').average(
                 lambda x: np.nanmean(x, axis=0), copy=True)
-            spec_rescaled._data = np.log10(spec_rescaled._data) * 20 # convert to dB
+            # wavelet_scaleogram returns amplitude (|cwt|), so 20*log10 gives dB
+            spec_rescaled._data = np.log10(spec_rescaled._data) * 20
             fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
             spec_rescaled.info['temp'] = {'files': tuple(fnames)}
             spec_rescaled.info['bads'] = good.info['bads']
@@ -139,7 +140,8 @@ def main(args):
             )
             spec_rescaled = rescale(spec, base, copy=True, mode='ratio').average(
                 lambda x: np.nanmean(x, axis=0), copy=True)
-            spec_rescaled._data = np.log10(spec_rescaled._data) * 20 # convert to dB
+            # tfr_multitaper returns power, so 10*log10 (20*log10 would double the dB)
+            spec_rescaled._data = np.log10(spec_rescaled._data) * 10
             fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
             spec_rescaled.info['temp'] = {'files': tuple(fnames)}
             spec_rescaled.info['bads'] = good.info['bads']

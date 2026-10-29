@@ -1562,6 +1562,33 @@ def get_sig_chans_per_subject(subjects, epochs_root_file, task='GlobalLocal', LA
 
     return sig_chans_per_subject
 
+def get_analyzed_chans_per_subject(subjects, epochs_root_file, task='GlobalLocal', LAB_root=None):
+    """Every channel that survived preprocessing for ``epochs_root_file``, per subject.
+
+    These are the channels the significance tests were run on, so the
+    ``sig_chans`` files for the same root are a subset of them. Use this rather
+    than the electrodes-to-ROIs dict for coverage: that dict is built before
+    ``make_epoched_data`` drops channels with too many bad trials, so it also
+    lists channels that were never analyzed. Only the epochs file header is
+    read, not the data.
+
+    Returns:
+        dict: ``{subject: [channel names]}``, white matter included.
+    """
+    if LAB_root is None:
+        LAB_root = get_default_LAB_root()
+    layout = get_data(task, root=LAB_root)
+
+    analyzed_chans_per_subject = {}
+    for sub in subjects:
+        # Every epochs object saved for one root has the same channels, so any
+        # of them would do; HG_ev1_power_rescaled is the one the stats read.
+        fif_path = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub,
+                                f'{sub}_{epochs_root_file}_HG_ev1_power_rescaled-epo.fif')
+        analyzed_chans_per_subject[sub] = mne.io.read_info(fif_path, verbose=False)['ch_names']
+
+    return analyzed_chans_per_subject
+
 def filter_electrodes_by_roi(subjects_electrodes_dict, sig_chans_per_subject, roi_list):
     """
     Filters electrodes based on specified ROIs and returns significant electrodes for each subject.

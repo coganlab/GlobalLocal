@@ -44,12 +44,18 @@
 #     stimulus_lwps_block_balanced_conditions
 # )
 
-CONDITIONS=(
-    stimulus_lwpc_block_balanced_conditions
-    stimulus_lwps_block_balanced_conditions
-    stimulus_congruency_by_switch_prop_block_balanced_conditions
-    stimulus_switch_type_by_inc_prop_block_balanced_conditions
-)
+# Space-separated CONDITIONS in the environment replace this list, e.g.
+#   CONDITIONS="stimulus_lwpc_block_balanced_conditions stimulus_lwps_block_balanced_conditions"
+if [[ -n "${CONDITIONS:-}" ]]; then
+    read -r -a CONDITIONS <<< "$CONDITIONS"
+else
+    CONDITIONS=(
+        stimulus_lwpc_block_balanced_conditions
+        stimulus_lwps_block_balanced_conditions
+        stimulus_congruency_by_switch_prop_block_balanced_conditions
+        stimulus_switch_type_by_inc_prop_block_balanced_conditions
+    )
+fi
 
 # Epochs file selection. EPOCHS_ROOT_FILE in the environment wins over the default.
 

@@ -61,7 +61,7 @@ if CONDITION_LABEL is None:
     raise ValueError("CONDITION_LABEL environment variable not set. "
                      "Set it via sbatch --export=ALL,CONDITION_LABEL=...")
 
-SPEC_TYPE = 'wavelet' # wavelet or multitaper
+SPEC_TYPE = os.environ.get('SPEC_TYPE', 'wavelet') # wavelet or multitaper
 
 BASELINE_TIMES = [-0.5, 0]
 SIGNAL_TIMES = [-0.5, 1.5]

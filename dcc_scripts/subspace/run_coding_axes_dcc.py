@@ -32,6 +32,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from dcc_scripts.subspace.coding_axes_dcc import main
+from src.analysis.config.subjects import resolve_subject_set
 
 
 def _flag(name, default='0'):
@@ -45,10 +46,8 @@ LAB_ROOT = None                      # auto-resolved in main()
 TASK = 'GlobalLocal'
 ACC_TRIALS_ONLY = True
 
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0077', 'D0090',
-            'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116',
-            'D0117', 'D0121', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139A',
-            'D0144', 'D0145', 'D0146']
+# SUBJECT_SET in the environment picks a set from src/analysis/config/subjects.py
+SUBJECTS, SUBJECT_SET_SUFFIX = resolve_subject_set()
 
 # --- data source: 'real' (epoched data) or 'synthetic' (validate pipeline) ---
 DATA_SOURCE = os.environ.get('DATA_SOURCE', 'real')
@@ -141,7 +140,8 @@ SAVE_DIR = os.path.join(current_script_dir, 'results', _tag, 'coding_axes',
                         + ('' if EFFECT == 'main' else f'_{EFFECT}')
                         + ('_remove_mean' if REMOVE_MEAN else '')
                         + {'none': '', 'adjust': '_rt_adjust'}.get(
-                            RT_CONTROL, f'_rt_{RT_CONTROL}{RT_MATCH_BINS}'))
+                            RT_CONTROL, f'_rt_{RT_CONTROL}{RT_MATCH_BINS}')
+                        + SUBJECT_SET_SUFFIX)
 
 
 def run_analysis():

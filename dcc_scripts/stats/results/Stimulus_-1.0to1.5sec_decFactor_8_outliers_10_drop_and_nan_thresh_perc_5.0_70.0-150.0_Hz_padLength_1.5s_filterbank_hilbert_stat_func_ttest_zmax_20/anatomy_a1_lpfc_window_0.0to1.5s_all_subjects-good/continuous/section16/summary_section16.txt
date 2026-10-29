@@ -1,0 +1,96 @@
+371 electrodes, 20 participants
+
+==============================================================================
+1. height vs distance from the midline  [follow-up; swap null]
+==============================================================================
+within-participant r(z, |x|) = -0.578   (dorsal lPFC sits near the midline)
+value                model  block_F   block_p         z    z p      |x|     |x| p
+delta y + z + x (pipeline)    3.315    0.0182  -0.00868 0.0028                   
+delta          y + z + |x|    5.317    0.0018 -0.003371 0.3997  0.01363     0.024
+delta              z alone    8.782 0.0009999 -0.008702 0.0024                   
+delta            |x| alone    13.01    0.0005                   0.01578 0.0007999
+   dm y + z + x (pipeline)    1.555    0.1688 -0.001977 0.4561                   
+   dm          y + z + |x|      1.4    0.1709 0.0006462 0.8491 0.006639    0.2105
+   dm              z alone   0.4757     0.443  -0.00186 0.4868                   
+   dm            |x| alone    2.773   0.06379                  0.006709   0.09319
+slopes in SD units per mm; a POSITIVE |x| slope = relatively more LWPC (for delta) or congruency (for dm) away from the midline
+
+==============================================================================
+2. single scores on the coordinates  [follow-up; within-participant coordinate shuffle]
+==============================================================================
+
+score ~ y + z + x (pipeline) + resp + participant
+     score         y     mni_z  mni_z p     mni_x  mni_x p
+congruency  -0.01151  0.002295   0.3368  0.002019   0.3498
+    switch -0.006232  0.004272   0.1019 -0.001323   0.5012
+      LWPC -0.004865 -0.004255  0.07896 0.0002798    0.906
+      LWPS -0.008337  0.004425  0.06347 -0.001332   0.4538
+
+score ~ y + z + |x| + resp + participant
+     score         y     mni_z  mni_z p     abs_x  abs_x p
+congruency  -0.01099  0.003707   0.1754  0.003566   0.3803
+    switch -0.006669  0.003061   0.3268 -0.003073   0.4613
+      LWPC -0.003365 0.0001315    0.955    0.0113  0.01049
+      LWPS -0.008676  0.003503   0.2209 -0.002329   0.5862
+
+a single score has no partner to swap with, so its null moves the coordinates among each participant's electrodes (§15.9)
+
+==============================================================================
+3. adjusted d by band  [follow-up; descriptive; figure panel c]
+==============================================================================
+
+tertiles of distance from the midline, |x| (electrode means; participant and responsiveness removed)
+   band   n       mm  congruency  switch   LWPC  LWPS  mean_dm  mean_delta
+ medial 124  0 to 27       0.028   0.035 -0.078 0.039   -0.092      -0.376
+ middle 123 27 to 40       0.124   0.090  0.056 0.043    0.100      -0.037
+lateral 124 40 to 71       0.057   0.014  0.027 0.006    0.194       0.065
+
+tertiles of height, MNI z (electrode means; participant and responsiveness removed)
+   band   n        mm  congruency  switch   LWPC   LWPS  mean_dm  mean_delta
+ventral 124 -22 to 16       0.059   0.027  0.001 -0.006    0.143       0.035
+ middle 123  16 to 37       0.079   0.061  0.058  0.061   -0.055      -0.148
+ dorsal 124  38 to 76       0.071   0.051 -0.053  0.032    0.113      -0.235
+
+plot participant means ± SEM across participants (panel_c_*.csv), not electrode means
+
+==============================================================================
+4. label means of dm against delta  [follow-up; descriptive; figure panel b]
+==============================================================================
+                        anat  n_electrodes  n_subjects  delta_adj  dm_adj   mni_z  abs_x
+          ctx_lh_G_front_sup            47           9     -0.285  -0.229  43.234 12.777
+          ctx_rh_G_front_sup            28           8     -0.271   0.005  50.622 16.412
+          ctx_rh_S_front_sup            19           7     -0.203   0.031  47.260 24.298
+          ctx_lh_S_front_sup            30           7     -0.458  -0.232  43.028 24.525
+       ctx_lh_S_front_middle            14           5     -0.258  -0.351  21.377 27.221
+       ctx_rh_S_front_middle            11           4      0.085   0.234  23.804 33.543
+ctx_lh_S_circular_insula_sup            26          10      0.290   0.578   7.327 35.122
+       ctx_lh_G_front_middle            52           8      0.176  -0.074  34.963 35.345
+ctx_rh_S_circular_insula_sup            12           7     -0.200   0.010   8.970 37.563
+          ctx_rh_S_front_inf             8           3      0.720   0.178  24.558 38.575
+          ctx_lh_S_front_inf            16           7     -0.108  -0.072  17.800 42.356
+       ctx_rh_G_front_middle            33           7      0.416   0.246  33.911 44.930
+  ctx_lh_G_front_inf-Orbital             5           4     -0.306   0.347  -9.764 45.107
+  ctx_rh_G_front_inf-Orbital             4           3      0.885   0.801  -5.007 46.069
+ ctx_lh_Lat_Fis-ant-Horizont             5           4      0.026  -0.023 -12.591 46.912
+ctx_rh_G_front_inf-Opercular            10           5     -0.361  -0.648   5.178 49.792
+ctx_lh_G_front_inf-Opercular            18           6      0.051  -0.050   9.609 50.913
+ ctx_lh_G_front_inf-Triangul            25           8      0.325  -0.049  -2.204 52.655
+ ctx_rh_G_front_inf-Triangul             7           5      0.234   0.491  -1.822 53.098
+label r(dm, delta) = +0.68 (Spearman +0.60); same sign in 11 of 19 labels
+adjusted means as in dm_per_roi.csv / delta_per_roi.csv. Full-data dm and delta share trials, so this is descriptive; Test 1 is the separate-half test.
+
+==============================================================================
+5. Test 2 on both axes, and the scale for its shrinkage  [follow-up]
+==============================================================================
+                   axis        dm   dm p    delta  delta p  delta + dm  delta + dm p  shrinkage  boot 2.5%  boot 97.5%
+height (pipeline model) -0.001977 0.4561 -0.00868   0.0028   -0.008265         0.005    0.04791    -0.3489      0.2215
+  distance from midline  0.006639 0.2105  0.01363    0.024     0.01229        0.0386    0.09876    -0.2147      0.5359
+swap-null p; shrinkage on the same trials, with a 2000-resample participant bootstrap interval
+
+congruency-switch r on separate halves = +0.237 (reliabilities 0.366 / 0.226; 0.83 of the ceiling)
+dm split-half reliability = (0.366 + 0.226 - 2*0.237) / (2 - 2*0.237) = 0.077; full data (Spearman-Brown) 0.143
+a tilt carried entirely by dm would shrink by about dm's reliability when dm is the covariate:
+   same trials, height      observed +0.048   expected if fully inherited ~0.143   implied share +0.33
+   same trials, midline     observed +0.099   expected if fully inherited ~0.143   implied share +0.69
+   opposite half, height    observed +0.022   expected if fully inherited ~0.077   implied share +0.29
+within-participant reliabilities are biased low (§15.4), so the implied shares lean high; the same-trials rows also carry shared-trial noise (~+0.05)

@@ -78,6 +78,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from dcc_scripts.stats.stability_flexibility_anatomy_dcc import main
+from src.analysis.config.subjects import resolve_subject_set
 
 
 def _env(name, default=None):
@@ -101,10 +102,8 @@ LAB_ROOT = None                      # auto-resolved in main()
 TASK = 'GlobalLocal'
 ACC_TRIALS_ONLY = True
 
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0077', 'D0090',
-            'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116',
-            'D0117', 'D0121', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139A',
-            'D0144', 'D0145', 'D0146']
+# SUBJECT_SET in the environment picks a set from src/analysis/config/subjects.py
+SUBJECTS, SUBJECT_SET_SUFFIX = resolve_subject_set()
 
 # --- data source: 'real' (epoched data + ROI atlas) or 'synthetic' (dry run) ---
 DATA_SOURCE = _env('DATA_SOURCE', 'real')
@@ -236,7 +235,8 @@ _scope = ROI_FILTER if isinstance(ROI_FILTER, str) else (
     '-'.join(ROI_FILTER) if ROI_FILTER else 'wholebrain')
 SAVE_DIR = os.path.join(
     current_script_dir, 'results', _tag,
-    f'anatomy_{LABEL_SOURCE}_{_scope}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}')
+    f'anatomy_{LABEL_SOURCE}_{_scope}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
+    f'{SUBJECT_SET_SUFFIX}')
 
 
 def run_analysis():

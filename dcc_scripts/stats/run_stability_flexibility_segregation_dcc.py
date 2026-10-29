@@ -31,6 +31,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from dcc_scripts.stats.stability_flexibility_segregation_dcc import main
+from src.analysis.config.subjects import resolve_subject_set
 
 # ---------------------------------------------------------------------------
 # ANALYSIS PARAMETERS
@@ -39,10 +40,8 @@ LAB_ROOT = None                      # auto-resolved in main()
 TASK = 'GlobalLocal'
 ACC_TRIALS_ONLY = True
 
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0077', 'D0090',
-            'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116',
-            'D0117', 'D0121', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139A',
-            'D0144', 'D0145', 'D0146']
+# SUBJECT_SET in the environment picks a set from src/analysis/config/subjects.py
+SUBJECTS, SUBJECT_SET_SUFFIX = resolve_subject_set()
 
 # --- data source: 'real' (epoched data) or 'synthetic' (validate pipeline) ---
 DATA_SOURCE = os.environ.get('DATA_SOURCE', 'real')
@@ -155,6 +154,7 @@ if SHARED_SPLIT:
 # both scatters to the same path would silently overwrite one with the other.
 if SCATTER_ONLY:
     SAVE_DIR += f'_scatter_only_splits{SCATTER_N_SPLITS}'
+SAVE_DIR += SUBJECT_SET_SUFFIX
 
 def run_analysis():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

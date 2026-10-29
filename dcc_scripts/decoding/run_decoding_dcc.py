@@ -45,13 +45,15 @@ from dcc_scripts.decoding.decoding_dcc import main
 from src.analysis.config import experiment_conditions
 from src.analysis.config.condition_registry import get_conditions_obj, get_balance_strata
 from src.analysis.utils.anova_label_selection import anova_label_run_slug
+from src.analysis.config.subjects import resolve_subject_set
 # ============================================================================
 # ANALYSIS PARAMETERS
 # ============================================================================
 SLURM_JOB_ID = os.environ.get('SLURM_JOB_ID', 'local') # 'local' fallback when run off-cluster
 LAB_ROOT = None  # Will be determined automatically in main()
 
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139A', 'D0144', 'D0145', 'D0146']
+# SUBJECT_SET in the environment picks a set from src/analysis/config/subjects.py
+SUBJECTS, SUBJECT_SET_SUFFIX = resolve_subject_set()
 
 LEAVE_OUT = os.environ.get('LEAVE_OUT')  # e.g. "D0071", or None to use full list
 if LEAVE_OUT:
@@ -229,7 +231,9 @@ if os.environ.get('ROIS'):
     ROIS_DICT = select_rois(os.environ['ROIS'])
     
 # which electrodes to use (all or sig) - TODO: add in an option to include a dictionary of electrodes here, like congruencySigElectrodes
-ELECTRODES = 'all'
+ELECTRODES = os.environ.get('ELECTRODES', 'all')
+if ELECTRODES not in ('all', 'sig'):
+    raise ValueError(f"ELECTRODES must be 'all' or 'sig', got {ELECTRODES!r}")
 
 # --- Disjoint electrode-definition / decoding split (circularity control) ---
 # When True, each subject's trials are split into a definition set and a decode
@@ -405,7 +409,7 @@ ELECTRODE_SETS_JSON = os.environ.get('ELECTRODE_SETS_JSON') or None
 ELECTRODE_SETS = (os.environ['ELECTRODE_SETS'].split(',')
                   if os.environ.get('ELECTRODE_SETS') else None)
 
-SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
+SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE + SUBJECT_SET_SUFFIX)
 if ELECTRODE_SETS_JSON:
     SAVE_DIR = os.path.join(
         SAVE_DIR, 'score_selections',

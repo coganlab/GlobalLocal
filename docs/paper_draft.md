@@ -225,7 +225,7 @@ reported F1 numbers, and remake F1 if it used the old map.
 |---|---|
 | a | All electrodes on the MNI surface, coloured by ROI |
 | b | Per-electrode high-gamma traces for one example participant, task-responsive electrodes outlined |
-| c | Example spectrogram |
+| c | Example spectrogram (multitaper): D0094 LFPM12 (lPFC, inferior frontal sulcus), all correct trials. High gamma rises about 150 ms after onset (onset timing from the wavelet version). Made by `dcc_scripts/spec/plot_example_spectrogram_dcc.py` and saved to `dcc_scripts/spec/figs/` (see analysis_guide §5) |
 
 Cite the per-ROI, per-participant coverage table (S1) here, with the inclusion
 threshold. It answers "why only lPFC?". The counts in the old figure plan are

@@ -53,3 +53,21 @@ def test_build_condition_comparisons():
         'SmallLetter': ['smallS', 'smallH'],
         'Task': ['taskG', 'taskL']
     }
+
+def test_get_analyzed_chans_per_subject_reads_epochs_channels(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from src.analysis.utils import general_utils
+
+    # Fake BIDS layout rooted at tmp_path, with one saved epochs file.
+    monkeypatch.setattr(general_utils, "get_data",
+                        lambda task, root: SimpleNamespace(root=str(tmp_path)))
+    sub_dir = tmp_path / "derivatives" / "freqFilt" / "figs" / "D0001"
+    sub_dir.mkdir(parents=True)
+    info = mne.create_info(["A1", "A2", "B1"], sfreq=100.0, ch_types="seeg")
+    mne.EpochsArray(np.zeros((2, 3, 10)), info, verbose=False).save(
+        sub_dir / "D0001_root_HG_ev1_power_rescaled-epo.fif", verbose=False)
+
+    chans = general_utils.get_analyzed_chans_per_subject(
+        ["D0001"], "root", LAB_root=str(tmp_path))
+
+    assert chans == {"D0001": ["A1", "A2", "B1"]}

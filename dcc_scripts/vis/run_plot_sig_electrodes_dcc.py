@@ -82,14 +82,14 @@ CONFIG_DIR = os.path.join(project_root, "src", "analysis", "config")
 # override with ECOG_RECON_DIR if the recons live somewhere else.
 SUBJECTS_DIR = os.environ.get("ECOG_RECON_DIR") or None
 
-# Save figures to the figs folder inside src/analysis/vis.
-SAVE_DIR = os.path.join(project_root, "src", "analysis", "vis", "figs")
+# Save figures to the figs folder inside dcc_scripts/vis/figs.
+SAVE_DIR = os.path.join(project_root, "dcc_scripts", "vis", "figs")
 
 # ---- Brain plotting style --------------------------------------------------
 HEMI = "both"             # both | lh | rh | split
 ZOOM = None               # per-panel camera zoom; <1 zooms out, None = default
-MARKER_SIZE = 0.45
-TRANSPARENCY = 0.4
+MARKER_SIZE = 0.2
+TRANSPARENCY = 0.3
 RM_WM = False               # drop white-matter electrodes when plotting
 
 # ---- Histograms ------------------------------------------------------------
@@ -101,7 +101,9 @@ HIST_TOP_N = None           # None = all ROIs, or an int to keep the top-N
 def run_analysis():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     conditions = plot_set["conditions"]
-    combined_name = PLOT_SET_LABEL  # figures are grouped under the set label
+    # Name the combined figure after what's drawn on it, so runs with different
+    # PLOT_SETS don't overwrite each other.
+    combined_name = "__".join(conditions)
 
     args = SimpleNamespace(
         timestamp=timestamp,

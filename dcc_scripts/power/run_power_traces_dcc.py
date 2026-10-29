@@ -42,6 +42,7 @@ from dcc_scripts.power.power_traces_dcc import main
 from src.analysis.config import experiment_conditions
 from src.analysis.config.rois import select_rois
 from src.analysis.utils.anova_label_selection import anova_label_run_slug
+from src.analysis.config.subjects import resolve_subject_set
 
 # ============================================================================
 # ANALYSIS PARAMETERS
@@ -57,7 +58,8 @@ LAB_ROOT = None # Will be determined automatically in main()
 # Below is for power traces, removing D0110, D0059, D0071
 # SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
 
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139A', 'D0144', 'D0145', 'D0146']
+# SUBJECT_SET in the environment picks a set from src/analysis/config/subjects.py
+SUBJECTS, SUBJECT_SET_SUFFIX = resolve_subject_set()
 
 # task
 TASK = 'GlobalLocal'
@@ -286,7 +288,8 @@ ELECTRODE_SET = os.environ.get('ELECTRODE_SET') or None
 if ELECTRODE_SETS_JSON and not ELECTRODE_SET:
     raise ValueError("ELECTRODE_SETS_JSON is set; name one set with ELECTRODE_SET")
 
-SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE, 'anova_within_' + ANOVA_UNIT)
+SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE,
+                        'anova_within_' + ANOVA_UNIT + SUBJECT_SET_SUFFIX)
 if ELECTRODE_SETS_JSON:
     SAVE_DIR = os.path.join(
         SAVE_DIR, 'score_selections',

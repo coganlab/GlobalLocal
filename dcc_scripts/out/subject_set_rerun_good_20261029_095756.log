@@ -1,0 +1,54 @@
+SUBJECT_SET=good  commit=e63d0a6aa44c09d57c4612bf9a8681d6510baef2  (uncommitted changes: 21)
+=== F3 power traces
+Submitting: condition=stimulus_lwpc_block_balanced_conditions electrodes=sig anova_labels=none effect=all_sig_elecs
+Submitted batch job 60508448
+Submitting: condition=stimulus_lwps_block_balanced_conditions electrodes=sig anova_labels=none effect=all_sig_elecs
+Submitted batch job 60508449
+=== F4 decoding (and the S5b cross-effects)
+Submitting: condition=stimulus_lwpc_block_balanced_conditions anova_labels=none effect=dummy feature_mode=channels_x_time
+Submitted batch job 60508450
+Submitting: condition=stimulus_lwps_block_balanced_conditions anova_labels=none effect=dummy feature_mode=channels_x_time
+Submitted batch job 60508451
+Submitting: condition=stimulus_congruency_by_switch_prop_block_balanced_conditions anova_labels=none effect=dummy feature_mode=channels_x_time
+Submitted batch job 60508452
+Submitting: condition=stimulus_switch_type_by_inc_prop_block_balanced_conditions anova_labels=none effect=dummy feature_mode=channels_x_time
+Submitted batch job 60508453
+=== F5 a-c segregation scores, then anatomy
+Submitting stability/flexibility segregation (source=real, contrast=proportion, main_effects=1, rt_adjust_hg=0, fdr=fdr_bh, scatter_only=0)
+Submitted batch job 60508454
+Submitting stability/flexibility segregation (source=real, contrast=proportion, main_effects=1, rt_adjust_hg=0, fdr=fdr_bh, scatter_only=1)
+Submitted batch job 60508455
+Submitting stability/flexibility segregation (source=real, contrast=proportion, main_effects=1, rt_adjust_hg=1, fdr=fdr_bh, scatter_only=1)
+Submitted batch job 60508456
+Submitting stability/flexibility A3 anatomy (source=real, arm=continuous, labels=a1, roi=lpfc, contrast=condition, fdr=fdr_bh, followups=15,16,19)
+Submitted batch job 60508457
+=== F5 d-e coding axes and the S5 controls
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=none, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508458
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=1, rt_control=none, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508459
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=adjust, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508460
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=match, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508461
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=random, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508462
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=match, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=1, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508463
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=random, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=1, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508464
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=match, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=2, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508465
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=random, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=2, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508466
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=match, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=3, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508467
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=random, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=3, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508468
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=match, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=4, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508469
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=random, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=4, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60508470
+Log: /hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/out/subject_set_rerun_good_20261029_095756.log
+Submitting stability/flexibility A3 anatomy (source=real, arm=continuous, labels=a1, roi=lpfc, contrast=condition, fdr=fdr_bh, followups=15,16,19)
+Submitted batch job 60508606

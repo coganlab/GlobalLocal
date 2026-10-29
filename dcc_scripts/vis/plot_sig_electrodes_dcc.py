@@ -18,6 +18,7 @@ Outputs (written to ``args.save_dir``):
   - ``brain_<condition>.png``                : one brain per condition.
   - ``roi_hist_<condition>.png``             : ROI histogram for each condition.
   - ``sig_electrodes_<condition>.json``      : the electrodes plotted, for reproducibility.
+  - ``electrode_counts_<combined_name>.json``: electrode/subject counts per condition.
 
 The heavy lifting (loading sig chans, mapping electrodes to ROIs) reuses the
 shared helpers in ``src.analysis.utils.general_utils`` so this stays in sync with
@@ -63,6 +64,7 @@ print(f"3D rendering: {'virtual display ' + os.environ['DISPLAY'] if HAVE_DISPLA
 # they'd read electrode locations from two different places.
 from src.analysis.vis.jim_mri import plot_on_average, subject_to_info
 from src.analysis.utils.general_utils import (
+    get_analyzed_chans_per_subject,
     get_sig_chans_per_subject,
     make_or_load_subjects_electrodes_to_ROIs_dict,
     make_sig_electrodes_per_subject_and_roi_dict,
@@ -142,16 +144,17 @@ def tuples_to_subject_dict(sub_elec_tuples):
 
 def get_condition_electrodes(subjects, cfg, task, LAB_root,
                              rois_dict=None, subjects_electrodes_to_ROIs_dict=None,
-                             config_dir=None):
-    """Significant electrodes for one condition, as {subject_with_zeros: [names]}.
+                             config_dir=None, subjects_dir=None):
+    """Electrodes for one condition, as {subject_with_zeros: [names]}.
 
-    A condition is described by a config dict ``cfg`` and may draw its electrodes
-    from one of two sources:
+    A condition is described by a config dict ``cfg`` and draws its electrodes
+    from one of these sources:
 
-    1. **Per-condition sig_chans files** (``cfg['epochs_root_file']``):
-       reads ``sig_chans_{subject}_{epochs_root_file}.json``. Optionally
-       restricted to ``rois_dict``. Good for single-contrast effects (e.g. a
-       congruency or response contrast).
+    1. **Channels from an epochs root** (``cfg['epochs_root_file']``): the
+       significant channels in ``sig_chans_{subject}_{epochs_root_file}.json``,
+       or, with ``cfg['all_chans']``, every channel analyzed for that root
+       (white matter included). Optionally restricted to an ROI (see
+       ``rois_dict``).
 
     2. **A within-electrode ANOVA run, filtered by effect**
        (``cfg['anova_run_dir']`` + ``cfg['effect']``): reads the run's
@@ -161,6 +164,8 @@ def get_condition_electrodes(subjects, cfg, task, LAB_root,
        (``C(switchType):C(switchProportion)``) are identified. Optional keys:
        ``use_fdr`` (default True), ``p_thresh`` (default 0.05), ``anova_roi``
        (restrict to one ANOVA ROI, default all).
+
+    3. **Saved A1/window-mean ANOVA labels** (``cfg['anova_labels_csv']``).
 
     Parameters
     ----------
@@ -172,8 +177,10 @@ def get_condition_electrodes(subjects, cfg, task, LAB_root,
     task, LAB_root :
         Passed through to :func:`get_sig_chans_per_subject`.
     rois_dict : dict, optional
-        For the sig_chans source only: restrict to these anatomical ROIs.
-        Ignored for the ANOVA source, which is already ROI-scoped by the run.
+        For the epochs-root source only: restrict to these anatomical ROIs.
+        A ``'rois_dict'`` key in ``cfg`` overrides it for this condition, and
+        ``None`` there means whole brain. Ignored for the ANOVA sources, which
+        are already ROI-scoped by the run.
     subjects_electrodes_to_ROIs_dict : dict, optional
         Prebuilt electrode->ROI mapping (loaded from ``config_dir`` if needed).
     config_dir : str, optional
@@ -184,7 +191,18 @@ def get_condition_electrodes(subjects, cfg, task, LAB_root,
     dict
         ``{subject_with_zeros: [electrode_names]}``.
     """
-    # ---- Source 0a: saved A1/window-mean ANOVA labels -----------------------
+    # A condition's own ROI wins over the figure's, so one figure can mix
+    # whole-brain and LPFC sets. .get keeps an explicit None (whole brain).
+    rois_dict = cfg.get("rois_dict", rois_dict)
+
+    # ---- Source 0: every localized contact in the recon, bad ones included --
+    # This is the same channel list the plotting index map is built from.
+    if cfg.get("all_recon"):
+        return {subject: subject_to_info(strip_leading_zeros(subject),
+                                         subjects_dir=subjects_dir)["ch_names"]
+                for subject in subjects}
+
+    # ---- Source 3: saved A1/window-mean ANOVA labels ------------------------
     if "anova_labels_csv" in cfg:
         if not cfg["anova_labels_csv"]:
             raise ValueError(
@@ -196,19 +214,6 @@ def get_condition_electrodes(subjects, cfg, task, LAB_root,
             alpha=cfg.get("anova_label_alpha", 0.05),
             roi=cfg.get("anova_label_roi"))
         return collapse_rois_to_subject_dict(selected)
-
-    # ---- Source 0: every electrode in the requested anatomical ROI ----------
-    if cfg.get("all_roi"):
-        if not rois_dict:
-            raise ValueError("all_roi requires a rois_dict")
-        if subjects_electrodes_to_ROIs_dict is None:
-            subjects_electrodes_to_ROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(
-                subjects, task=task, LAB_root=LAB_root, save_dir=config_dir,
-                filename="subjects_electrodestoROIs_dict.json")
-        all_roi, _ = make_sig_electrodes_per_subject_and_roi_dict(
-            rois_dict, subjects_electrodes_to_ROIs_dict,
-            {subject: [] for subject in subjects})
-        return collapse_rois_to_subject_dict(all_roi)
 
     # ---- Source 2a: set algebra over power-trace ANOVA effects --------------
     if cfg.get("anova_run_dir") and (
@@ -238,22 +243,26 @@ def get_condition_electrodes(subjects, cfg, task, LAB_root,
         )
         return tuples_to_subject_dict(sub_elec)
 
-    # ---- Source 1: per-condition sig_chans files ---------------------------
-    sig_chans_per_subject = get_sig_chans_per_subject(
+    # ---- Source 1: channels from an epochs root (significant or all) -------
+    load_chans_per_subject = (get_analyzed_chans_per_subject if cfg.get("all_chans")
+                              else get_sig_chans_per_subject)
+    chans_per_subject = load_chans_per_subject(
         subjects, cfg["epochs_root_file"], task=task, LAB_root=LAB_root)
 
     if not rois_dict:
-        # Whole brain: keep every significant channel.
-        return {subj: list(chans) for subj, chans in sig_chans_per_subject.items()}
+        # Whole brain: keep every channel, white matter included.
+        return {subj: list(chans) for subj, chans in chans_per_subject.items()}
 
     if subjects_electrodes_to_ROIs_dict is None:
         subjects_electrodes_to_ROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(
             subjects, task=task, LAB_root=LAB_root, save_dir=config_dir,
             filename="subjects_electrodestoROIs_dict.json")
 
-    _all, sig_electrodes_per_subject_roi = make_sig_electrodes_per_subject_and_roi_dict(
-        rois_dict, subjects_electrodes_to_ROIs_dict, sig_chans_per_subject)
-    return collapse_rois_to_subject_dict(sig_electrodes_per_subject_roi)
+    # The ROI dict also lists channels that were never analyzed, so intersect
+    # with this root's channels rather than taking its ROI members directly.
+    _all, electrodes_per_subject_roi = make_sig_electrodes_per_subject_and_roi_dict(
+        rois_dict, subjects_electrodes_to_ROIs_dict, chans_per_subject)
+    return collapse_rois_to_subject_dict(electrodes_per_subject_roi)
 
 
 def build_global_index_map(subjects_no_zeros, subjects_dir=None):
@@ -334,6 +343,32 @@ def split_unique_and_overlap(condition_indices):
     return unique, overlap
 
 
+def assign_to_last_group(condition_indices):
+    """Give each electrode only to the last condition that contains it.
+
+    Conditions are drawn in order, so a later condition already covers an
+    earlier one on the figure. Drawing the shared electrode only once avoids two
+    markers at the same spot flickering between colors.
+
+    Parameters
+    ----------
+    condition_indices : OrderedDict
+        ``{condition_name: set_of_global_indices}``, in draw order.
+
+    Returns
+    -------
+    OrderedDict
+        ``{condition_name: [sorted indices]}``, same order. The groups are
+        disjoint, and their union equals the union of the inputs.
+    """
+    claimed = set()
+    groups = {}
+    for name in reversed(condition_indices):
+        groups[name] = sorted(condition_indices[name] - claimed)
+        claimed |= condition_indices[name]
+    return OrderedDict((name, groups[name]) for name in condition_indices)
+
+
 # ===========================================================================
 # ROI histogram
 # ===========================================================================
@@ -403,7 +438,9 @@ def main(args):
         size                    : float            electrode marker size
         transparency            : float            brain transparency
         rm_wm                   : bool             drop white-matter electrodes when plotting
-        mutually_exclusive      : bool             plot shared electrodes in overlap_color
+        mutually_exclusive      : bool             True: plot shared electrodes in overlap_color.
+                                                   False: plot each electrode once, in the
+                                                   last condition that contains it
         overlap_color           : (r,g,b)          color for electrodes shared by >1 condition
         make_histograms         : bool
         combined_name           : str              filename stem for the combined brain figure
@@ -433,7 +470,7 @@ def main(args):
             subjects, cfg, task=args.task, LAB_root=args.LAB_root,
             rois_dict=rois_dict,
             subjects_electrodes_to_ROIs_dict=subjects_electrodes_to_ROIs_dict,
-            config_dir=args.config_dir)
+            config_dir=args.config_dir, subjects_dir=subjects_dir)
         condition_electrodes[name] = electrodes
         n = sum(len(v) for v in electrodes.values())
         print(f"  {n} electrodes across {len(electrodes)} subjects.")
@@ -456,7 +493,28 @@ def main(args):
     if mutually_exclusive:
         plot_groups, overlap = split_unique_and_overlap(condition_indices)
     else:
-        plot_groups, overlap = condition_indices, []
+        plot_groups, overlap = assign_to_last_group(condition_indices), []
+
+    # ---- 2b. Electrode counts, for the paper -------------------------------
+    # n_electrodes is each condition's full set (as in its own brain figure),
+    # counting only electrodes found in the recon. Conditions can be nested, so
+    # these don't add up. n_drawn_in_combined is what's left of each condition
+    # on the combined figure; those (plus the overlap) do add up to its total.
+    combined_name = getattr(args, "combined_name", "combined")
+    counts = OrderedDict(
+        (name, {
+            "n_electrodes": len(condition_indices[name]),
+            "n_subjects": sum(1 for subject, elecs in electrodes.items()
+                              if elecs and strip_leading_zeros(subject) in offsets),
+            "n_drawn_in_combined": len(plot_groups[name]),
+        })
+        for name, electrodes in condition_electrodes.items())
+    counts_path = os.path.join(args.save_dir, f"electrode_counts_{combined_name}.json")
+    with open(counts_path, "w") as fh:
+        json.dump({"subjects": subjects, "conditions": args.conditions,
+                   "counts": counts, "n_overlap_in_combined": len(overlap)},
+                  fh, indent=2)
+    print(f"  Saved electrode counts -> {counts_path}")
 
     # Showing the window is what realizes its OpenGL context, so do it whenever
     # there's a display (xvfb's counts); without one we're in off-screen mode
@@ -487,7 +545,6 @@ def main(args):
             show=show_brain, zoom=brain_zoom)
 
     if fig is not None:
-        combined_name = getattr(args, "combined_name", "combined")
         combined_path = os.path.join(args.save_dir, f"brain_{combined_name}.png")
         if save_brain_image(fig, combined_path):
             print(f"  Saved combined brain -> {combined_path}")

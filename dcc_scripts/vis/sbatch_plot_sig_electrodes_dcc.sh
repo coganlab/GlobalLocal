@@ -3,7 +3,7 @@
 #SBATCH -e out/slurm_%j.err
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 8
-#SBATCH --mem=64G
+#SBATCH --mem=10G
 #SBATCH --time=04:00:00
 
 source $(conda info --base)/etc/profile.d/conda.sh
