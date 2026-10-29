@@ -78,3 +78,21 @@ def test_all_recon_returns_every_localized_contact(monkeypatch):
         ["D0001"], {"all_recon": True}, task="GlobalLocal", LAB_root=None)
 
     assert out == {"D0001": ["A1", "A2", "BAD1"]}
+
+
+def test_color_legend_writes_editable_vector_files(tmp_path):
+    entries = [("All electrodes (n = 3)", (0.5, 0.5, 0.5)),
+               ("Task-significant LPFC electrodes (n = 1)", (0.3, 0.0, 0.5))]
+
+    plot_sig.plot_color_legend(entries, str(tmp_path / "legend"))
+
+    # Text stays as text (not outlines), so it can be edited in Illustrator.
+    svg = (tmp_path / "legend.svg").read_text()
+    assert "All electrodes (n = 3)" in svg
+    assert (tmp_path / "legend.pdf").exists()
+    assert (tmp_path / "legend.png").exists()
+
+
+def test_color_legend_with_no_entries_writes_nothing(tmp_path):
+    plot_sig.plot_color_legend([], str(tmp_path / "legend"))
+    assert list(tmp_path.iterdir()) == []

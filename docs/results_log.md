@@ -6,6 +6,152 @@ the owning docs linked from each block.
 
 ---
 
+## 2026-10-29: rerun on the quality-checked subject set (`SUBJECT_SET=good`)
+
+Drafted by Claude; not yet reviewed. **Partial:** decoding (F4) and six of the
+ten RT-matched / random coding-axes seeds are still running; this entry will be
+completed when they finish.
+
+Jobs: 60508448–60508470 (23) and 60508606 (anatomy, resubmitted), all
+submitted by `dcc_scripts/submit_subject_set_rerun.sh`, log
+`dcc_scripts/out/subject_set_rerun_good_20261029_095756.log` (commit e63d0a6
+plus uncommitted changes). Settings are the paper runs' recorded ones; every
+output folder ends in `_subjects-good`, so the all24 results are untouched.
+
+**The set** (`src/analysis/config/subjects.py`, `good`, 23 participants):
+all24 minus D0144 (missing block D) and D0117 (accuracy 0.63: correct over
+task trials in `combinedData.csv`, first trial of each block dropped, as in the
+behavioral notebook; the equal-cell-weight `acc_mean` in
+`ieeg_behavioral_subject_level_effects.csv` is a different measure and gives
+0.61), plus D0130. D0071 (abnormal high-gamma traces) was already out. **D0130 has no
+frontal electrodes** (parietal, temporal, occipital and subcortical contacts
+only), so for every lPFC analysis the change is just dropping D0117 (11 lPFC
+electrodes) and D0144 (16).
+
+### Short version
+
+1. **Every main-text claim checked so far holds**, with slightly larger effects
+   in most places.
+2. **F3:** both adaptation clusters remain, in the behavioral direction. The
+   congruency × switch-proportion cluster that the all24 run had is gone.
+3. **F5 a–c:** overlap, height gradient and its participant-level tests all
+   hold. The parcel test weakens to p = 0.047.
+4. **F5 d–e:** alignment, shared windows, θ₁ and plane fraction are unchanged.
+   One fewer "not one code" window. RT matching removes the codes again
+   (seeds 0–2).
+
+### pwr (F3): windowed ANOVA, block-balanced sets, task-responsive lPFC
+
+- **Status:** 60508448–49 COMPLETED (18–19 min). Folder
+  `power/figs/<epochs>/anova_within_roi_subjects-good/`.
+- **Result:** 152 task-responsive lPFC electrodes from 19 participants (all24:
+  171 from 21). Significant clusters, window centres; "−" means the condition
+  effect is smaller in high-proportion blocks, the behavioral direction:
+
+  | Term | all24 | good |
+  |---|---|---|
+  | congruency × incongruent proportion (LWPC) | − 0.56–1.38 s | − 0.69–1.38 s |
+  | switch type × switch proportion (LWPS) | − 0.56–1.38 s | − 0.75–1.38 s |
+  | congruency × switch proportion | − 0.56–1.06 s | none |
+  | switch type × incongruent proportion | none | none |
+
+- **Interpretation:** both adaptation effects hold. Their clusters start a
+  window or two later, which is not an onset difference (cluster tests do not
+  localize in time). The traces of the lost cross-effect cluster look almost
+  identical; it fell below threshold.
+- **Effect on the paper's story:** F3 now matches its framing: both adaptation
+  effects present and both cross-effects absent. Report n = 152 / 19.
+- **Recommendation: main text,** as planned.
+
+### segreg + sf_anatomy (F5 a–c): all-lPFC scores and continuous anatomy
+
+- **Status:** 60508454–56 COMPLETED (3–19 min); 60508457 FAILED (it started
+  before its inputs existed: this cluster's `sbatch` ignores
+  `SBATCH_DEPENDENCY`, so the hold never applied); resubmitted with
+  `--dependency` as 60508606, COMPLETED (8 min). Folders
+  `stats/results/<epochs>/segregation_results/*_subjects-good/` and
+  `anatomy_a1_lpfc_window_0.0to1.5s_all_subjects-good/`.
+- **Result:** 370 electrodes from 19 participants enter the overlap (all24:
+  397 / 21); the anatomy has 371 electrodes from 20.
+
+  | Test | all24 | good |
+  |---|---|---|
+  | LWPC–LWPS overlap (separate halves) | r = 0.097, p = 0.0001 | r = 0.106, p = 0.0001 |
+  | congruency–switch overlap | r = 0.224 | r = 0.237 |
+  | split-half reliability, LWPC / LWPS | 0.069 / −0.094 | 0.095 / −0.110 |
+  | z slope of the balance | −0.0077/mm [−0.0124, −0.0032], p = 0.0074 | −0.0087/mm [−0.0140, −0.0039], p = 0.0028 |
+  | z slope, weighted sign-flip (participants) | p = 0.041 | p = 0.033 |
+  | z slope, random-slope mixed model | p = 0.037 | p = 0.043 |
+  | z slope, leave one participant out | p 0.002–0.099 | p 0.001–0.055 |
+  | overlap, participants weighted (n − 3) | r = 0.098, p = 0.031 | r = 0.105, p = 0.029 |
+  | overlap, participants unweighted | p = 0.35 | p = 0.34 |
+  | matched − crossed (Test 1) | r = 0.088, p = 0.0005 | r = 0.082, p = 0.0022 |
+  | parcel test, adaptation balance | F = 1.90, p = 0.010 | F = 1.69, p = 0.047 |
+  | parcel test, base-effect balance | F = 1.70, p = 0.017 | F = 1.51, p = 0.037 |
+
+- **Interpretation:** the overlap and the height gradient do not depend on
+  D0117 or D0144; the gradient's worst leave-one-out p even improves. The parcel
+  test loses most, as an omnibus over 19 parcels would when 27 electrodes go.
+- **Effect on the paper's story:** none for F5 a–c. The parcel sentence in
+  §3.4 needs the new p, which is now borderline.
+- **Recommendation: main text,** as planned; quote the parcel test as
+  borderline.
+
+### coding_axes_real (F5 d–e, S5): all dlPFC + lPFC
+
+- **Status:** main, `remove_mean`, `rt_adjust`, `rt_match10` seeds 0–2 and
+  `rt_random10` seed 0 COMPLETED (26–33 min); 60508464, 66–70 (the other
+  seeds) still running.
+- **Result:** 371 electrodes from 20 participants (all24: 398 / 22).
+
+  | Run | all24 | good |
+  |---|---|---|
+  | main: alignment over reliable windows | 0.69 [0.57, 0.89], 15 windows | 0.72 [0.59, 0.97], 15 windows |
+  | main: shared windows | 0.56–1.38 s | 0.56–1.38 s |
+  | main: "not one code" windows | 5 (6, 11–14) | 4 (11–14) |
+  | main: θ₁ | 63°, 0.74 [0.66, 0.93] of ceiling, shared | 63°, 0.75 [0.67, 0.94], shared |
+  | main: plane signal fraction; cos(c, s) | 0.52; 0.38 | 0.53; 0.38 |
+  | `remove_mean` alignment | 0.67 | 0.72 |
+  | `rt_adjust` alignment | 0.58 | 0.61 |
+  | `rt_match10` reliable windows, seeds 0/1/2 | 1 / 3 / 3 | 0 / 3 / 3 |
+  | `rt_random10` seed 0 reliable windows | 9 | 9 |
+
+- **Interpretation:** the geometry is unchanged. "Not one code" rests on one
+  fewer window, and the alignment CI now reaches 0.97, so "partly aligned"
+  is a little less firmly separated from "one code".
+- **Effect on the paper's story:** none, pending the remaining seeds.
+- **Recommendation: main text,** as planned; update the n.
+
+### dec (F4, S5b): within-block decoding — pending
+
+60508450–53 running (up to 48 h).
+
+### Oddities
+
+- **F3 baseline vs the draft.** The all24 congruency × switch-proportion
+  cluster is in the saved task-responsive-electrode figure
+  (`lpfc_..._24_subjects_2way_congruency_x_switchProportion_sig_elecs_sem_shading.png`,
+  2026-10-08), not only in the all-electrode run, yet `paper_draft.md` §1.4 F3
+  says there is no cluster off the diagonal. Check which figure the draft
+  describes.
+- The all24 `anova_F_traces/*.npz` carry no electrode-set tag, so a sig run
+  and an all run overwrite each other; the 10-08 files are whichever ran last.
+
+### Downloads
+
+Manifest: `/hpc/home/jz421/download_manifests/2026-10-29_good_subjects.txt`
+(586 files, 203 MB: figures, csv, json, txt, pdf, pkl and npz from the finished
+`_subjects-good` folders). Left out: `per_split*.csv` and `long_df.csv`.
+Regenerate when decoding finishes.
+
+```bash
+rsync -avz --files-from=:/hpc/home/jz421/download_manifests/2026-10-29_good_subjects.txt \
+  jz421@dcc-login.oit.duke.edu:/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/ \
+  ~/GlobalLocal_results/
+```
+
+---
+
 ## 2026-10-22 (evening): proportion trajectories, raw-axis trajectories, unique-axis separations
 
 Drafted by Claude; not yet reviewed.

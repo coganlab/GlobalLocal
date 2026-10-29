@@ -88,7 +88,7 @@ SAVE_DIR = os.path.join(project_root, "dcc_scripts", "vis", "figs")
 # ---- Brain plotting style --------------------------------------------------
 HEMI = "both"             # both | lh | rh | split
 ZOOM = None               # per-panel camera zoom; <1 zooms out, None = default
-MARKER_SIZE = 0.2
+MARKER_SIZE = 0.10
 TRANSPARENCY = 0.3
 RM_WM = False               # drop white-matter electrodes when plotting
 

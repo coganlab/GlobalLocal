@@ -205,15 +205,21 @@ ELECTRODE_PLOT_SETS = OrderedDict([
     # Fig 2 coverage. Hue = region (neutral whole brain, purple LPFC);
     # lightness = significance (light all analyzed, dark task significant).
     # Each sets its own ROI, so they can share a figure with any ROI.
-    ("all_recon_elecs", {"all_recon": True, "color": (0.5, 0.5, 0.5)}),
+    # 'label' is the legend text.
+    ("all_recon_elecs", {"all_recon": True, "color": (0.5, 0.5, 0.5),
+                         "label": "All electrodes"}),
     ("all_elecs", all_chans(
-        ANOVA_EPOCHS_ROOT, color=(0.6, 0.6, 0.6), rois_dict=None)),
+        ANOVA_EPOCHS_ROOT, color=(0.6, 0.6, 0.6), rois_dict=None,
+        label="Analyzed electrodes")),
     ("all_lpfc_elecs", all_chans(
-        ANOVA_EPOCHS_ROOT, color=(0.55, 0.3, 0.8), rois_dict=LPFC_ROIS)),
+        ANOVA_EPOCHS_ROOT, color=(0.55, 0.3, 0.8), rois_dict=LPFC_ROIS,
+        label="Analyzed LPFC electrodes")),
     ("sig_elecs", sig_chans(
-        ANOVA_EPOCHS_ROOT, color=(0.0, 0.0, 0.0), rois_dict=None)),
+        ANOVA_EPOCHS_ROOT, color=(0.0, 0.0, 0.0), rois_dict=None,
+        label="Task-significant electrodes")),
     ("sig_lpfc_elecs", sig_chans(
-        ANOVA_EPOCHS_ROOT, color=(0.3, 0.0, 0.5), rois_dict=LPFC_ROIS)),
+        ANOVA_EPOCHS_ROOT, color=(0.3, 0.0, 0.5), rois_dict=LPFC_ROIS,
+        label="Task-significant LPFC electrodes")),
     ("congruency_only", power_trace_set(
         _FULL_RUN, color=(1.0, 0.0, 0.0),
         include_effects=("C(congruency)",),

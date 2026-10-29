@@ -109,6 +109,7 @@ new condition or comparison, and everything else reads from it.
 | `condition_registry.py` | 1104 | **Single source of truth** tying each condition set to how it should be used: which comparisons to build, pooled-shuffle settings, context-comparison kwargs, trace labels, display names, balance strata, subtraction pairs, ANOVA factors and interactions. Accessed through `get_comparisons()`, `get_anova_factors()`, `get_display_name()`, etc. Adding a condition means one entry here |
 | `plotting_parameters.py` | 274 | Per-condition color, line style and human-readable label, used by every power-trace and decoding figure |
 | `rois.py` | 39 | `rois_dict`: coarse bilateral ROIs (`dlpfc`, `lpfc`, `acc`, `parietal`, `v1`, `occ`) as lists of Destrieux parcel names, deliberately without the `ctx_lh_`/`ctx_rh_` prefix so one definition selects both hemispheres. `select_rois()` parses the `--rois` CLI value and fails loudly on typos |
+| `subjects.py` | 46 | Named participant sets (`all24`, the default, which every run up to 2026-10-29 used; `good`, the 2026-10-29 QC list). The `run_*_dcc.py` entry points for power traces, decoding, segregation, anatomy and coding axes call `resolve_subject_set()`, which reads `SUBJECT_SET` from the environment and returns the subjects plus a `_subjects-<name>` suffix for the save directory (empty for the default, so existing paths are unchanged) |
 | `group_data.py` | 32 | An abandoned attempt at a `GroupData` class to replace the `subjects_mne_objects` dict. Its own docstring says it may never be used — treat as dead code |
 
 ## 1.5 `src/analysis/preproc/` — raw BIDS → epochs
@@ -270,6 +271,10 @@ result `.csv`s (see §1.15).
 ## 1.13 `dcc_scripts/` — cluster entry points
 
 Organized by analysis area, each following the four-layer pattern from §1.2.
+`submit_subject_set_rerun.sh` at the top submits the paper's analyses (F3 power
+traces, F4 decoding, F5 anatomy and coding axes with their controls) on one
+participant set: `SUBJECT_SET=good bash dcc_scripts/submit_subject_set_rerun.sh`
+with the `ieeg` env active.
 
 | Subdir | Contents |
 |---|---|

@@ -22,6 +22,24 @@ SUBJECT_SETS = {
              'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116',
              'D0121', 'D0130', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139A',
              'D0145', 'D0146'],
+    # Accuracy below is per participant from combinedData.csv: correct trials
+    # over task trials, the first trial of each block dropped (the behavioral
+    # notebook's measure). The equal-cell-weight acc_mean in
+    # ieeg_behavioral_subject_level_effects.csv is a different measure.
+    #
+    # good minus D0102, the only participant below 70 % (67.3). Next lowest:
+    # D0065 70.5, D0069 73.9.
+    'good_rawacc70': ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0077',
+                      'D0090', 'D0094', 'D0100', 'D0103', 'D0107A', 'D0110',
+                      'D0116', 'D0121', 'D0130', 'D0133', 'D0134', 'D0137',
+                      'D0138', 'D0139A', 'D0145', 'D0146'],
+    # Sensitivity check: good minus D0102, D0065 and D0069 (67.3, 70.5, 73.9).
+    # The three fall below 70 % only on the equal-cell-weight acc_mean (68.1,
+    # 68.8, 69.7), which is how this set was first (mistakenly) chosen.
+    'good_acc70': ['D0057', 'D0059', 'D0063', 'D0077', 'D0090', 'D0094',
+                   'D0100', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0121',
+                   'D0130', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139A',
+                   'D0145', 'D0146'],
 }
 
 # The default keeps existing launchers and their output paths unchanged.

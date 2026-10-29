@@ -19,6 +19,7 @@ Outputs (written to ``args.save_dir``):
   - ``roi_hist_<condition>.png``             : ROI histogram for each condition.
   - ``sig_electrodes_<condition>.json``      : the electrodes plotted, for reproducibility.
   - ``electrode_counts_<combined_name>.json``: electrode/subject counts per condition.
+  - ``legend_<combined_name>.{svg,pdf,png}``: color legend for the combined brain.
 
 The heavy lifting (loading sig chans, mapping electrodes to ROIs) reuses the
 shared helpers in ``src.analysis.utils.general_utils`` so this stays in sync with
@@ -33,6 +34,7 @@ from collections import Counter, OrderedDict
 import matplotlib
 matplotlib.use("Agg")  # headless: never open a window on the cluster
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 # ---------------------------------------------------------------------------
 # Headless 3D rendering. Compute nodes have no physical display, so there are
@@ -413,6 +415,29 @@ def plot_roi_histogram(counts, title, save_path, color=(0.2, 0.4, 0.8), top_n=No
     print(f"  Saved ROI histogram -> {save_path}")
 
 
+def plot_color_legend(entries, save_stem, formats=("svg", "pdf", "png")):
+    """Save a standalone color legend for a brain figure, one row per entry.
+
+    ``entries`` is a list of ``(label, (r, g, b))`` in draw order. The brain is
+    a screenshot, so its legend is a separate file: vector formats keep text as
+    text (editable and scalable in Illustrator), and the PNG is a preview.
+    Written to ``<save_stem>.<format>`` on a transparent background.
+    """
+    if not entries:
+        return
+    handles = [Line2D([], [], linestyle="none", marker="o", markersize=8,
+                      markerfacecolor=color, markeredgecolor="none", label=label)
+               for label, color in entries]
+    with plt.rc_context({"svg.fonttype": "none", "pdf.fonttype": 42}):
+        fig = plt.figure(figsize=(3, 0.3 * len(entries) + 0.2))
+        fig.legend(handles=handles, loc="center", frameon=False)
+        for fmt in formats:
+            fig.savefig(f"{save_stem}.{fmt}", dpi=300, bbox_inches="tight",
+                        transparent=True)
+        plt.close(fig)
+    print(f"  Saved legend -> {save_stem}.{{{','.join(formats)}}}")
+
+
 # ===========================================================================
 # Main
 # ===========================================================================
@@ -422,7 +447,8 @@ def main(args):
     Expected attributes on ``args`` (see ``run_plot_sig_electrodes_dcc.py``):
         subjects                : list[str]        subject ids with leading zeros
         conditions              : OrderedDict      {name: cfg}. Each cfg has a
-                                  'color' (r,g,b) plus ONE electrode source:
+                                  'color' (r,g,b), an optional legend 'label'
+                                  (default: name), plus ONE electrode source:
                                     - {'epochs_root_file': str}                 sig_chans files
                                     - {'anova_run_dir': str, 'effect': str, ...} within-elec ANOVA
         task                    : str
@@ -551,6 +577,17 @@ def main(args):
         else:
             failed_figures.append(combined_path)
         fig.close()
+
+    # Legend for the combined figure, in draw order. Each label carries the
+    # condition's full electrode count (n_electrodes above), not what's drawn.
+    legend_entries = [
+        (f"{args.conditions[name].get('label', name)} (n = {counts[name]['n_electrodes']})",
+         args.conditions[name]["color"])
+        for name, indices in plot_groups.items() if indices]
+    if overlap:
+        legend_entries.append((f"Shared by >1 set (n = {len(overlap)})", overlap_color))
+    plot_color_legend(legend_entries,
+                      os.path.join(args.save_dir, f"legend_{combined_name}"))
 
     # ---- 4. One brain per condition (in that condition's color) ------------
     for name, indices in condition_indices.items():

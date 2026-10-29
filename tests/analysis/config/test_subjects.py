@@ -19,6 +19,12 @@ def test_env_var_picks_set_and_names_output(monkeypatch):
     assert not {'D0071', 'D0117', 'D0144'} & set(subjects)
 
 
+def test_acc70_is_good_minus_low_accuracy():
+    assert set(SUBJECT_SETS['good']) - set(SUBJECT_SETS['good_acc70']) == {'D0102', 'D0065', 'D0069'}
+    assert set(SUBJECT_SETS['good_acc70']) <= set(SUBJECT_SETS['good'])
+    assert set(SUBJECT_SETS['good']) - set(SUBJECT_SETS['good_rawacc70']) == {'D0102'}
+
+
 def test_explicit_name_beats_env_and_returns_a_copy(monkeypatch):
     monkeypatch.setenv('SUBJECT_SET', 'good')
     subjects, suffix = resolve_subject_set('all24')
