@@ -9,7 +9,8 @@ NATURE_STYLE = {
     'ytick.labelsize': 12,
     'legend.fontsize': 12,
     'font.family': 'sans-serif',
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    # Nimbus Sans: the Helvetica clone the cluster has (Arial is not installed)
+    'font.sans-serif': ['Arial', 'Helvetica', 'Nimbus Sans', 'DejaVu Sans'],
     'axes.linewidth': 0.5,
     'axes.spines.top': False,
     'axes.spines.right': False,

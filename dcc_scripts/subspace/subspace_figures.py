@@ -32,7 +32,7 @@ def time_axis_label(epochs_root_file=None):
     they are locked to (`Stimulus_...` or `Response_...`); anything else
     (synthetic runs: None) is stimulus-locked."""
     event = 'response' if str(epochs_root_file).startswith('Response') else 'stimulus onset'
-    return f'window centre (s from {event})'
+    return f'Time from {event} (s)'
 
 
 def _row_label(r):
@@ -84,8 +84,7 @@ def _dims_panel(ax, d, variable, k):
     ax.set_xticks(d['dimension'])
     ax.set_xlim(0.4, d['dimension'].max() + 0.6)
     ax.set_xlabel('dimension', fontsize=9, color=INK)
-    ax.set_title(f"{variable}: k = {k if k is not None else '–'}", fontsize=9, color=INK,
-                 loc='left')
+    ax.set_title(variable, fontsize=9, color=INK, loc='left')
     _style(ax)
 
 
@@ -101,21 +100,14 @@ def plot_subspace_test(table, dims, out_path, k=None, names=('congruency', 'swit
     a, b = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
     _comparison_panel(a, table[table['measure'] == 'angle'], 'cosine of principal angle')
     _comparison_panel(b, table[table['measure'] == 'alignment'], 'alignment index')
-    a.set_title(f'a  principal angles ({names[0]} vs {names[1]})', fontsize=9, color=INK,
-                loc='left')
-    b.set_title('b  alignment index', fontsize=9, color=INK, loc='left')
     fig.legend(*a.get_legend_handles_labels(), frameon=False, fontsize=7.5, ncol=3,
                loc='lower center', bbox_to_anchor=(0.5, 0.94))
     k = k or {}
-    for col, (var, name) in enumerate((('congruency', f'c  {names[0]}'),
-                                       ('switchType', f'd  {names[1]}'))):
+    for col, (var, name) in enumerate((('congruency', names[0]), ('switchType', names[1]))):
         ax = fig.add_subplot(gs[1, col])
         _dims_panel(ax, dims[dims['variable'] == var], name, k.get(var))
         if col == 0:
             ax.set_ylabel('held-out variance\n(filled = reproducible)', fontsize=9, color=INK)
-    fig.text(0.01, 0.005, 'Grey band: rows at the primary k. Faded: a ceiling not above its '
-             'own shuffle null. Grey ticks (c, d): 95th percentile of the shuffle null.',
-             fontsize=7.5, color=MUTED)
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 
@@ -144,7 +136,7 @@ def plot_trajectories(traj, fractions, axes_summary, label, out_path, cells='cen
     for cell, (color, ls) in CELL_STYLE.items():
         d = t_all[t_all['cell'] == cell].sort_values('window')
         x, y, t = d['x'].to_numpy(), d['y'].to_numpy(), d['window_center'].to_numpy()
-        plane.plot(x, y, color=color, ls=ls, lw=2, label=cell)
+        plane.plot(x, y, color=color, ls=ls, lw=2, label=cell.replace('-', ', '))
         plane.plot(x[0], y[0], 'o', ms=7, mfc='white', mec=color, mew=1.5, zorder=3)
         if len(x) > 1:
             plane.annotate('', xy=(x[-1], y[-1]), xytext=(x[-2], y[-2]),
@@ -157,51 +149,44 @@ def plot_trajectories(traj, fractions, axes_summary, label, out_path, cells='cen
     plane.set_ylabel(f'y: {y_name} axis (HG)', fontsize=9, color=INK)
     plane.set_aspect('equal', adjustable='datalim')
     plane.legend(frameon=False, fontsize=7.5, loc='best')
-    plane.set_title(f'a  {cells} condition means, axes from {label}', fontsize=9,
-                    color=INK, loc='left')
     xt.set_ylabel('x (HG)', fontsize=9, color=INK)
     yt.set_ylabel('y (HG)', fontsize=9, color=INK)
     plt.setp(xt.get_xticklabels(), visible=False)
     yt.set_xlabel(time_label, fontsize=9, color=INK)
-    xt.set_title('b, c  coordinates over time', fontsize=9, color=INK, loc='left')
-    overall = fractions[(fractions['axes'] == label) & (fractions['window'] == -1)]
-    if not overall.empty and axes_summary:
-        o = overall.iloc[0]
-        fig.text(0.01, -0.02,
-                 f"Held-out cells; axes and cells from different halves. Plane holds "
-                 f"{o['plane_fraction']:.1%} of the centred cells' variance "
-                 f"(chance {axes_summary['plane_fraction_chance']:.1%}) and "
-                 f"{o['plane_fraction_signal']:.0%} of its noise-corrected signal. "
-                 + (f"Raw axes, not orthogonalized: drawn perpendicular, but cos(c, s) = "
-                    f"{axes_summary['axis_cosine']:.2f}." if first is None else
-                    f"cos(c, s) of the plot's axes before Gram-Schmidt: "
-                    f"{axes_summary['axis_cosine']:.2f}."),
-                 fontsize=7.5, color=MUTED)
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 
 
-# Block separations: colour = the variable's own proportion (slots 1-2), line
-# style = the other proportion; the own and other changes in ink and muted.
-PROP_COLOR = {'low': '#2a78d6', 'high': '#eb6834'}
-PROP_LS = {'low': '-', 'high': '--'}
+# Block separations, in the power-trace and decoding palette: colour = the
+# variable's own proportion block (light 25 %, dark 75 %; red incongruent
+# proportion, blue switch proportion), line style = the other proportion
+# (solid 25 %, dashed 75 %). The own and other changes in ink and muted.
+OWN_COLOR = {'congruency': {'low': '#FF7E79', 'high': '#A32319'},
+             'switchType': {'low': '#05B0F0', 'high': '#0B4F8A'}}
+OTHER_LS = {'low': '-', 'high': '--'}
+PCT = {'low': '25%', 'high': '75%'}
 _VAR_NAMES = {'congruency': ('congruency', 'incProp', 'switchProp'),
               'switchType': ('switch', 'switchProp', 'incProp')}
+_PROP_LABEL = {'incProp': 'incongruent proportion', 'switchProp': 'switch proportion'}
+
+
+def block_label(inc, sw):
+    """One block, as the legends name it: '25% inc, 75% switch'."""
+    return f'{PCT[inc]} inc, {PCT[sw]} switch'
 
 
 def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_label(),
                            unique=False):
     """The §6 figure for one axis window. Left: each variable's held-out
     separation on its own axis in the four proportion blocks (colour = its own
-    proportion, line style = the other). Right: the change with the own and
-    with the other proportion (low - high) with the participant-bootstrap CI.
-    The double dissociation predicts the colours apart and the line styles
-    together, i.e. the own change away from 0 and the other at 0.
+    proportion, line style = the other; one legend entry per block). Right: the
+    change with its own and with the other proportion (25 % − 75 %) with the
+    participant-bootstrap CI. A change specific to the own proportion shows as
+    the colours apart and the line styles together.
 
     `seps`, `cons` are the `block_separations` tables with `window_center`
-    merged in (window -1, the overall mean, has none and is given in the
-    footer). Only each variable's own-axis rows are drawn; the footer adds the
-    permutation p where the tables have one."""
+    merged in. Only each variable's own-axis rows are drawn. No text beyond
+    axis labels and legends: the overall numbers are in `block_summary*.json`."""
     seps = seps[seps['axes'] == label]
     cons = cons[cons['axes'] == label]
     if 'axis' in seps:                       # own-axis rows: the axis named after the variable
@@ -210,7 +195,6 @@ def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_lab
         cons = cons[cons['axis'] == cons['variable'].map({v: n[0] for v, n in _VAR_NAMES.items()})]
     fig, axs = plt.subplots(2, 2, figsize=(12.0, 6.0), sharex=True,
                             gridspec_kw=dict(hspace=0.25, wspace=0.6))
-    footer = []
     for row, (var, (name, own, other)) in enumerate(_VAR_NAMES.items()):
         left, right = axs[row]
         own_col, other_col = (('inc_prop', 'switch_prop') if own == 'incProp'
@@ -218,41 +202,27 @@ def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_lab
         s = seps[(seps['variable'] == var) & (seps['window'] >= 0)]
         for (o, x), d in s.groupby([own_col, other_col]):
             d = d.sort_values('window_center')
-            left.plot(d['window_center'], d['separation'], color=PROP_COLOR[o], ls=PROP_LS[x],
-                      lw=2, label=f'{o}, {x}')
+            inc, sw = (o, x) if own == 'incProp' else (x, o)
+            left.plot(d['window_center'], d['separation'], color=OWN_COLOR[var][o],
+                      ls=OTHER_LS[x], lw=2, label=block_label(inc, sw))
         c = cons[(cons['variable'] == var) & (cons['window'] >= 0)]
-        for con, color, ls, what in ((own, INK, '-', 'own'), (other, MUTED, '--', 'other')):
+        for con, color, ls in ((own, INK, '-'), (other, MUTED, '--')):
             d = c[c['contrast'] == con].sort_values('window_center')
             right.fill_between(d['window_center'], d['lo'], d['hi'], color=color, alpha=0.12, lw=0)
             right.plot(d['window_center'], d['estimate'], color=color, ls=ls, lw=2,
-                       label=f'{what}: {con} (low − high)')
+                       label=f'{_PROP_LABEL[con]} (25% − 75%)')
         for ax in (left, right):
             ax.axhline(0, color=MUTED, lw=0.8, zorder=0)
             _style(ax)
-        left.set_ylabel(f'{name} separation\n(HG, on its own axis'
-                        f'{" ⊥ the other" if unique else ""})', fontsize=9, color=INK)
-        right.set_ylabel('change in separation (HG)', fontsize=9, color=INK)
-        left.set_title(f"{'ac'[row]}  {name} separation per block", fontsize=9, color=INK,
-                       loc='left')
-        right.set_title(f"{'bd'[row]}  {name}: own vs other proportion", fontsize=9, color=INK,
-                        loc='left')
-        left.legend(frameon=False, fontsize=7, loc='upper left', bbox_to_anchor=(1.0, 1.0),
-                    title=f'{own}, {other}', title_fontsize=7)
-        right.legend(frameon=False, fontsize=7, loc='best')
-        overall = cons[(cons['variable'] == var) & (cons['window'] == -1)].set_index('contrast')
-        if not overall.empty:
-            footer.append(f"{name}: " + '; '.join(
-                f"{con} {overall.loc[con, 'estimate']:+.3f} [{overall.loc[con, 'lo']:+.3f}, "
-                f"{overall.loc[con, 'hi']:+.3f}]"
-                + (f" p = {overall.loc[con, 'p']:.3f}" if 'p' in overall else '')
-                for con in (own, other, 'own_minus_other')))
+        left.set_ylabel(f'{name} separation (HG)', fontsize=9, color=INK)
+        right.set_ylabel(f'change in {name}\nseparation (HG)', fontsize=9, color=INK)
+        handles, labels = left.get_legend_handles_labels()
+        order = sorted(range(len(labels)), key=lambda k: labels[k])
+        left.legend([handles[k] for k in order], [labels[k] for k in order], frameon=False,
+                    fontsize=7, loc='upper left', bbox_to_anchor=(1.0, 1.0))
+        right.legend(frameon=False, fontsize=7, loc='upper left', bbox_to_anchor=(1.0, 1.0))
     for ax in axs[1]:
         ax.set_xlabel(time_label, fontsize=9, color=INK)
-    fig.text(0.01, -0.03, f'Axes from {label} on one half, separations on the other.'
-             + (" Unique axes: each separation on its own axis's part orthogonal to the "
-                "other (what the two codes do not share)." if unique else '')
-             + ' Mean over windows (95% CI):\n' + '\n'.join(footer),
-             fontsize=7.5, color=MUTED, va='top')
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 
@@ -263,6 +233,8 @@ def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_lab
 _LEVEL_COLOR = {'i': '#2a78d6', 's': '#2a78d6', 'c': '#eb6834', 'r': '#eb6834'}
 _PCT_LS = {'25': '-', '75': '--'}
 _PROP_NAMES = {'incProp': 'incongruent', 'switchProp': 'switch'}
+_PROP_SHORT = {'incProp': 'inc', 'switchProp': 'switch'}
+_LEVEL_NAME = {'i': 'incongruent', 'c': 'congruent', 's': 'switch', 'r': 'repeat'}
 
 
 def plot_proportion_trajectories(traj, changes, label, out_path):
@@ -279,17 +251,16 @@ def plot_proportion_trajectories(traj, changes, label, out_path):
     traj, changes = traj[traj['axes'] == label], changes[changes['axes'] == label]
     fig, axs = plt.subplots(2, 2, figsize=(10.0, 9.0), sharex=True, sharey=True,
                             gridspec_kw=dict(hspace=0.22, wspace=0.12))
-    footer = []
     for r, (var, var_name) in enumerate((('congruency', 'congruency'), ('switchType', 'switch'))):
         for col, prop in enumerate(_PROP_NAMES):
-            ax, key, letter = axs[r, col], f'{var} x {prop}', 'abcd'[2 * r + col]
+            ax, key = axs[r, col], f'{var} x {prop}'
             d = traj[traj['set'] == key]
             for cond, dc in d.groupby('condition', sort=False):
                 dc = dc.sort_values('window')
                 x, y = dc['congruency'].to_numpy(), dc['switch'].to_numpy()
                 color, ls = _LEVEL_COLOR[cond[0]], _PCT_LS[cond[1:]]
                 ax.plot(x, y, color=color, ls=ls, lw=2,
-                        label=f'{cond[0]}, {cond[1:]} % {_PROP_NAMES[prop]}')
+                        label=f'{_LEVEL_NAME[cond[0]]}, {cond[1:]}% {_PROP_SHORT[prop]}')
                 ax.plot(x[0], y[0], 'o', ms=6, mfc='white', mec=color, mew=1.5, zorder=3)
                 if len(x) > 1:
                     ax.annotate('', xy=(x[-1], y[-1]), xytext=(x[-2], y[-2]),
@@ -297,21 +268,12 @@ def plot_proportion_trajectories(traj, changes, label, out_path):
             ax.axhline(0, color=MUTED, lw=0.8, zorder=0)
             ax.axvline(0, color=MUTED, lw=0.8, zorder=0)
             _style(ax)
-            kind = 'own' if d['own'].iloc[0] else 'cross'
-            ax.set_title(f'{letter}  {var_name} × {_PROP_NAMES[prop]} proportion ({kind})',
-                         fontsize=9, color=INK, loc='left')
+            ax.set_title(f'{var_name} × {_PROP_NAMES[prop]} proportion', fontsize=9,
+                         color=INK, loc='left')
             ax.legend(frameon=False, fontsize=7, loc='best')
-            o = changes[(changes['set'] == key) & (changes['window'] == -1)].set_index('axis')
-            footer.append(f'{letter}: ' + '; '.join(
-                f"along {a} {o.loc[a, 'estimate']:+.2f} [{o.loc[a, 'lo']:+.2f}, "
-                f"{o.loc[a, 'hi']:+.2f}]" for a in ('congruency', 'switch')))
     for ax in axs[1]:
         ax.set_xlabel('congruency axis (HG)', fontsize=9, color=INK)
     for ax in axs[:, 0]:
         ax.set_ylabel('switch axis (HG)', fontsize=9, color=INK)
-    fig.text(0.01, 0.06, f'Axes from {label} on one half, conditions on the other, centred on '
-             'the mean of all conditions; oblique coordinates on the two axes. Change in '
-             'separation (25 % − 75 %), mean over windows (95% CI):\n' + '\n'.join(footer),
-             fontsize=7.5, color=MUTED, va='top')
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)

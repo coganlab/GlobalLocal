@@ -166,7 +166,9 @@ def plot_coding_axes(table, out_path, time_label=time_axis_label(), title=None):
     shuffles), and bars where something is shared (cluster-corrected) and where
     it is not one code. (b) Alignment = cross / ceiling with its participant-
     bootstrap CI. Windows whose ceilings are not reliable are greyed out in both
-    panels, and (b) leaves them blank. `title`, if given, heads panel (a)."""
+    panels, and (b) leaves them blank. `title` is accepted for callers and not
+    drawn: the figures carry no titles or panel letters (those go in the
+    caption and in Illustrator)."""
     t = table['window_center'].to_numpy()
     half = np.median(np.diff(t)) / 2 if len(t) > 1 else 0.05
     fig, (a, b) = plt.subplots(2, 1, figsize=(9.0, 6.2), sharex=True,
@@ -182,43 +184,34 @@ def plot_coding_axes(table, out_path, time_label=time_axis_label(), title=None):
     if null_lo:
         lo = table[null_lo].min(axis=1)
         hi = table[[c.replace('_lo_', '_hi_') for c in null_lo]].max(axis=1)
-        a.fill_between(t, lo, hi, color=NULL_FILL, lw=0, zorder=2,
-                       label='shuffle null (top edge = threshold)')
+        a.fill_between(t, lo, hi, color=NULL_FILL, lw=0, zorder=2, label='shuffle null')
     a.plot(t, table['ceiling'], color=CEILING, lw=2, zorder=3, label='ceiling')
-    a.plot(t, table['cross'], color=CROSS, lw=2, zorder=4, label='cross (cosine)')
+    a.plot(t, table['cross'], color=CROSS, lw=2, zorder=4, label='cosine')
     a.plot(t, table['cross_pearson'], color=CROSS, lw=1.5, ls='--', zorder=5,
-           label='cross (Pearson r)')
-    for col, name in (('cross', 'cross'), ('ceiling', 'ceiling')):
-        y = table[col].to_numpy()
-        last = np.flatnonzero(np.isfinite(y))
-        if last.size:
-            a.annotate(name, (t[last[-1]], y[last[-1]]), xytext=(4, 0),
-                       textcoords='offset points', va='center', fontsize=8, color=INK)
+           label='Pearson r')
 
     top = np.nanmax(table[['cross', 'ceiling']].to_numpy())
     step = 0.06 * max(top, 0.1)
-    for i, (col, color, label) in enumerate((('shared', CROSS, 'shared (cross > null)'),
-                                             ('not_one_code', CEILING, 'not one code (cross < ceiling)'))):
+    for i, (col, color, label) in enumerate((('shared', CROSS, 'shared'),
+                                             ('not_one_code', CEILING, 'not one code'))):
         if col not in table:
             continue
         y = top + step * (i + 1.5)
         for j, (start, end) in enumerate(_runs(table[col].to_numpy())):
             a.hlines(y, t[start] - half, t[end] + half, color=color, lw=4,
                      label=label if j == 0 else None, zorder=5)
-    a.set_ylabel('cosine across electrodes', fontsize=9, color=INK)
+    a.set_ylabel('congruency–switch\nsimilarity', fontsize=9, color=INK)
     a.legend(frameon=False, fontsize=7.5, loc='upper left', bbox_to_anchor=(1.01, 1))
 
     align = table['alignment'].where(table['reliable'])
     b.fill_between(t, table['alignment_lo'].where(table['reliable']),
                    table['alignment_hi'].where(table['reliable']),
-                   color=CROSS, alpha=0.2, lw=0, zorder=2, label='95% CI (participants)')
+                   color=CROSS, alpha=0.2, lw=0, zorder=2, label='95% CI')
     b.plot(t, align, color=CROSS, lw=2, zorder=3, label='alignment')
     b.axhline(1, color=MUTED, lw=0.8, ls=':', zorder=1)
     b.set_ylabel('alignment\n(cross / ceiling)', fontsize=9, color=INK)
     b.set_xlabel(time_label, fontsize=9, color=INK)
     b.legend(frameon=False, fontsize=7.5, loc='upper left', bbox_to_anchor=(1.01, 1))
-    if title:
-        a.set_title(title, fontsize=10, color=INK, loc='left')
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 

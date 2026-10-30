@@ -2451,10 +2451,13 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
     runs along the identity line, the gradient is the centroids' spread across
     it; c, every electrode's balance against its height (``partials``,
     :func:`height_partial_residuals`) with the coordinate test's slope, and the
-    slope tests in ``slope`` (a list of text lines). ``unit`` ('participant' or
-    'electrode') names the bootstrap in the legend; c shows electrodes at both
-    levels. ``pair`` (:data:`FIG5_PAIRS`) names the two scores on the axes.
-    Inputs as :func:`figure5_height` builds them.
+    slope tests in ``slope`` (a list of text lines). ``pair``
+    (:data:`FIG5_PAIRS`) names the two scores on the axes. Inputs as
+    :func:`figure5_height` builds them.
+
+    The figure carries no panel letters, titles or statistics: ``stat``,
+    ``slope`` and ``unit`` are accepted for callers but not drawn; their
+    numbers are in the run's summary files and go in the caption.
     """
     import matplotlib
     matplotlib.use('Agg')
@@ -2480,8 +2483,6 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
             ax_a.set_axis_off()
         else:
             _draw_height_bands_sagittal(ax_a, d, edges, axis=axis)
-        ax_a.set_title(f'Height bands (cuts at MNI {axis[-1]} = {edges[1]:.0f} and '
-                       f'{edges[2]:.0f} mm)', loc='left', fontsize=7, color=_INK)
 
         # b, left: the overlap along the identity line, the gradient across it
         for band in HEIGHT_BANDS:
@@ -2496,20 +2497,8 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
         pad = 0.06 * (hi - lo)
         lo, hi = lo - pad, hi + pad
         ax_b.plot([lo, hi], [lo, hi], color=_MUTED, lw=0.7, zorder=1)
-        ax_b.text(0.03, 0.97, f'leans {y_name}', transform=ax_b.transAxes, ha='left', va='top',
-                  fontsize=5.5, color=_MUTED)
-        ax_b.text(0.97, 0.03, f'leans {x_name}', transform=ax_b.transAxes, ha='right',
-                  va='bottom', fontsize=5.5, color=_MUTED)
         ax_b.set(xlim=(lo, hi), ylim=(lo, hi), aspect='equal',
                  xlabel=f'{x_name} (SD units)', ylabel=f'{y_name} (SD units)')
-        ax_b.set_title(title, loc='left', fontsize=7, color=_INK)
-        if stat is not None:
-            ax_b.text(0.97, 0.97,
-                      f"r = {_fmt_r(stat['corr'])}, p = {_fmt_p(stat['p'])}\n"
-                      f"{stat['n_electrodes']} electrodes, {stat['n_subjects']} participants",
-                      transform=ax_b.transAxes, ha='right', va='top', fontsize=5.5,
-                      color=_INK, linespacing=1.3,
-                      bbox=dict(boxstyle='square,pad=0.2', fc='white', ec='none', alpha=0.85))
 
         # b, right: the centroids enlarged, each with its 95 % bootstrap ellipse;
         # the box and connector lines tie it to the region it shows in the scatter
@@ -2520,9 +2509,6 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
         mid = float(np.mean(np.r_[centroids['x'], centroids['y']]))
         zlo, zhi = mid - 0.6 * span, mid + 0.6 * span
         ax_z.plot([zlo, zhi], [zlo, zhi], color=_MUTED, lw=0.7, zorder=1)
-        tip = zhi - 0.06 * (zhi - zlo)    # clear of the dashed frame's corner
-        ax_z.text(tip, tip, f'{x_name} = {y_name} ', ha='right', va='top', fontsize=5.5,
-                  color=_MUTED, rotation=45, rotation_mode='anchor')
         for c in centroids.itertuples():
             _ellipse(ax_z, c.x, c.y, [[c.cov_xx, c.cov_xy], [c.cov_xy, c.cov_yy]],
                      HEIGHT_COLORS[c.band])
@@ -2530,7 +2516,6 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
                          edgecolor='white', linewidth=1.0, zorder=5)
         ax_z.set(xlim=(zlo, zhi), ylim=(zlo, zhi), aspect='equal',
                  xlabel=f'{x_name} (SD units)')
-        ax_z.set_title('Band centroids', loc='left', fontsize=7, color=_INK)
         # The zoomed region: the same dashed outline around the box in the
         # scatter and around the zoom, and one arrow from one to the other, so
         # the link never looks like the identity line or an axis. The zoom's
@@ -2562,13 +2547,6 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
         for e in edges[1:-1]:
             ax_c.axvline(e, color=_MUTED, lw=0.6, ls=(0, (3, 2)), zorder=1)
         ax_c.set(xlabel=f'height, MNI {axis[-1]} (mm)', ylabel=f'{x_name} − {y_name} (SD units)')
-        ax_c.set_title('Balance by height', loc='left', fontsize=7, color=_INK)
-        if slope:
-            # the bottom corner the line leaves free: falling -> left, rising -> right
-            ax_c.text(0.03 if b1 < 0 else 0.97, 0.03, '\n'.join(slope),
-                      transform=ax_c.transAxes, ha='left' if b1 < 0 else 'right', va='bottom',
-                      fontsize=5.5, color=_INK, linespacing=1.3,
-                      bbox=dict(boxstyle='square,pad=0.2', fc='white', ec='none', alpha=0.85))
 
         # one legend for the bottom row (identity is never colour alone)
         box_b, box_c = ax_b.get_position(), ax_c.get_position()
@@ -2577,16 +2555,7 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
                    + [Line2D([], [], marker='o', ls='', color=_INK, markeredgecolor='white',
                              markersize=5, label='band centroid')],
                    loc='upper center', bbox_to_anchor=((box_b.x0 + box_c.x1) / 2, 0.07),
-                   ncol=4, frameon=False, fontsize=5.5, handletextpad=0.2, columnspacing=0.9,
-                   title=f'height tertile (MNI {axis[-1]}); b: centroids zoomed at right, with '
-                         f'95 % {unit}-bootstrap regions\nc: each electrode, participant, '
-                         'responsiveness and the other two coordinates removed; line: the '
-                         'coordinate test\'s slope', title_fontsize=5.5)
-
-        for ax, letter, x, y in ((ax_a, 'a', -0.02, 1.02), (ax_b, 'b', -0.3, 1.1),
-                                 (ax_c, 'c', -0.3, 1.1)):
-            ax.text(x, y, letter, transform=ax.transAxes, fontsize=9,
-                    fontweight='bold', va='bottom', ha='left', color=_INK)
+                   ncol=4, frameon=False, fontsize=5.5, handletextpad=0.2, columnspacing=0.9)
         paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]
         for p in paths:
             fig.savefig(p, dpi=300, bbox_inches='tight', pad_inches=0.03)

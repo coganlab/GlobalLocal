@@ -52,9 +52,6 @@ def plot_overlap_controls(table, out_path):
     ax.tick_params(axis='x', colors=MUTED, labelcolor=INK, labelsize=8)
     ax.tick_params(axis='y', length=0)
     ax.spines[['top', 'right', 'left']].set_visible(False)
-    first = t.loc[rows[0][0]]
-    ax.set_title(f"{int(first['n_electrodes'])} electrodes, {int(first['n_subjects'])} participants",
-                 fontsize=8, color=MUTED, loc='left')
     for ext in ('.png', '.pdf'):
         fig.savefig(os.path.splitext(out_path)[0] + ext, dpi=300, bbox_inches='tight',
                     facecolor='white')

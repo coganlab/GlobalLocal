@@ -36,6 +36,7 @@ from .accuracies import plot_accuracies_with_multiple_sig_clusters
 
 __all__ = [
     'BLOCK_BALANCED_DECODING_CONDITIONS',
+    'context_comparison_panel',
     'describe_run',
     'find_master_results',
     'find_run_for_figure',
@@ -405,15 +406,30 @@ def replot_master_results(
     return written
 
 
-def _replot_context_comparison(master, context, roi, unit, time_points,
-                               trace_labels, title_stem, save_dir, timestamp,
-                               filename_suffix, ylim, include_difference,
-                               plot_kwargs):
+def context_comparison_panel(master, roi):
+    """What a results file's context-comparison panel draws, for one ROI, as
+    keyword arguments of `plot_accuracies_with_multiple_sig_clusters`:
+    ``time_points``, ``accuracies_dict`` (the two conditions and the pooled
+    shuffle, under their display labels), ``significance_clusters_dict`` (the
+    contrast, and each condition against chance), ``colors``, ``linestyles``
+    and ``ylabel``. Plus ``labels``, the two conditions' display labels, and
+    ``condition_name``. None if the analysis has no context comparison or the
+    ROI is missing from either condition.
+    """
+    if isinstance(master, str):
+        master = load_master_results(master)
+    args = master.get('metadata', {}).get('args', {})
+    condition_label = args.get('condition_label', '')
+    context = get_context_comparison_kwargs(condition_label) or {}
+    if not context:
+        return None
+    unit = args.get('unit_of_analysis', 'repeat')
+    trace_labels = get_trace_labels(condition_label)
     comp1 = context['condition_comparison_1']
     comp2 = context['condition_comparison_2']
     stats = master.get('stats', {})
     if roi not in stats.get(comp1, {}) or roi not in stats.get(comp2, {}):
-        return []
+        return None
 
     colors = context['colors']
     linestyles = context['linestyles']
@@ -455,16 +471,43 @@ def _replot_context_comparison(master, context, roi, unit, time_points,
             'label': f'{label_2} > chance',
         },
     })
-
-    out_dir = os.path.join(save_dir, f'{condition_name}_comparison', roi)
-    kwargs = dict(
-        time_points=time_points,
+    return dict(
+        time_points=np.asarray(master['metadata']['time_window_centers'], dtype=float),
+        accuracies_dict=accuracies,
         significance_clusters_dict=significance,
         colors={label_1: colors.get(comp1), label_2: colors.get(comp2),
                 shuffle_label: colors.get(shuffle_key, '#949494')},
         linestyles={label_1: linestyles.get(comp1, '-'),
                     label_2: linestyles.get(comp2, '-'),
                     shuffle_label: linestyles.get(shuffle_key, '--')},
+        ylabel=context.get('ylabel', 'Decoding accuracy'),
+        labels=(label_1, label_2),
+        condition_name=condition_name,
+    )
+
+
+def _replot_context_comparison(master, context, roi, unit, time_points,
+                               trace_labels, title_stem, save_dir, timestamp,
+                               filename_suffix, ylim, include_difference,
+                               plot_kwargs):
+    panel = context_comparison_panel(master, roi)
+    if panel is None:
+        return []
+    comp1 = context['condition_comparison_1']
+    comp2 = context['condition_comparison_2']
+    stats = master.get('stats', {})
+    stats_1, stats_2 = stats[comp1][roi], stats[comp2][roi]
+    condition_name = panel['condition_name']
+    label_1, label_2 = panel['labels']
+    accuracies = panel['accuracies_dict']
+    significance = panel['significance_clusters_dict']
+
+    out_dir = os.path.join(save_dir, f'{condition_name}_comparison', roi)
+    kwargs = dict(
+        time_points=time_points,
+        significance_clusters_dict=significance,
+        colors=panel['colors'],
+        linestyles=panel['linestyles'],
         roi=roi,
         save_dir=out_dir,
         timestamp=timestamp,

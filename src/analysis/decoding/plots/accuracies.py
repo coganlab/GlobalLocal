@@ -610,6 +610,7 @@ def plot_accuracies_with_multiple_sig_clusters(
     sig_legend_title: Optional[str] = None,
     chance_bar_label: str = '> chance',
     formats: Sequence[str] = ('png', 'pdf', 'eps'),
+    ax=None,
     # Superseded by the automatic significance strip; accepted so existing
     # callers keep working, but no longer used to place the bars.
     sig_bar_height: Optional[float] = None,
@@ -678,6 +679,12 @@ def plot_accuracies_with_multiple_sig_clusters(
         row: its directions' labels; chance rows: each entry's ``label``).
         Every bar is then named at its own height, so neither its thickness
         nor its colour has to be decoded from a key.
+    ax : matplotlib Axes, optional
+        Draw into this axes instead of a new figure, and return it: no
+        ``tight_layout`` and no saving, so the caller's figure geometry is
+        kept exactly (e.g. `panel_layout.save_panel_variants`, which needs
+        every panel's axes in the same place). Text sizes still follow
+        ``base_fontsize``.
     sig_bar_height, sig_bar_spacing, sig_bar_base_position
         Superseded by the automatic strip layout. Accepted and ignored.
 
@@ -750,7 +757,16 @@ def plot_accuracies_with_multiple_sig_clusters(
         rows = [{'entries': [e], 'kind': e['kind']} for e in reversed(sig_entries)]
 
     with plt.rc_context(nature_style(base_fontsize)):
-        fig, ax = plt.subplots(figsize=figsize)
+        own_figure = ax is None
+        if own_figure:
+            fig, ax = plt.subplots(figsize=figsize)
+        else:
+            fig = ax.figure
+            # rc styles apply to axes made inside the context; a given axes
+            # was made outside it, so set what the style would have.
+            for side in ('top', 'right'):
+                ax.spines[side].set_visible(False)
+            ax.tick_params(labelsize=base_fontsize - 1)
 
         # --- traces ------------------------------------------------------
         data_artists = []
@@ -869,6 +885,13 @@ def plot_accuracies_with_multiple_sig_clusters(
                 if main_legend is not None:
                     # ax.legend() drops the previous legend; put it back.
                     ax.add_artist(main_legend)
+
+        if not own_figure:
+            # Axis-label text objects are made with the axes, outside the
+            # style context, so their size has to be set here.
+            ax.xaxis.label.set_size(base_fontsize)
+            ax.yaxis.label.set_size(base_fontsize)
+            return ax
 
         fig.tight_layout(pad=0.4)
 
