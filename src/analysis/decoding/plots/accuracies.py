@@ -695,6 +695,10 @@ def plot_accuracies_with_multiple_sig_clusters(
     if figsize is None:
         width = (89 if single_column else 183) / 25.4
         figsize = (width, width * (0.8 if single_column else 0.45))
+        if legend_loc == 'right' or (show_sig_legend and sig_legend_loc == 'rows'):
+            # The keys sit beside the axes: widen the figure so the axes keep
+            # the width they would have had, rather than shrinking to make room.
+            figsize = (figsize[0] * 1.55, figsize[1])
 
     # --- normalise the significance entries ------------------------------
     sig_entries = []
@@ -838,7 +842,8 @@ def plot_accuracies_with_multiple_sig_clusters(
             main_legend = None
         elif legend_loc == 'right':
             # Under the significance rows' labels, in the same column.
-            main_legend = ax.legend(loc='upper left', bbox_to_anchor=(1.02, 1.0 - band_frac),
+            main_legend = ax.legend(loc='upper left',
+                                    bbox_to_anchor=(1.02, 1.0 - band_frac - 0.06),
                                     frameon=False, borderaxespad=0, handlelength=1.6)
         else:
             main_legend = ax.legend(loc=legend_loc)
