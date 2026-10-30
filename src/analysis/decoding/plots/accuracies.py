@@ -667,6 +667,17 @@ def plot_accuracies_with_multiple_sig_clusters(
     sig_marker_style : str, optional
         Text (e.g. ``'*'``) drawn above each bar. Defaults to ``None``: with a
         significance legend the asterisks were redundant ink.
+    legend_loc : str
+        Where the trace legend goes: any matplotlib location, or ``'right'``,
+        outside the axes to the right, under the significance-row labels, so
+        no legend sits on the traces.
+    sig_legend_loc : str
+        Where the significance legend goes (with ``show_sig_legend``): any
+        matplotlib location, or ``'rows'``, which drops the legend and writes
+        each row's label beside it, outside the axes to the right (contrast
+        row: its directions' labels; chance rows: each entry's ``label``).
+        Every bar is then named at its own height, so neither its thickness
+        nor its colour has to be decoded from a key.
     sig_bar_height, sig_bar_spacing, sig_bar_base_position
         Superseded by the automatic strip layout. Accepted and ignored.
 
@@ -787,13 +798,23 @@ def plot_accuracies_with_multiple_sig_clusters(
                 artist.set_clip_path(clip)
 
         # --- significance strip ------------------------------------------
-        chance_bar_colors = _draw_sig_strip(
+        chance_bar_colors, row_ys = _draw_sig_strip(
             ax, time_points, xlim, rows, band_frac,
             contrast_bar_linewidth=contrast_bar_linewidth,
             chance_bar_linewidth=chance_bar_linewidth,
             chance_bar_color=chance_bar_color,
             base_fontsize=base_fontsize,
         )
+        label_rows = show_sig_legend and sig_legend_loc == 'rows'
+        if label_rows:
+            # Each row named beside it, in ink (the bar's own colour carries
+            # identity), outside the axes so no label can land on a bar.
+            for row, y in zip(rows, row_ys):
+                text = ' / '.join(e['label'] for e in row['entries'] if e['label'])
+                if text:
+                    ax.text(1.02, y, text, transform=ax.transAxes, ha='left',
+                            va='center', fontsize=base_fontsize - 1,
+                            color='#404040', clip_on=False)
 
         # --- ticks: over the data range only, never into the strip --------
         yticks = _nice_ticks(data_lo, data_hi, n_yticks)
@@ -813,8 +834,15 @@ def plot_accuracies_with_multiple_sig_clusters(
             ax.set_title(title, pad=0.6 * base_fontsize if rows else 4)
 
         # --- legends ------------------------------------------------------
-        main_legend = ax.legend(loc=legend_loc) if show_legend else None
-        if show_sig_legend:
+        if not show_legend:
+            main_legend = None
+        elif legend_loc == 'right':
+            # Under the significance rows' labels, in the same column.
+            main_legend = ax.legend(loc='upper left', bbox_to_anchor=(1.02, 1.0 - band_frac),
+                                    frameon=False, borderaxespad=0, handlelength=1.6)
+        else:
+            main_legend = ax.legend(loc=legend_loc)
+        if show_sig_legend and not label_rows:
             handles, labels, handler_map = _sig_legend_entries(
                 contrast_entries, chance_bar_colors, chance_bar_label,
                 contrast_bar_linewidth, chance_bar_linewidth,
@@ -857,9 +885,10 @@ def plot_accuracies_with_multiple_sig_clusters(
 def _draw_sig_strip(ax, time_points, xlim, rows, band_frac, *,
                     contrast_bar_linewidth, chance_bar_linewidth,
                     chance_bar_color, base_fontsize):
-    """Draw the significance rows; return the colours used for chance bars."""
+    """Draw the significance rows; return the colours used for chance bars and
+    each row's height (axes fraction)."""
     if not rows:
-        return []
+        return [], []
 
     # x in data coordinates, y in axes fraction: the strip stays put whatever
     # the data limits are.
@@ -900,7 +929,7 @@ def _draw_sig_strip(ax, time_points, xlim, rows, band_frac, *,
                         fontsize=base_fontsize - 1, color=color,
                         clip_on=False,
                     )
-    return chance_colors
+    return chance_colors, row_ys
 
 
 def _sig_legend_entries(contrast_entries, chance_bar_colors, chance_bar_label,

@@ -64,7 +64,7 @@ print(f"3D rendering: {'virtual display ' + os.environ['DISPLAY'] if HAVE_DISPLA
 # cluster. ``jim_mri.get_sub_dir`` points at the DCC recon directory instead, so
 # ``subject_to_info`` and ``plot_on_average`` must come from the same module or
 # they'd read electrode locations from two different places.
-from src.analysis.vis.jim_mri import plot_on_average, subject_to_info
+from src.analysis.vis.jim_mri import plot_on_average, subject_to_info, _brain_window_size
 from src.analysis.utils.general_utils import (
     get_analyzed_chans_per_subject,
     get_sig_chans_per_subject,
@@ -90,8 +90,44 @@ def strip_leading_zeros(subject_id):
     return f"D{int(numbers)}{letters}"
 
 
-def save_brain_image(fig, path):
-    """Screenshot a :class:`mne.viz.Brain` to ``path``, headless-safe.
+# Resolution of the TIFF written beside every brain PNG and legend, for the
+# journal. A brain screenshot keeps its pixels, so its print size at this dpi
+# is set by the render size (args.panel_px per panel; 1600 gives a tightened
+# split figure about 2200 px wide, ~4.9 in / 125 mm at 450 dpi).
+TIFF_DPI = 450
+
+
+def save_tiff_copy(png_path, dpi=TIFF_DPI):
+    """Write ``png_path`` again as an LZW-compressed TIFF tagged at ``dpi``
+    (same pixels, white background), next to it with a ``.tif`` suffix."""
+    from PIL import Image
+    tif_path = os.path.splitext(png_path)[0] + ".tif"
+    with Image.open(png_path) as im:
+        if im.mode in ("RGBA", "LA", "P"):
+            rgba = im.convert("RGBA")
+            im = Image.new("RGB", rgba.size, (255, 255, 255))
+            im.paste(rgba, mask=rgba.split()[-1])
+        im.convert("RGB").save(tif_path, dpi=(dpi, dpi), compression="tiff_lzw")
+    return tif_path
+
+
+def tighten_brain_png(path, n_panels):
+    """Rewrite the screenshot at ``path`` with each of its ``n_panels``
+    side-by-side panels (2 for hemi='split') cropped to its content and the
+    panels a small gap apart (`image_utils.tighten_panels`); the renderer
+    leaves a wide white gap between hemispheres."""
+    import numpy as np
+    from PIL import Image
+    from src.analysis.utils.image_utils import tighten_panels
+    with Image.open(path) as im:
+        img = np.asarray(im)
+    Image.fromarray(tighten_panels(img, n_panels=n_panels)).save(path)
+
+
+def save_brain_image(fig, path, n_panels=1):
+    """Screenshot a :class:`mne.viz.Brain` to ``path`` and a TIFF copy beside
+    it (`save_tiff_copy`), headless-safe. With ``n_panels`` > 1 (hemi='split')
+    the panels are first pulled together (`tighten_brain_png`).
 
     ``Brain.save_image`` grabs the plotter's framebuffer. On a headless node the
     window is never realized, and pyvista < 0.48 doesn't make the render window
@@ -103,7 +139,6 @@ def save_brain_image(fig, path):
     """
     try:
         fig.save_image(path)
-        return True
     except Exception as first_error:
         render_window = getattr(getattr(fig, "plotter", None), "render_window", None)
         if render_window is None:
@@ -114,10 +149,13 @@ def save_brain_image(fig, path):
         try:
             render_window.MakeCurrent()
             fig.save_image(path)
-            return True
         except Exception as retry_error:
             print(f"  Could not save {path}: {retry_error}")
             return False
+    if n_panels > 1:
+        tighten_brain_png(path, n_panels)
+    print(f"  Saved TIFF ({TIFF_DPI} dpi) -> {save_tiff_copy(path)}")
+    return True
 
 
 def collapse_rois_to_subject_dict(sig_electrodes_per_subject_roi):
@@ -415,13 +453,14 @@ def plot_roi_histogram(counts, title, save_path, color=(0.2, 0.4, 0.8), top_n=No
     print(f"  Saved ROI histogram -> {save_path}")
 
 
-def plot_color_legend(entries, save_stem, formats=("svg", "pdf", "png")):
+def plot_color_legend(entries, save_stem, formats=("svg", "pdf", "png", "tif")):
     """Save a standalone color legend for a brain figure, one row per entry.
 
     ``entries`` is a list of ``(label, (r, g, b))`` in draw order. The brain is
     a screenshot, so its legend is a separate file: vector formats keep text as
-    text (editable and scalable in Illustrator), and the PNG is a preview.
-    Written to ``<save_stem>.<format>`` on a transparent background.
+    text (editable and scalable in Illustrator), the PNG is a preview and the
+    TIFF the journal raster, both at ``TIFF_DPI``. Written to
+    ``<save_stem>.<format>`` on a transparent background.
     """
     if not entries:
         return
@@ -432,8 +471,9 @@ def plot_color_legend(entries, save_stem, formats=("svg", "pdf", "png")):
         fig = plt.figure(figsize=(3, 0.3 * len(entries) + 0.2))
         fig.legend(handles=handles, loc="center", frameon=False)
         for fmt in formats:
-            fig.savefig(f"{save_stem}.{fmt}", dpi=300, bbox_inches="tight",
-                        transparent=True)
+            fig.savefig(f"{save_stem}.{fmt}", dpi=TIFF_DPI, bbox_inches="tight",
+                        transparent=True,
+                        **({"pil_kwargs": {"compression": "tiff_lzw"}} if fmt == "tif" else {}))
         plt.close(fig)
     print(f"  Saved legend -> {save_stem}.{{{','.join(formats)}}}")
 
@@ -548,6 +588,10 @@ def main(args):
     show_brain = HAVE_DISPLAY
     failed_figures = []
     brain_zoom = getattr(args, "zoom", None)
+    n_panels = 2 if args.hemi == "split" else 1      # side-by-side panels per screenshot
+    # pixels per panel (None = jim_mri.BRAIN_PANEL_SIZE); the window is one square per panel
+    panel_px = getattr(args, "panel_px", None)
+    brain_size = _brain_window_size(args.hemi, panel_px) if panel_px else None
 
     # ---- 3. Combined brain: every condition overlaid on one figure ---------
     print("\n=== Plotting combined brain figure ===")
@@ -561,7 +605,7 @@ def main(args):
             subjects_no_zeros, subj_dir=subjects_dir, picks=sorted(indices),
             rm_wm=args.rm_wm, hemi=args.hemi, color=color, size=args.size,
             transparency=args.transparency, fig=fig, show=show_brain,
-            zoom=brain_zoom)
+            zoom=brain_zoom, fig_size=brain_size)
     if mutually_exclusive and overlap:
         print(f"  overlap: {len(overlap)} electrodes shared by >1 condition.")
         fig = plot_on_average(
@@ -572,7 +616,7 @@ def main(args):
 
     if fig is not None:
         combined_path = os.path.join(args.save_dir, f"brain_{combined_name}.png")
-        if save_brain_image(fig, combined_path):
+        if save_brain_image(fig, combined_path, n_panels):
             print(f"  Saved combined brain -> {combined_path}")
         else:
             failed_figures.append(combined_path)
@@ -597,9 +641,10 @@ def main(args):
         cfig = plot_on_average(
             subjects_no_zeros, subj_dir=subjects_dir, picks=sorted(indices),
             rm_wm=args.rm_wm, hemi=args.hemi, color=color, size=args.size,
-            transparency=args.transparency, show=show_brain, zoom=brain_zoom)
+            transparency=args.transparency, show=show_brain, zoom=brain_zoom,
+            fig_size=brain_size)
         cpath = os.path.join(args.save_dir, f"brain_{name}.png")
-        if save_brain_image(cfig, cpath):
+        if save_brain_image(cfig, cpath, n_panels):
             print(f"  Saved brain for {name} -> {cpath}")
         else:
             failed_figures.append(cpath)

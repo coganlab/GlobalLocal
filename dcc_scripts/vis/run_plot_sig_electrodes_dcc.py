@@ -85,8 +85,12 @@ SUBJECTS_DIR = os.environ.get("ECOG_RECON_DIR") or None
 SAVE_DIR = os.path.join(project_root, "dcc_scripts", "vis", "figs" + SUBJECT_SET_SUFFIX)
 
 # ---- Brain plotting style --------------------------------------------------
-HEMI = "both"             # both | lh | rh | split
+HEMI = "split"             # both | lh | rh | split
 ZOOM = None               # per-panel camera zoom; <1 zooms out, None = default
+# Render size, pixels per panel (square). The saved split figure is then cropped
+# to the two hemispheres, so 1600 gives about 2200 px across: ~4.9 in (125 mm)
+# at the 450 dpi TIFF. ~2350 fills a 183 mm double column.
+BRAIN_PANEL_PX = 1600
 MARKER_SIZE = 0.15
 TRANSPARENCY = 0.2
 RM_WM = False               # drop white-matter electrodes when plotting
@@ -116,6 +120,7 @@ def run_analysis():
         save_dir=SAVE_DIR,
         hemi=HEMI,
         zoom=ZOOM,
+        panel_px=BRAIN_PANEL_PX,
         size=MARKER_SIZE,
         transparency=TRANSPARENCY,
         rm_wm=RM_WM,

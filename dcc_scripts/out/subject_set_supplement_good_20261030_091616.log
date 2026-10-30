@@ -1,0 +1,59 @@
+SUBJECT_SET=good (suffix '_subjects-good')  commit=ca6d39a97c6ba516ff8bd0966a598fe3ec790926  (uncommitted changes: 3)
+=== S-F2 window-mean decoding: matched bars, then the electrode-count curves
+Window-mean groups: epochs=Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+  rois=lpfc,dlpfc window=0.0-1.5s bootstraps=20 n_perm=1000 n_match=smallest group curve_subsets=10
+Submitting window-mean group decoding: stimulus_congruency_conditions
+Submitted batch job 60600521
+Submitting window-mean group decoding: stimulus_switch_type_conditions
+Submitted batch job 60600522
+Window-mean groups: epochs=Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+  rois=lpfc,dlpfc window=0.0-1.5s bootstraps=20 n_perm=0 unmatched (each group on all its electrodes) curve_subsets=10
+Submitting window-mean group decoding: stimulus_congruency_conditions
+Submitted batch job 60600523
+Submitting window-mean group decoding: stimulus_switch_type_conditions
+Submitted batch job 60600524
+=== S-F3 power traces, task-responsive DLPFC
+Submitting: condition=stimulus_lwpc_block_balanced_conditions electrodes=sig anova_labels=none effect=all_sig_elecs
+Submitted batch job 60600525
+Submitting: condition=stimulus_lwps_block_balanced_conditions electrodes=sig anova_labels=none effect=all_sig_elecs
+Submitted batch job 60600526
+=== S-F4 within-block decoding, all lPFC electrodes
+Submitting: condition=stimulus_lwpc_block_balanced_conditions anova_labels=none effect=dummy feature_mode=channels_x_time
+Submitted batch job 60600527
+Submitting: condition=stimulus_lwps_block_balanced_conditions anova_labels=none effect=dummy feature_mode=channels_x_time
+Submitted batch job 60600528
+=== S-F5 DLPFC segregation scores, then anatomy
+Submitting stability/flexibility segregation (source=real, contrast=proportion, main_effects=1, rt_adjust_hg=0, fdr=fdr_bh, scatter_only=0)
+Submitted batch job 60600529
+Submitting stability/flexibility segregation (source=real, contrast=proportion, main_effects=1, rt_adjust_hg=0, fdr=fdr_bh, scatter_only=1)
+Submitted batch job 60600530
+Submitting stability/flexibility segregation (source=real, contrast=proportion, main_effects=1, rt_adjust_hg=1, fdr=fdr_bh, scatter_only=1)
+Submitted batch job 60600531
+Submitting stability/flexibility A3 anatomy (source=real, arm=continuous, labels=a1, roi=dlpfc, contrast=condition, fdr=fdr_bh, followups=15,16,19)
+Submitted batch job 60600532
+=== reviewers: Figure 5 with the top 20 % LWPC and LWPS electrodes
+Submitted batch job 60600533
+Submitted batch job 60600534
+=== S-F6 coding axes: response-locked and occipital
+Submitting coding axes (effect=main, source=real, windows=[-1.0,1.5]s w64 s16, remove_mean=0, rt_control=none, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=-1.0:0.0,-1.0:-0.5,-0.5:0.0, traj_first=congruency)
+Submitted batch job 60600535
+Submitting coding axes (effect=main, source=real, windows=[-1.0,1.5]s w64 s16, remove_mean=1, rt_control=none, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=-1.0:0.0,-1.0:-0.5,-0.5:0.0, traj_first=congruency)
+Submitted batch job 60600536
+Submitting coding axes (effect=main, source=real, windows=[-1.0,1.5]s w64 s16, remove_mean=0, rt_control=adjust, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=-1.0:0.0,-1.0:-0.5,-0.5:0.0, traj_first=congruency)
+Submitted batch job 60600537
+Submitting coding axes (effect=main, source=real, windows=[-1.0,1.5]s w64 s16, remove_mean=0, rt_control=match, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=-1.0:0.0,-1.0:-0.5,-0.5:0.0, traj_first=congruency)
+Submitted batch job 60600538
+Submitting coding axes (effect=main, source=real, windows=[-1.0,1.5]s w64 s16, remove_mean=0, rt_control=random, rois=dlpfc,lpfc, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=-1.0:0.0,-1.0:-0.5,-0.5:0.0, traj_first=congruency)
+Submitted batch job 60600539
+Submitting coding axes (effect=main, source=real, windows=[0.0,1.5]s w64 s16, remove_mean=0, rt_control=none, rois=occ, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=0.0:1.5,0.1:0.5,0.6:1.4, traj_first=congruency)
+Submitted batch job 60600540
+Submitting coding axes (effect=main, source=real, windows=[-1.0,1.5]s w64 s16, remove_mean=0, rt_control=none, rois=occ, splits=200, perm=1000x20, boot=2000, seed=0, k_max=3, traj_axes=-1.0:0.0,-1.0:-0.5,-0.5:0.0, traj_first=congruency)
+Submitted batch job 60600541
+=== reviewers: every-trial score selection (its power traces follow; see below)
+60600542
+SELECTION_JOB=60600542
+SELECTION_JSON=/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/figs/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/score_selections/lpfc_all_sel1_top0.2_positive_0to1.5s_seed0_subjects-good/score_selection.json
+This cluster's sbatch ignores SBATCH_DEPENDENCY, so submit the score-set power
+traces once the selection job has finished:
+  SUBJECT_SET=good bash dcc_scripts/submit_score_set_power_traces.sh <SELECTION_JSON>
+Log: /hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/out/subject_set_supplement_good_20261030_091616.log

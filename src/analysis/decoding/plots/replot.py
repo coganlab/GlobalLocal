@@ -302,7 +302,7 @@ def replot_master_results(
     save_dir,
     rois=None,
     electrode_set_label=None,
-    ylim=(0.3, 0.8),
+    ylim=(0.3, 1.0),
     include_true_vs_shuffle=True,
     include_difference=False,
     filename_suffix=None,
@@ -439,17 +439,20 @@ def _replot_context_comparison(master, context, roi, unit, time_points,
         context.get('significance_label_1', ''),
         context.get('significance_label_2', ''),
     )
-    # Each condition's own test against chance, one row below the contrast.
+    # Each condition's own test against chance, one row below the contrast;
+    # the labels name the rows when they are labelled directly (sig_legend_loc='rows').
     significance.update({
         f'{comp1}_vs_chance': {
             'clusters': stats_1.get('significant_clusters'),
             'color': colors.get(comp1),
             'kind': 'chance',
+            'label': f'{label_1} > chance',
         },
         f'{comp2}_vs_chance': {
             'clusters': stats_2.get('significant_clusters'),
             'color': colors.get(comp2),
             'kind': 'chance',
+            'label': f'{label_2} > chance',
         },
     })
 
@@ -469,6 +472,10 @@ def _replot_context_comparison(master, context, roi, unit, time_points,
         ylim=ylim,
         show_chance_level=False,
         show_sig_legend=True,
+        # Keys beside the axes, not on the traces: each significance row named
+        # at its height, the trace legend under them.
+        legend_loc='right',
+        sig_legend_loc='rows',
         filename_suffix=filename_suffix,
     )
     kwargs.update(plot_kwargs)
