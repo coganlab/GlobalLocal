@@ -76,6 +76,61 @@ the paper.
 
 ### 1.1 The arc
 
+**Current narrative (2026-10-29, after the 10-23 advisor meeting; drafted by
+Claude, not yet reviewed).** It supersedes the candidate endings below, which
+stay as history.
+
+*Takeaway.* In human lPFC, stability and flexibility are adjusted at the same
+time by one population, and each adjustment is expressed where, and along,
+the signal it regulates. The congruency and switch codes are partly shared,
+and adapting to switch demands changes only the part of the switch code not
+shared with congruency.
+
+*The organizing idea, which also reconciles the anatomy and the subspaces:*
+adaptation follows the signal it regulates, at two scales. Across electrodes
+(F5), the LWPC–LWPS overlap is inherited from the base effects (r 0.097 →
+0.028 with them partialled out). Across the population pattern (F6), the
+switch adaptation expands the switch separation along the switch axis,
+specific to switch proportion (own − other +0.80 [0.31, 1.47]) and in the
+part it does not share with congruency (unique axis +0.65 [0.22, 1.18]). The
+anatomy says where, the geometry along what. For the main effects the two
+measure the same thing: the anatomy's noise-corrected congruency–switch r is
+0.79, the coding axes' alignment 0.69–0.74, and every scoring variant (raw or
+d; cosine, Pearson or within-participant) gives 0.65–0.86
+(`segregation_results/…_main_effects/overlap_measures/`, 2026-10-30). The
+partialling result is the transition from F5 to F6: it says the base-effect
+codes are what the adaptations act on.
+
+*Title candidates:* "Concurrent adaptation of stability and flexibility in
+human lateral prefrontal cortex acts on partly shared population codes";
+"Lateral prefrontal cortex adapts stability and flexibility through partly
+shared codes for conflict and task switching".
+
+*Figure arc:* F1 behaviour; F2 coverage and signal; F3 both adaptations in the
+power traces, with F4 the same in the population pattern (merging F3 and F4 is
+under consideration); F5 one population, the overlap inherited from the base
+effects (scatter with centroids; overlap under the controls); F6 the codes
+partly shared (cosine against null and ceiling; principal angles), the
+trajectories as illustration, and the **block projections as the last panel**,
+the only result about adaptation in the population geometry. Gradient,
+top-20 % sets and circular score-set traces: supplement or reviewers only.
+
+*The congruency half is unresolved.* Its incongruent-proportion change sits
+on switch's unique dimension (oblique +0.32 [0.16, 0.47], ≈ +0.30 on s_perp)
+more than on its own (+0.20 [−0.02, 0.38]). Early-window axes (0.1–0.5 s)
+cannot test it: they carry no reliable code, and even the switch effect is 0
+on them. The shuffled-blocks null (`coding_trajectories.block_null`, runs
+60598899–904 and 60598938–40) decides between two Results versions: (a) the
+switch-unique dimension also carries conflict adaptation, a block-level control
+dimension rather than "switch" alone; (b) congruency adaptation is present in
+power and decoding but its direction in the population is not resolved. The
+takeaway holds under both.
+
+*Still to fix in the text:* "double dissociation" (F1) and "independent"
+(F3 header, intro) go; "no cross-domain adaptation" is scoped to the power
+traces, with the cross-effect decoders in the supplement; RT matching is
+reported as a limitation, not left out.
+
 **Framing (advisor meeting, 2026-10-02):** a characterization by systems
 neuroscientists, not a test of one cognitive hypothesis. The paper describes how
 lPFC carries two concurrent adaptations: whether (F3), in what population signal
@@ -226,7 +281,7 @@ reported F1 numbers, and remake F1 if it used the old map.
 |---|---|
 | a | All electrodes on the MNI surface, coloured by ROI |
 | b | Per-electrode high-gamma traces for one example participant, task-responsive electrodes outlined |
-| c | Example spectrogram (multitaper): D0094 LFPM12 (lPFC, inferior frontal sulcus), all correct trials. High gamma rises about 150 ms after onset (onset timing from the wavelet version). Made by `dcc_scripts/spec/plot_example_spectrogram_dcc.py` and saved to `dcc_scripts/spec/figs/` (see analysis_guide §5) |
+| c | Example spectrogram (multitaper): D0057 RAI7, all correct trials. Labelled white matter, not lPFC; the in-ROI alternative is D0094 LFPM12. Made by `dcc_scripts/spec/plot_example_spectrogram_dcc.py` and saved to `dcc_scripts/spec/figs/` (see analysis_guide §5) |
 
 Cite the per-ROI, per-participant coverage table (S1) here, with the inclusion
 threshold. It answers "why only lPFC?". The counts in the old figure plan are

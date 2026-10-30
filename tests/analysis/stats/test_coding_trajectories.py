@@ -204,11 +204,17 @@ def _level(prop):
     return np.where(prop == 25, 'low', 'high')
 
 
+def _own(table):
+    """The rows of a block table on each variable's own axis."""
+    return table[table['axis'] == table['variable'].map({v: a[0] for v, a in ct.AXES_OF.items()})]
+
+
 def test_block_separations_match_a_direct_computation_on_one_split():
     rng = np.random.default_rng(4)
     df, times = _trial_long(rng.normal(size=N_ELEC), rng.normal(size=N_ELEC),
                             n_subj=N_SUBJ, n_elec=N_ELEC, n_time=3, seed=4)
     seps, _, _ = _run_blocks(df, times, n_splits=1, seed=5)
+    seps = _own(seps)
 
     labels = df.drop(columns='hg')
     hg = pd.DataFrame(np.vstack(df['hg'].to_numpy()))            # (rows, time)
@@ -256,6 +262,7 @@ def test_planted_adaptation_lands_on_its_own_proportion():
         return np.outer(xc * low_inc, g * c) + np.outer(xs * low_sw, h * s)
 
     seps, cons, summary = _run_blocks(_with_terms(df, adaptation), times)
+    seps, cons = _own(seps), _own(cons)
     overall = cons[cons['window'] == -1].set_index(['variable', 'contrast'])['estimate']
     assert overall['congruency', 'incProp'] == pytest.approx(2 * g * _norm(c))
     assert overall['congruency', 'switchProp'] == pytest.approx(0, abs=1e-9)
@@ -270,7 +277,7 @@ def test_planted_adaptation_lands_on_its_own_proportion():
         2 * g * _norm(c))
     assert summary['n_electrodes'] == N_SUBJ * N_ELEC
 
-    cons_u = _run_blocks(_with_terms(df, adaptation), times, unique=True)[1]
+    cons_u = _own(_run_blocks(_with_terms(df, adaptation), times, unique=True)[1])
     u = cons_u[cons_u['window'] == -1].set_index(['variable', 'contrast'])['estimate']
     c_all, s_all = np.tile(c, N_SUBJ), np.tile(s, N_SUBJ)
     c_perp = c_all - (c_all @ s_all) / (s_all @ s_all) * s_all
@@ -297,7 +304,7 @@ def test_unique_axes_ignore_an_adaptation_along_the_shared_direction():
     planted = _with_terms(df, along_c)
     c_all, s_all = np.tile(c, N_SUBJ), np.tile(s, N_SUBJ)
     for unique, want in ((False, 2 * h * c_all @ s_all / np.linalg.norm(s_all)), (True, 0.0)):
-        cons = _run_blocks(planted, times, unique=unique)[1]
+        cons = _own(_run_blocks(planted, times, unique=unique)[1])
         got = cons[(cons['window'] == -1) & (cons['variable'] == 'switchType')
                    & (cons['contrast'] == 'switchProp')]['estimate'].item()
         assert got == pytest.approx(want, abs=1e-9), unique
@@ -349,6 +356,81 @@ def test_proportion_trajectories_put_each_planted_change_on_its_axis():
     assert i25['switch'].to_numpy() == pytest.approx(0, abs=1e-9)
     sets = summary['axes']['all']['sets']
     assert sets['congruency x incProp']['own'] and not sets['switchType x incProp']['own']
+
+
+def test_a_change_along_the_other_axis_shows_on_its_unique_part():
+    """Noise-free, partly shared axes, congruency's separation changing with
+    incProp along s only: it is 0 on congruency's unique axis and 2k|s_perp| on
+    switch's, which is the oblique switch coordinate of the proportion
+    trajectories times sin(c, s); on the raw switch axis it is 2k|s|."""
+    rng = np.random.default_rng(8)
+    c = rng.normal(size=N_ELEC)
+    s = 0.6 * c + rng.normal(size=N_ELEC)
+    k = 0.25
+    df, times = _trial_long(c, s, n_subj=N_SUBJ, n_elec=N_ELEC, n_time=2, noise=0.0)
+
+    def along_s(t):
+        xc = np.where(t['congruency'] == 'i', 0.5, -0.5)
+        low_inc = np.where(t['incongruent_proportion'] == 25, 1.0, -1.0)
+        return np.outer(xc * low_inc, k * s)
+
+    planted = _with_terms(df, along_s)
+    c_all, s_all = np.tile(c, N_SUBJ), np.tile(s, N_SUBJ)
+    s_perp = s_all - (c_all @ s_all) / (c_all @ c_all) * c_all
+    sin = np.sqrt(1 - (c_all @ s_all) ** 2 / (c_all @ c_all * (s_all @ s_all)))
+
+    def inc_change(cons, axis):
+        return cons[(cons['window'] == -1) & (cons['variable'] == 'congruency')
+                    & (cons['axis'] == axis) & (cons['contrast'] == 'incProp')]['estimate'].item()
+
+    raw = _run_blocks(planted, times)[1]
+    unique = _run_blocks(planted, times, unique=True)[1]
+    assert inc_change(raw, 'switch') == pytest.approx(2 * k * np.linalg.norm(s_all))
+    assert inc_change(unique, 'congruency') == pytest.approx(0, abs=1e-9)
+    assert inc_change(unique, 'switch') == pytest.approx(2 * k * np.linalg.norm(s_perp))
+
+    changes = _run_props(planted, times)[1]
+    oblique = changes[(changes['window'] == -1) & (changes['set'] == 'congruency x incProp')
+                      & (changes['axis'] == 'switch')]['estimate'].item()
+    assert inc_change(unique, 'switch') == pytest.approx(oblique * sin)
+
+
+def test_block_null_is_reproducible_and_below_a_planted_adaptation():
+    """With a planted switch adaptation (switch code scaled with switchProp)
+    and noise: the shuffled-blocks draws are reproducible, have the tables'
+    shapes, centre on 0, and give the planted change the smallest p the draws
+    allow, while the absent switch x incProp change is not significant."""
+    rng = np.random.default_rng(9)
+    c, s = rng.normal(size=(2, N_ELEC))
+    h = 0.5
+    df, times = _trial_long(c, s, n_subj=N_SUBJ, n_elec=N_ELEC, n_time=2, noise=0.5, seed=3)
+
+    def adaptation(t):
+        xs = np.where(t['switchType'] == 's', 0.5, -0.5)
+        low_sw = np.where(t['switch_proportion'] == 25, 1.0, -1.0)
+        return np.outer(xs * low_sw, h * s)
+
+    planted = _with_terms(df, adaptation)
+    hg, _ = sfs.window_means(planted['hg'].to_numpy(), times, 1, 1)
+    axis = ct.axis_window_means(planted['hg'].to_numpy(), times, [(times[0], times[-1])])
+    labels = planted.drop(columns='hg')
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        null = ct.block_null(labels, hg, axis, n_perm=19, n_splits=2, seed=4)
+        again = ct.block_null(labels, hg, axis, n_perm=19, n_splits=2, seed=4)
+    assert all(np.array_equal(null[key], again[key]) for key in null)
+    assert np.abs(null['contrasts'].mean(0)).max() < 0.5 * 2 * h * _norm(s)
+
+    _, cons, summary = _run_blocks(planted, times, null=null)
+    _, changes, prop_summary = _run_props(planted, times, null=null)
+    assert null['contrasts'].shape[1:] == (2, 2, 1, len(times) + 1, len(ct.CONTRASTS))
+    sw = summary['axes']['all']['switchType']
+    assert sw['switchProp']['p'] == pytest.approx(1 / 20)
+    assert sw['incProp']['p'] > 0.05
+    assert summary['n_null'] == 19 and 'p' in cons
+    assert prop_summary['axes']['all']['sets']['switchType x switchProp']['switch']['p'] == \
+        pytest.approx(1 / 20)
+    assert changes['p'].between(1 / 20, 1).all()
 
 
 def test_axis_window_means():

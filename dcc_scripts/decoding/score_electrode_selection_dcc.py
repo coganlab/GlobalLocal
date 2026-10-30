@@ -43,11 +43,12 @@ from src.analysis.utils.general_utils import (  # noqa: E402
     get_default_LAB_root, get_sig_chans_per_subject, load_HG_ev1_rescaled_per_subject,
     load_subjects_electrodes_to_ROIs_dict, make_sig_electrodes_per_subject_and_roi_dict)
 from dcc_scripts.stats.stability_flexibility_segregation_dcc import assemble_long_df  # noqa: E402
+from src.analysis.config.subjects import resolve_subject_set  # noqa: E402
 
-# the decoding and power-traces runs' subjects
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0077', 'D0090', 'D0094', 'D0100',
-            'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134',
-            'D0137', 'D0138', 'D0139A', 'D0144', 'D0145', 'D0146']
+# the decoding and power-traces runs' subjects: SUBJECT_SET in the environment
+# (src/analysis/config/subjects.py, default all24); a set other than the default
+# adds its suffix to the output folder
+SUBJECTS, SUBJECT_SET_SUFFIX = resolve_subject_set()
 EPOCHS_ROOT_FILE = ('Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_'
                     '70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20')
 
@@ -82,7 +83,8 @@ def main(args):
     subjects = args.subjects.split(',')
     rois_dict = select_rois(args.rois)
     tag = (f"{args.rois.replace(',', '-')}_{args.electrodes}_sel{args.frac_select:g}_"
-           f"top{args.top_frac:g}_{args.sign}_{args.tmin:g}to{args.tmax:g}s_seed{args.seed}")
+           f"top{args.top_frac:g}_{args.sign}_{args.tmin:g}to{args.tmax:g}s_seed{args.seed}"
+           f"{SUBJECT_SET_SUFFIX}")
     out_dir = args.out_dir or os.path.join(current_script_dir, 'figs', args.epochs_root_file,
                                            'score_selections', tag)
     os.makedirs(out_dir, exist_ok=True)

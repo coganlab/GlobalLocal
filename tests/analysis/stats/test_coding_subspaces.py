@@ -227,8 +227,9 @@ def test_job_writes_every_output_on_synthetic_data(tmp_path):
         synthetic_sfreq=256.0, epochs_root_file=None, windows_tmin=0.0, windows_tmax=1.5,
         window_size=64, step_size=16, remove_mean=False, rt_control='none',
         rt_match_bins=10, electrodes='all', rois_dict=None, n_splits=4, n_perm=5,
-        n_null_splits=2, n_boot=20, alpha=0.05, seed=0, k_max=3,
-        traj_axes=[(0.0, 1.5), (0.1, 0.5)], traj_first='congruency', save_dir=str(tmp_path))
+        n_null_splits=2, n_boot=20, n_block_perm=3, n_block_null_splits=2, alpha=0.05,
+        seed=0, k_max=3, traj_axes=[(0.0, 1.5), (0.1, 0.5)], traj_first='congruency',
+        save_dir=str(tmp_path))
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         main(args)
@@ -243,10 +244,13 @@ def test_job_writes_every_output_on_synthetic_data(tmp_path):
                  'trajectories_raw.csv', 'trajectories_0.0-1.5s_raw.png',
                  'trajectories_0.1-0.5s_uncentred_raw.png', 'block_separations_unique.csv',
                  'block_contrasts_unique.csv', 'block_summary_unique.json',
-                 'block_separations_0.0-1.5s_unique.png'):
+                 'block_separations_0.0-1.5s_unique.png', 'null_block.npz'):
         assert (tmp_path / name).stat().st_size > 0, name
     config = json.loads((tmp_path / 'run_config.json').read_text())
     assert config['k_max'] == 3 and config['traj_axes'] == [[0.0, 1.5], [0.1, 0.5]]
+    assert config['n_block_perm'] == 3
+    assert np.load(tmp_path / 'null_block.npz')['changes'].shape[0] == 3
+    assert 'p' in pd.read_csv(tmp_path / 'block_contrasts.csv')
     null = np.load(tmp_path / 'null_subspace.npz')
     assert null['congruency_cross'].shape == (5, len(cs._rows(3)))
 
@@ -262,8 +266,8 @@ def test_job_scores_the_interactions_and_skips_the_main_effect_steps(tmp_path):
         synthetic_sfreq=256.0, epochs_root_file=None, windows_tmin=0.0, windows_tmax=1.5,
         window_size=64, step_size=16, remove_mean=False, rt_control='none',
         rt_match_bins=10, electrodes='all', rois_dict=None, n_splits=4, n_perm=5,
-        n_null_splits=2, n_boot=20, alpha=0.05, seed=0, k_max=2,
-        traj_axes=[(0.0, 1.5)], traj_first='congruency', effect='interaction',
+        n_null_splits=2, n_boot=20, n_block_perm=0, n_block_null_splits=2, alpha=0.05,
+        seed=0, k_max=2, traj_axes=[(0.0, 1.5)], traj_first='congruency', effect='interaction',
         save_dir=str(tmp_path))
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')

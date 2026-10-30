@@ -392,7 +392,8 @@ python dcc_scripts/spec/plot_example_spectrogram_dcc.py
   used because its linear 2 Hz bins resolve high gamma, whereas the wavelets have
   only ~6 log-spaced bins between 70 and 200 Hz. Wavelet TFRs for these
   conditions exist for all 24 subjects. Multitaper TFRs exist for D0094 (made
-  2026-10-29). To use another subject, make its multitaper TFRs first:
+  2026-10-29) and D0057 (job 60599091, submitted 2026-10-30). To use another
+  subject, make its multitaper TFRs first:
 
   ```bash
   cd dcc_scripts/spec
@@ -407,11 +408,15 @@ python dcc_scripts/spec/plot_example_spectrogram_dcc.py
 - **Parameters** (top of the script): `SUBJECT_ID`, `CHANNEL`,
   `CONDITION_NAMES`, `SPEC_TYPE`, `TIMES` (display window), `FREQ_RANGE`,
   `HG_BAND`, `VLIM`, `YSCALE`, `FIGSIZE`, `FONT_SIZE`.
-- **Default electrode:** D0094 LFPM12 (`ctx_lh_S_front_inf`, in both the lPFC
+- **Default electrode:** D0057 RAI7, the electrode from the original panel
+  (`src/analysis/spec/multitaper_spec.ipynb`, cell 7). Its anatomical label is
+  `Right-Cerebral-White-Matter`, so it isn't in the lPFC ROI. The strongest
+  in-ROI alternative is D0094 LFPM12 (`ctx_lh_S_front_inf`, in both the lPFC
   and dlPFC ROIs). Of the 418 lPFC channels across all subjects, it had the
   largest mean 70–150 Hz response 0.1–0.8 s after onset, with a quiet baseline.
-  The old panel's electrode (D0057 RAI7, from `multitaper_spec.ipynb`) is
-  labelled white matter, so don't reuse it.
+  The original panel's TFR (`multitaper/D0057/Stimulus_fixationCrossBase_0.2sec-tfr.h5`)
+  no longer loads in the current MNE, so the panel is remade from the
+  `Stimulus_c` / `Stimulus_i` multitaper TFRs.
 - **Units:** rescaled TFRs are dB relative to baseline: `20·log10` of the ratio
   for wavelets, whose output is amplitude, and `10·log10` for multitaper, whose
   output is power. Before 2026-10-29 the multitaper branch also used `20·log10`,

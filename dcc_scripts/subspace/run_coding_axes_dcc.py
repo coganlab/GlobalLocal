@@ -7,7 +7,8 @@ sbatch_coding_axes_dcc.sh; the per-run choices come from submit_coding_axes_dcc.
 as environment variables (EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOWS_TMIN,
 WINDOWS_TMAX, WINDOW_SIZE, STEP_SIZE, REMOVE_MEAN, RT_CONTROL, RT_MATCH_BINS,
 ELECTRODES, ROIS, N_SPLITS,
-N_PERM, N_NULL_SPLITS, N_BOOT, ALPHA, SEED, K_MAX, TRAJ_AXES, TRAJ_FIRST, EFFECT).
+N_PERM, N_NULL_SPLITS, N_BOOT, N_BLOCK_PERM, N_BLOCK_NULL_SPLITS, ALPHA, SEED, K_MAX,
+TRAJ_AXES, TRAJ_FIRST, EFFECT).
 """
 import sys
 import os
@@ -110,6 +111,11 @@ N_SPLITS = int(os.environ.get('N_SPLITS', '200'))           # split halves, real
 N_PERM = int(os.environ.get('N_PERM', '1000'))              # shuffles per factor
 N_NULL_SPLITS = int(os.environ.get('N_NULL_SPLITS', '20'))  # split halves per shuffle
 N_BOOT = int(os.environ.get('N_BOOT', '2000'))              # participant resamples
+# The shuffled-blocks null of the §6 block contrasts and proportion changes
+# (`coding_trajectories.block_null`): N_BLOCK_PERM draws of N_BLOCK_NULL_SPLITS
+# halves each; 0 skips it (each draw rescores the trajectory sums).
+N_BLOCK_PERM = int(os.environ.get('N_BLOCK_PERM', '0'))
+N_BLOCK_NULL_SPLITS = int(os.environ.get('N_BLOCK_NULL_SPLITS', '20'))
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 SEED = int(os.environ.get('SEED', '0'))                     # every other seed derives from it
 
@@ -168,6 +174,8 @@ def run_analysis():
         n_perm=N_PERM,
         n_null_splits=N_NULL_SPLITS,
         n_boot=N_BOOT,
+        n_block_perm=N_BLOCK_PERM,
+        n_block_null_splits=N_BLOCK_NULL_SPLITS,
         alpha=ALPHA,
         seed=SEED,
         k_max=K_MAX,
@@ -190,6 +198,8 @@ def run_analysis():
     print(f"Electrodes:       {ELECTRODES} | ROIs: {list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")
     print(f"n_splits:         {N_SPLITS} | null: {N_PERM} x {N_NULL_SPLITS} splits per factor")
     print(f"n_boot:           {N_BOOT} | alpha: {ALPHA} | seed: {SEED}")
+    print(f"block null:       {N_BLOCK_PERM} x {N_BLOCK_NULL_SPLITS} splits" if N_BLOCK_PERM
+          else "block null:       off")
     print(f"Subspace k_max:   {K_MAX}")
     print(f"Trajectory axes:  {TRAJ_AXES} s | first: {TRAJ_FIRST}")
     print(f"Save dir:         {SAVE_DIR}")

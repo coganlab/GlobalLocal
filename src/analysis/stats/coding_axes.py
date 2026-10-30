@@ -190,26 +190,32 @@ def rt_control(labels, hg_windows, mode='none', n_bins=10, seed=0):
              f'rt_{mode}_summary': rtm.summarize_rt_contrasts(contrasts)})
 
 
-def permute_within_cells(df, factor, rng):
-    """`df` with `factor`'s labels shuffled among each participant's trials that
-    share the other three design factors (§3.2).
+def permute_within_cells(df, factors, rng):
+    """`df` with the labels of `factors` (one design column, or several moved
+    together) shuffled among each participant's trials that share the other
+    design factors (§3.2).
 
     One permutation per participant, applied to all of its electrodes: they share
     trials, so their trial-to-trial noise is correlated, and permuting each
     electrode separately would make that noise independent and the null too
     narrow. Swapping only within cells of the other factors keeps the design
     (cell counts, and congruency's correlation with incProp) and destroys only
-    `factor`'s effect."""
-    others = [c for c in DESIGN_COLS if c != factor]
-    trials = (df.drop_duplicates(['subject', 'trial'])[['subject', 'trial', factor, *others]]
+    the effects of `factors`. Several factors are permuted as one: each trial
+    keeps a real combination of their levels, e.g. both proportions of one
+    block."""
+    factors = [factors] if isinstance(factors, str) else list(factors)
+    others = [c for c in DESIGN_COLS if c not in factors]
+    trials = (df.drop_duplicates(['subject', 'trial'])[['subject', 'trial', *factors, *others]]
               .reset_index(drop=True))
-    orig = trials[factor].to_numpy()
+    orig = trials[factors].to_numpy()
     new = orig.copy()
     for idx in trials.groupby(['subject', *others], dropna=False).indices.values():
         new[idx] = orig[rng.permutation(idx)]
-    lookup = pd.Series(new, index=pd.MultiIndex.from_frame(trials[['subject', 'trial']]))
+    rows = pd.MultiIndex.from_frame(trials[['subject', 'trial']]).get_indexer(
+        pd.MultiIndex.from_frame(df[['subject', 'trial']]))
     out = df.copy()
-    out[factor] = lookup.reindex(pd.MultiIndex.from_frame(df[['subject', 'trial']])).to_numpy()
+    for j, factor in enumerate(factors):
+        out[factor] = new[rows, j]
     return out
 
 

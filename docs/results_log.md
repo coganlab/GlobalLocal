@@ -6,6 +6,69 @@ the owning docs linked from each block.
 
 ---
 
+## 2026-10-30: anatomy vs coding-axes overlap; block-projection null submitted
+
+Drafted by Claude; not yet reviewed. **Partial:** the block-null runs are
+still running.
+
+Jobs: `overlap_measures` 60565385 COMPLETED (10 min); `coding_axes_real`
+60598899–904 (all24: stimulus- and response-locked, main / `remove_mean` /
+`rt_adjust`) and 60598938–40 (`SUBJECT_SET=good`, stimulus-locked, the same
+three), all with `N_BLOCK_PERM=500`, submitted 2026-10-30, running.
+
+### Short version
+
+1. **The anatomy and the coding axes agree on the main effects.** The
+   congruency–switch similarity, noise-corrected, is 0.65–0.86 under every
+   combination of scoring (raw difference or Cohen's d) and comparison
+   (cosine, Pearson, within-participant centring); d with within-participant
+   centring gives 0.79, the anatomy's own noise-corrected r. An earlier
+   estimate of 0.42 used mismatched inputs (a task-significant r with all-lPFC
+   reliabilities).
+2. **Early-window axes cannot test the congruency question.** With axes from
+   0.1–0.5 s (cos(c, s) ≈ 0) every block change is near 0, including switch's
+   (+0.01 [−0.21, 0.19]), because no reliable code exists then. These outputs
+   were already in the 10-22 folders. Late axes (0.6–1.4 s) reproduce the main
+   result: congruency × incProp along switch +0.33 [0.16, 0.52], switch ×
+   switchProp along switch +0.88 [0.34, 1.61].
+3. **New in the coding-axes job** (not yet in results): a shuffled-blocks null
+   for every block contrast and proportion change
+   (`coding_trajectories.block_null`; `N_BLOCK_PERM`, default 0 = off), and each
+   separation projected on the other variable's axis too (`axis` column), so
+   congruency's change on switch's unique axis is reported directly.
+
+### overlap_measures: raw vs d, cosine vs r
+
+- **Status:** COMPLETED. `dcc_scripts/subspace/overlap_measures.py` on the
+  all-lPFC main-effects segregation run's `long_df.csv` (0–1.5 s window means;
+  200 per-electrode splits, seed 0). Output
+  `stats/results/<epochs>/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects/overlap_measures/`.
+- **Result** (398 electrodes, 22 participants; alignment = cross / ceiling):
+
+  | Scores | cosine | Pearson | within participant |
+  |---|---|---|---|
+  | mean difference | 0.77 [0.58, 1.03] | 0.72 | 0.86 [0.65, 1.21] |
+  | Cohen's d | 0.70 [0.53, 0.93] | 0.65 | 0.79 [0.60, 1.05] |
+
+- **Effect on the paper's story:** F5 and F6 measure the same thing for the
+  main effects, so the anatomy–subspace question has no conflict to resolve
+  there (`paper_draft.md` §1.1, 2026-10-29 narrative).
+- **Recommendation:** one Methods/Results sentence; the table for reviewers.
+
+### Downloads
+
+Figure package for choosing and redrawing panels (every current candidate
+figure, with a README of figure, panel, source and draft caption):
+`/hpc/home/jz421/paper_figures/paper_figures_2026-10-30.zip` (24 MB, 80
+figures). It holds the 10-22 coding-axes figures; the block-null runs will
+overwrite those in place with p values added.
+
+```bash
+scp jz421@dcc-login.oit.duke.edu:/hpc/home/jz421/paper_figures/paper_figures_2026-10-30.zip ~/Downloads/
+```
+
+---
+
 ## 2026-10-29: rerun on the quality-checked subject set (`SUBJECT_SET=good`)
 
 Drafted by Claude; not yet reviewed. **Partial:** decoding (F4) and six of the

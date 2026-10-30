@@ -200,9 +200,14 @@ def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_lab
 
     `seps`, `cons` are the `block_separations` tables with `window_center`
     merged in (window -1, the overall mean, has none and is given in the
-    footer)."""
+    footer). Only each variable's own-axis rows are drawn; the footer adds the
+    permutation p where the tables have one."""
     seps = seps[seps['axes'] == label]
     cons = cons[cons['axes'] == label]
+    if 'axis' in seps:                       # own-axis rows: the axis named after the variable
+        own_axis = seps['variable'].map({v: n[0] for v, n in _VAR_NAMES.items()})
+        seps = seps[seps['axis'] == own_axis]
+        cons = cons[cons['axis'] == cons['variable'].map({v: n[0] for v, n in _VAR_NAMES.items()})]
     fig, axs = plt.subplots(2, 2, figsize=(12.0, 6.0), sharex=True,
                             gridspec_kw=dict(hspace=0.25, wspace=0.6))
     footer = []
@@ -238,7 +243,9 @@ def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_lab
         if not overall.empty:
             footer.append(f"{name}: " + '; '.join(
                 f"{con} {overall.loc[con, 'estimate']:+.3f} [{overall.loc[con, 'lo']:+.3f}, "
-                f"{overall.loc[con, 'hi']:+.3f}]" for con in (own, other, 'own_minus_other')))
+                f"{overall.loc[con, 'hi']:+.3f}]"
+                + (f" p = {overall.loc[con, 'p']:.3f}" if 'p' in overall else '')
+                for con in (own, other, 'own_minus_other')))
     for ax in axs[1]:
         ax.set_xlabel(time_label, fontsize=9, color=INK)
     fig.text(0.01, -0.03, f'Axes from {label} on one half, separations on the other.'

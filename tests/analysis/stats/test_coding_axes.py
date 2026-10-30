@@ -213,6 +213,22 @@ def test_shuffle_keeps_the_design_and_is_shared_across_electrodes():
     assert out[others + ['trial', 'electrode']].equals(df[others + ['trial', 'electrode']])
 
 
+def test_shuffle_moves_several_factors_together():
+    """Both proportions shuffled as one: each trial keeps a real (incProp,
+    switchProp) block, the blocks' trial counts within every congruency x
+    switch-type cell are unchanged, and the other columns are untouched."""
+    df, _ = _trial_long(np.ones(4), np.ones(4), n_subj=2, n_elec=4)
+    blocks = ['incongruent_proportion', 'switch_proportion']
+    out = ca.permute_within_cells(df, blocks, np.random.default_rng(0))
+
+    cells = ['subject', 'congruency', 'switchType']
+    count = lambda d: d.groupby(cells + blocks).size()
+    assert count(out).equals(count(df))
+    assert (out.groupby(['subject', 'trial'])[blocks].nunique() == 1).all().all()
+    assert (out[blocks] != df[blocks]).any().any()
+    assert out[cells + ['trial', 'electrode']].equals(df[cells + ['trial', 'electrode']])
+
+
 def test_null_is_reproducible_and_below_a_planted_shared_code():
     w = np.linspace(-1.5, 2.0, 8)
     df, times = _trial_long(w, w, noise=1.0, seed=5)                 # c = s: shared

@@ -39,11 +39,13 @@ from src.analysis.utils.general_utils import resolve_lab_root
 LAB_ROOT = None  # None -> resolve_lab_root default
 TASK = 'GlobalLocal'
 
-# D0094 LFPM12 (ctx_lh_S_front_inf; in both the lPFC and dlPFC ROIs) had the
-# largest mean 70-150 Hz response, 0.1-0.8 s after onset, of the 418 lPFC
-# channels across the 24 subjects, with a quiet baseline.
-SUBJECT_ID = 'D0094'
-CHANNEL = 'LFPM12'
+# D0057 RAI7: the electrode from the original example panel (multitaper_spec.ipynb).
+# Its anatomical label is Right-Cerebral-White-Matter, so it isn't in the lPFC ROI.
+# Alternative inside lPFC: D0094 LFPM12 (ctx_lh_S_front_inf; in both the lPFC and
+# dlPFC ROIs), which had the largest mean 70-150 Hz response, 0.1-0.8 s after
+# onset, of the 418 lPFC channels across the 24 subjects.
+SUBJECT_ID = 'D0057'
+CHANNEL = 'RAI7'
 
 # Stimulus_c + Stimulus_i together are all correct trials (stimulus_congruency_conditions).
 CONDITION_NAMES = ['Stimulus_c', 'Stimulus_i']

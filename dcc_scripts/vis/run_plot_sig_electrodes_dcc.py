@@ -49,6 +49,7 @@ if project_root not in sys.path:
 
 from dcc_scripts.vis.plot_sig_electrodes_dcc import main
 from dcc_scripts.vis.condition_plot_specs import resolve_plot_set, PLOT_CONDITION_SETS
+from src.analysis.config.subjects import resolve_subject_set
 
 # ============================================================================
 # WHICH COMPARISON  (choose the named set to plot)
@@ -64,15 +65,12 @@ plot_set = resolve_plot_set(PLOT_SET_LABEL)
 LAB_ROOT = None      # auto-detected in the helpers
 TASK = "GlobalLocal"
 
-# For ANOVA-sourced comparisons, this should be a superset of the subjects the
-# ANOVA ran on (the "_N_subjects" run dir), so every significant electrode can be
-# located on the average brain. This is the 24-subject list used by the power
-# ANOVA pipeline.
-SUBJECTS = [
-    "D0057", "D0059", "D0063", "D0065", "D0069", "D0077", "D0090", "D0094",
-    "D0100", "D0102", "D0103", "D0107A", "D0110", "D0116", "D0117", "D0121",
-    "D0133", "D0134", "D0137", "D0138", "D0139A", "D0144", "D0145", "D0146",
-]
+# SUBJECT_SET in the environment picks a set from src/analysis/config/subjects.py
+# (default all24), the same set the analyses ran on. For ANOVA-sourced
+# comparisons it should be a superset of the subjects the ANOVA ran on (the
+# "_N_subjects" run dir), so every significant electrode can be located on the
+# average brain.
+SUBJECTS, SUBJECT_SET_SUFFIX = resolve_subject_set()
 
 # Where subjects_electrodestoROIs_dict.json lives (built if absent).
 CONFIG_DIR = os.path.join(project_root, "src", "analysis", "config")
@@ -82,14 +80,15 @@ CONFIG_DIR = os.path.join(project_root, "src", "analysis", "config")
 # override with ECOG_RECON_DIR if the recons live somewhere else.
 SUBJECTS_DIR = os.environ.get("ECOG_RECON_DIR") or None
 
-# Save figures to the figs folder inside dcc_scripts/vis/figs.
-SAVE_DIR = os.path.join(project_root, "dcc_scripts", "vis", "figs")
+# Save figures to dcc_scripts/vis/figs, or figs_subjects-<set> for a set other
+# than the default, so the sets never overwrite each other.
+SAVE_DIR = os.path.join(project_root, "dcc_scripts", "vis", "figs" + SUBJECT_SET_SUFFIX)
 
 # ---- Brain plotting style --------------------------------------------------
 HEMI = "both"             # both | lh | rh | split
 ZOOM = None               # per-panel camera zoom; <1 zooms out, None = default
-MARKER_SIZE = 0.10
-TRANSPARENCY = 0.3
+MARKER_SIZE = 0.15
+TRANSPARENCY = 0.2
 RM_WM = False               # drop white-matter electrodes when plotting
 
 # ---- Histograms ------------------------------------------------------------

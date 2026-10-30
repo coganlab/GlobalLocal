@@ -64,7 +64,22 @@ With `unique=True` each separation is instead projected on its own axis's part
 orthogonal to the other axis (c_perp = c - (c.s / s.s) s, s_perp likewise;
 symmetric, so the order does not matter): a robustness check of whether the
 adaptation sits in what each code does not share. A shared direction that
-adapts counts on the raw axes (the default) but not on the unique ones.
+adapts counts on the raw axes (the default) but not on the unique ones. Each
+separation is also projected on the OTHER variable's axis (`axis` column):
+congruency's separation on s (or s_perp), switch's on c (or c_perp). On the
+unique axes this is where a change sits that neither the own axis nor the
+shared direction explains; congruency's change on s_perp is the oblique
+switch coordinate of `proportion_trajectories` times sin(c, s).
+
+**Is a block change bigger than chance?** (`block_null`): the two proportion
+labels shuffled together among each participant's trials of the same
+congruency x switch-type cell, so every trial keeps a real block, then
+everything rescored on fresh halves. Under "the blocks do not matter" every
+block contrast and proportion change is centred on 0; `block_separations` and
+`proportion_trajectories` take the draws as `null=` and report a two-sided
+permutation p. Trials are exchanged across blocks, which were run at different
+times, so slow drift that the blocks would carry in the data is not in the
+null.
 
 **Adaptation as trajectories** (plan §6, `proportion_trajectories`): each
 variable crossed with each proportion gives four conditions, the variable's two
@@ -82,6 +97,7 @@ import warnings
 import numpy as np
 import pandas as pd
 
+from . import coding_axes as ca
 from . import stability_flexibility_segregation as sfs
 
 # The four cells in (`_scond`, `_fcond`) levels (1 = incongruent / switch), and
@@ -382,36 +398,54 @@ def condition_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=2
 
 VARIABLES = tuple(_SEPARATION)                               # ('congruency', 'switchType')
 CONTRASTS = ('incProp', 'switchProp', 'own_minus_other')
+# Each variable's own axis and the other's, in the order `_separations` stacks them.
+AXES_OF = {'congruency': ('congruency', 'switch'), 'switchType': ('switch', 'congruency')}
 
 
 def _separations(sums, unique=False):
-    """Each variable's held-out separation per block on its own unit axis
-    (`unique`: on its own axis's part orthogonal to the other axis), averaged
-    over splits and directions: (..., variables, n_axes, time, blocks), in
-    `VARIABLES` and `BLOCKS` order. `sums` may carry leading (draw) axes. The
-    axes are per split and direction, from the pooled c and s."""
+    """Each variable's held-out separation per block on its own unit axis and
+    on the other variable's (`unique`: on each axis's part orthogonal to the
+    other axis), averaged over splits and directions: (..., variables, 2 axes
+    (own, other: `AXES_OF`), n_axes, time, blocks), in `VARIABLES` and
+    `BLOCKS` order. `sums` may carry leading (draw) axes. The axes are per
+    split and direction, from the pooled c and s."""
     def sep(q, var):                                 # axis . separation, per block
         return np.einsum('...xb,x->...b', sums[q], _SEPARATION[var])
     cc, ss, cs = sums['cc'], sums['ss'], sums['cs']
     cd, sd = sep('cQ', 'congruency'), sep('sQ', 'congruency')     # c.d_c, s.d_c
     cw, sw = sep('cQ', 'switchType'), sep('sQ', 'switchType')     # c.d_s, s.d_s
     e = (Ellipsis, None, None)
-    if unique:   # c_perp.d = c.d - (c.s/s.s) s.d;  |c_perp|^2 = c.c - (c.s)^2/s.s;  same for s
-        proj = [cd - (cs / ss)[e] * sd, sw - (cs / cc)[e] * cw]
-        norm2 = [cc - cs ** 2 / ss, ss - cs ** 2 / cc]
-    else:
-        proj, norm2 = [cd, sw], [cc, ss]
-    return np.stack([(p / np.sqrt(n)[e]).mean((-4, -3)) for p, n in zip(proj, norm2)], -4)
+
+    # (axis . d, |axis|^2) for a separation d given c.d and s.d;
+    # unique: c_perp.d = c.d - (c.s/s.s) s.d,  |c_perp|^2 = c.c - (c.s)^2/s.s,  same for s
+    def on_c(c_d, s_d):
+        return (c_d - (cs / ss)[e] * s_d, cc - cs ** 2 / ss) if unique else (c_d, cc)
+
+    def on_s(c_d, s_d):
+        return (s_d - (cs / cc)[e] * c_d, ss - cs ** 2 / cc) if unique else (s_d, ss)
+
+    pairs = [[on_c(cd, sd), on_s(cd, sd)],                       # congruency on c, on s
+             [on_s(cw, sw), on_c(cw, sw)]]                       # switch type on s, on c
+    return np.stack([np.stack([(p / np.sqrt(n)[e]).mean((-4, -3)) for p, n in var], -4)
+                     for var in pairs], -5)
 
 
 def _contrasts(seps):
-    """(..., variables, n_axes, time, contrasts) from `_separations`, in
+    """(..., variables, 2 axes, n_axes, time, contrasts) from `_separations`, in
     `CONTRASTS` order: the change with incProp and with switchProp (low - high,
     the other proportion weighted equally), and own - other."""
-    change = {p: seps @ w for p, w in _PROPORTION.items()}        # (..., variables, axes, time)
-    own = np.stack([change[OWN_PROPORTION[v]][..., i, :, :] for i, v in enumerate(VARIABLES)], -3)
+    change = {p: seps @ w for p, w in _PROPORTION.items()}   # (..., variables, 2, axes, time)
+    own = np.stack([change[OWN_PROPORTION[v]][..., i, :, :, :] for i, v in enumerate(VARIABLES)],
+                   -4)
     other = change['incProp'] + change['switchProp'] - own
     return np.stack([change['incProp'], change['switchProp'], own - other], -1)
+
+
+def _perm_p(observed, draws):
+    """Two-sided permutation p of `observed` against `draws` (n_draws, ...):
+    the share of draws at least as far from 0, counting the observed one."""
+    draws = np.asarray(draws, float)
+    return ((np.abs(draws) >= np.abs(observed)).sum(0) + 1) / (len(draws) + 1)
 
 
 def _with_overall(a, axis=-2):
@@ -421,28 +455,32 @@ def _with_overall(a, axis=-2):
 
 def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, seed=0,
                       remove_mean=False, unique=False, n_boot=1000, alpha=0.05, boot_seed=None,
-                      chunk=25):
+                      chunk=25, null=None):
     """Adaptation in the trajectories (plan §6): the held-out congruency and
     switch separations within each proportion block, each projected on its own
-    unit axis (module docstring).
+    unit axis and on the other variable's (module docstring).
 
     Arguments as for `condition_trajectories`; with the same `n_splits` and
     `seed` the axes, halves and electrodes are the trajectories' own.
-    `unique=True` projects each separation on its own axis's part orthogonal
+    `unique=True` projects each separation on each axis's part orthogonal
     to the other axis (c_perp = c - (c.s / s.s) s, s_perp likewise; symmetric,
     so the order does not matter): does the adaptation sit in what each code
     does not share? A shared direction that adapts counts on the raw axes (the
-    default, the main analysis) but not here.
+    default, the main analysis) but not here. `null`, the `block_null` draws
+    for the same data, axis windows and `remove_mean`, adds permutation p.
 
     Returns ``(separations, contrasts, summary)``:
 
     separations  one row per axis window (`axes`), variable ('congruency',
-                 'switchType'), block (`inc_prop`, `switch_prop`: 'low' /
-                 'high') and time bin (`window`, 0-based; -1 = the mean over
-                 all bins): separation (HG units along the unit axis), and its
+                 'switchType'), `axis` it is projected on ('congruency',
+                 'switch'; the variable's own is `AXES_OF[variable][0]`),
+                 block (`inc_prop`, `switch_prop`: 'low' / 'high') and time
+                 bin (`window`, 0-based; -1 = the mean over all bins):
+                 separation (HG units along the unit axis), and its
                  participant-bootstrap CI (lo, hi).
-    contrasts    one row per axis window, variable, contrast and window:
-                 estimate, lo, hi, excludes_0 (the CI excludes 0).
+    contrasts    one row per axis window, variable, axis, contrast and window:
+                 estimate, lo, hi, excludes_0 (the CI excludes 0), and with
+                 `null` p (two-sided, against the shuffled blocks).
                      incProp          separation in the low- minus the high-
                                       incProp blocks, switchProp weighted equally
                      switchProp       the same for switchProp
@@ -456,13 +494,16 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
                  and trials, so overall responsiveness, which scales both,
                  cancels.
     summary      per axis window and variable, the overall (window -1)
-                 contrasts with CIs; electrodes and participants used; settings.
+                 contrasts on the own axis with CIs (and p), the same on the
+                 other axis under `other_axis`; electrodes and participants
+                 used; settings.
     """
     sums, info, axis_labels = _present_sums(df, hg_windows, axis_hg, axis_labels, n_splits,
                                             seed, remove_mean, _PROJECTION_SUMS)
     n_part = len(sums['cc'])
     total = _separations(_weighted(sums, np.ones(n_part)), unique)
     seps, cons = _with_overall(total), _with_overall(_contrasts(total))
+    p = None if null is None else _perm_p(cons, null['contrasts_unique' if unique else 'contrasts'])
 
     # participant bootstrap; everything is a ratio of participant sums, so a
     # draw only re-weights them
@@ -471,7 +512,7 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
     for start in range(0, n_boot, chunk):
         w = rng.multinomial(n_part, np.full(n_part, 1 / n_part),
                             size=min(chunk, n_boot - start)).T.astype(float)
-        draws = _separations(_weighted(sums, w), unique)   # (draws, variables, axes, time, blocks)
+        draws = _separations(_weighted(sums, w), unique)   # (draws, variables, 2, axes, time, blocks)
         b_seps.append(_with_overall(draws))
         b_cons.append(_with_overall(_contrasts(draws)))
     q = [100 * alpha / 2, 100 * (1 - alpha / 2)]
@@ -484,25 +525,35 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
     for a, label in enumerate(axis_labels):
         summary[label] = {}
         for v, var in enumerate(VARIABLES):
-            for t, window in enumerate(windows):
-                for b, (inc, sw) in enumerate(BLOCKS):
-                    sep_rows.append(dict(axes=label, variable=var, inc_prop=inc, switch_prop=sw,
-                                         window=window, separation=seps[v, a, t, b],
-                                         lo=seps_lo[v, a, t, b], hi=seps_hi[v, a, t, b]))
-                for j, con in enumerate(CONTRASTS):
-                    lo, hi = cons_lo[v, a, t, j], cons_hi[v, a, t, j]
-                    con_rows.append(dict(axes=label, variable=var, contrast=con, window=window,
-                                         estimate=cons[v, a, t, j], lo=lo, hi=hi,
-                                         excludes_0=bool(lo > 0 or hi < 0)))
-            summary[label][var] = {
-                con: dict(estimate=float(cons[v, a, -1, j]),
-                          ci=[float(cons_lo[v, a, -1, j]), float(cons_hi[v, a, -1, j])])
-                for j, con in enumerate(CONTRASTS)}
-            summary[label][var]['own_proportion'] = OWN_PROPORTION[var]
+            overall = {}
+            for o, axis in enumerate(AXES_OF[var]):
+                i = (v, o, a)
+                for t, window in enumerate(windows):
+                    for b, (inc, sw) in enumerate(BLOCKS):
+                        sep_rows.append(dict(axes=label, variable=var, axis=axis, inc_prop=inc,
+                                             switch_prop=sw, window=window,
+                                             separation=seps[(*i, t, b)],
+                                             lo=seps_lo[(*i, t, b)], hi=seps_hi[(*i, t, b)]))
+                    for j, con in enumerate(CONTRASTS):
+                        lo, hi = cons_lo[(*i, t, j)], cons_hi[(*i, t, j)]
+                        row = dict(axes=label, variable=var, axis=axis, contrast=con,
+                                   window=window, estimate=cons[(*i, t, j)], lo=lo, hi=hi,
+                                   excludes_0=bool(lo > 0 or hi < 0))
+                        if p is not None:
+                            row['p'] = p[(*i, t, j)]
+                        con_rows.append(row)
+                overall[o] = {con: dict(estimate=float(cons[(*i, -1, j)]),
+                                        ci=[float(cons_lo[(*i, -1, j)]),
+                                            float(cons_hi[(*i, -1, j)])],
+                                        **({} if p is None else dict(p=float(p[(*i, -1, j)]))))
+                              for j, con in enumerate(CONTRASTS)}
+            summary[label][var] = dict(overall[0], own_proportion=OWN_PROPORTION[var],
+                                       other_axis=overall[1])
     summary = dict(axes=summary, n_electrodes=int(sum(info['n_kept'])), n_subjects=n_part,
                    n_electrodes_dropped=int(sum(info['n_dropped'])),
                    n_splits=n_splits, n_boot=n_boot, seed=seed, boot_seed=boot_seed,
-                   alpha=alpha, remove_mean=bool(remove_mean), unique=bool(unique))
+                   alpha=alpha, remove_mean=bool(remove_mean), unique=bool(unique),
+                   n_null=None if null is None else int(len(null['contrasts'])))
     return pd.DataFrame(sep_rows), pd.DataFrame(con_rows), summary
 
 
@@ -549,9 +600,56 @@ def _proportion_coordinates(sums, weights):
     return np.stack([a, b], -1).mean((-5, -4))
 
 
+_SET_WEIGHTS = [_set_weights(v, p) for v, p in PROPORTION_SETS]
+
+
+def _proportion_changes(sums):
+    """``(coordinates, changes)`` of the `PROPORTION_SETS` conditions:
+    coordinates (..., n_axes, time, 16, 2) as `_proportion_coordinates`, and
+    each set's change in separation along each axis, (..., n_axes, time + 1,
+    sets, 2), the last time bin the mean over bins."""
+    weights = np.concatenate([w for _, w in _SET_WEIGHTS])        # (16, 4 cells, 4 blocks)
+    coords = _proportion_coordinates(sums, weights)
+    by_set = coords.reshape(*coords.shape[:-2], len(_SET_WEIGHTS), 4, 2)
+    return coords, _with_overall(np.einsum('...sxc,x->...sc', by_set, _CHANGE), -3)
+
+
+BLOCK_FACTORS = ('incongruent_proportion', 'switch_proportion')
+
+
+def block_null(df, hg_windows, axis_hg, n_perm=500, n_splits=20, seed=0, remove_mean=False):
+    """The "blocks do not matter" null of every §6 statistic (module docstring).
+
+    Each draw shuffles the two proportion labels together among each
+    participant's trials of the same congruency x switch-type cell
+    (`coding_axes.permute_within_cells`), rescores the trajectory sums on
+    `n_splits` fresh halves, and records the block contrasts on the raw and
+    unique axes and the proportion changes. Arguments as for
+    `block_separations`; every draw is seeded from `seed`. The observed
+    statistics average more splits (200) than a draw does; fewer splits only
+    widen the null, so the test is conservative.
+
+    Returns ``{'contrasts': (n_perm, ...) as block_separations' contrasts,
+    'contrasts_unique': the same on the unique axes, 'changes': (n_perm, ...)
+    as proportion_trajectories' changes}``, to pass to either as `null=`.
+    """
+    rng = np.random.default_rng(seed)
+    draws = {'contrasts': [], 'contrasts_unique': [], 'changes': []}
+    for _ in range(n_perm):
+        shuffled = ca.permute_within_cells(df, BLOCK_FACTORS, rng)
+        sums, info = trajectory_sums(shuffled, hg_windows, axis_hg, n_splits=n_splits,
+                                     seed=int(rng.integers(2 ** 31)), remove_mean=remove_mean)
+        present = np.array(info['n_kept']) > 0
+        total = _weighted({k: sums[k][present] for k in _PROJECTION_SUMS}, np.ones(present.sum()))
+        for key, unique in (('contrasts', False), ('contrasts_unique', True)):
+            draws[key].append(_with_overall(_contrasts(_separations(total, unique))))
+        draws['changes'].append(_proportion_changes(total)[1])
+    return {k: np.stack(v) for k, v in draws.items()}
+
+
 def proportion_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, seed=0,
                             remove_mean=False, n_boot=1000, alpha=0.05, boot_seed=None,
-                            chunk=25):
+                            chunk=25, null=None):
     """Adaptation as trajectories (plan §6): for each variable crossed with each
     proportion, the held-out means of the variable's two levels in the 25 % and
     75 % blocks, on the congruency and switch axes (oblique coordinates, module
@@ -577,26 +675,21 @@ def proportion_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=
     changes       one row per axis window, set, `axis` ('congruency',
                   'switch') and time bin (-1 = mean over bins): the change in
                   separation, (level 1 - level 0) at 25 % minus at 75 %, along
-                  that axis: estimate, lo, hi, excludes_0. Positive = a larger
-                  separation in the 25 % blocks (the sign of
-                  `block_separations`).
+                  that axis: estimate, lo, hi, excludes_0, and with `null`
+                  (the `block_null` draws for the same data, axis windows and
+                  `remove_mean`) p. Positive = a larger separation in the 25 %
+                  blocks (the sign of `block_separations`).
     summary       per axis window: the axes' cosine and, per set, `own` and
-                  the overall change along each axis with its CI; electrodes
-                  and participants used; settings.
+                  the overall change along each axis with its CI (and p);
+                  electrodes and participants used; settings.
     """
     sums, info, axis_labels = _present_sums(df, hg_windows, axis_hg, axis_labels, n_splits,
                                             seed, remove_mean, _PROJECTION_SUMS)
     n_part = len(sums['cc'])
-    sets = [_set_weights(v, p) for v, p in PROPORTION_SETS]
-    weights = np.concatenate([w for _, w in sets])                # (16, 4 cells, 4 blocks)
-
-    def coordinates_and_changes(s):
-        coords = _proportion_coordinates(s, weights)              # (..., axes, time, 16, 2)
-        by_set = coords.reshape(*coords.shape[:-2], len(sets), 4, 2)
-        return coords, _with_overall(np.einsum('...sxc,x->...sc', by_set, _CHANGE), -3)
 
     total = _weighted(sums, np.ones(n_part))
-    coords, changes = coordinates_and_changes(total)
+    coords, changes = _proportion_changes(total)
+    p = None if null is None else _perm_p(changes, null['changes'])
     cos_axes = (total['cs'] / np.sqrt(total['cc'] * total['ss'])).mean((1, 2))
 
     # participant bootstrap; a draw only re-weights the participant sums
@@ -605,7 +698,7 @@ def proportion_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=
     for start in range(0, n_boot, chunk):
         w = rng.multinomial(n_part, np.full(n_part, 1 / n_part),
                             size=min(chunk, n_boot - start)).T.astype(float)
-        bc, bch = coordinates_and_changes(_weighted(sums, w))
+        bc, bch = _proportion_changes(_weighted(sums, w))
         b_coords.append(bc)
         b_changes.append(bch)
     q = [100 * alpha / 2, 100 * (1 - alpha / 2)]
@@ -616,7 +709,7 @@ def proportion_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=
     traj_rows, change_rows, summary = [], [], {}
     for a, label in enumerate(axis_labels):
         summary[label] = dict(axis_cosine=float(cos_axes[a]), sets={})
-        for s, ((var, prop), (names, _)) in enumerate(zip(PROPORTION_SETS, sets)):
+        for s, ((var, prop), (names, _)) in enumerate(zip(PROPORTION_SETS, _SET_WEIGHTS)):
             name, own = f'{var} x {prop}', OWN_PROPORTION[var] == prop
             for t in range(n_t):
                 for n, cond in enumerate(names):
@@ -629,15 +722,20 @@ def proportion_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=
             for t, window in enumerate([*range(n_t), -1]):
                 for j, ax in enumerate(_AXIS_NAMES):
                     lo, hi = ch_lo[a, t, s, j], ch_hi[a, t, s, j]
-                    change_rows.append(dict(axes=label, set=name, own=own, axis=ax, window=window,
-                                            estimate=changes[a, t, s, j], lo=lo, hi=hi,
-                                            excludes_0=bool(lo > 0 or hi < 0)))
+                    row = dict(axes=label, set=name, own=own, axis=ax, window=window,
+                               estimate=changes[a, t, s, j], lo=lo, hi=hi,
+                               excludes_0=bool(lo > 0 or hi < 0))
+                    if p is not None:
+                        row['p'] = p[a, t, s, j]
+                    change_rows.append(row)
             summary[label]['sets'][name] = dict(own=own, **{
                 ax: dict(estimate=float(changes[a, -1, s, j]),
-                         ci=[float(ch_lo[a, -1, s, j]), float(ch_hi[a, -1, s, j])])
+                         ci=[float(ch_lo[a, -1, s, j]), float(ch_hi[a, -1, s, j])],
+                         **({} if p is None else dict(p=float(p[a, -1, s, j]))))
                 for j, ax in enumerate(_AXIS_NAMES)})
     summary = dict(axes=summary, n_electrodes=int(sum(info['n_kept'])), n_subjects=n_part,
                    n_electrodes_dropped=int(sum(info['n_dropped'])),
                    n_splits=n_splits, n_boot=n_boot, seed=seed, boot_seed=boot_seed,
-                   alpha=alpha, remove_mean=bool(remove_mean))
+                   alpha=alpha, remove_mean=bool(remove_mean),
+                   n_null=None if null is None else int(len(null['changes'])))
     return pd.DataFrame(traj_rows), pd.DataFrame(change_rows), summary

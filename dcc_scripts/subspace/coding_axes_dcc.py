@@ -49,13 +49,17 @@ Writes to `args.save_dir`:
                             and s axes; figures trajectories_<axes>[_uncentred]_raw.png
 
   adaptation (§6, `coding_trajectories.block_separations`), on the same axes:
-    block_separations.csv   per axis window, variable, proportion block and
-                            window: the held-out separation on the variable's
-                            own unit axis, with bootstrap CI (window -1 = mean)
-    block_contrasts.csv     per axis window, variable and window: the change in
-                            separation with incProp, with switchProp (low - high)
-                            and own - other, with bootstrap CIs
-    block_summary.json      the overall (window -1) contrasts with CIs
+    block_separations.csv   per axis window, variable, axis (its own, the other's),
+                            proportion block and window: the held-out separation
+                            on that unit axis, with bootstrap CI (window -1 = mean)
+    block_contrasts.csv     per axis window, variable, axis and window: the change
+                            in separation with incProp, with switchProp (low -
+                            high) and own - other, with bootstrap CIs (and p
+                            against the shuffled blocks, with N_BLOCK_PERM)
+    block_summary.json      the overall (window -1) contrasts with CIs (and p)
+    null_block.npz          with N_BLOCK_PERM: the shuffled-blocks draws of every
+                            block contrast and proportion change
+                            (`coding_trajectories.block_null`)
     block_separations_<axes>.png  the §6 figure per axis window
     block_*_unique.*, block_separations_<axes>_unique.png  the same on each
                             axis's part orthogonal to the other (robustness check)
@@ -333,13 +337,24 @@ def main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, see
                                   cells=cells, first=first, time_label=time_label)
 
     # 6. adaptation as block-split separations (§6, supplement): the
-    #    trajectories' axes, halves and electrodes
+    #    trajectories' axes, halves and electrodes. The shuffled-blocks null
+    #    (one pass feeds steps 6 and 7) only when asked for: it rescores the
+    #    trajectory sums once per draw.
+    block_null = None
+    if args.n_block_perm:
+        print(f"block null: shuffling the proportion blocks ({args.n_block_perm} permutations, "
+              f"{args.n_block_null_splits} splits each)")
+        block_null = ct.block_null(labels, hg_windows, axis_hg, n_perm=args.n_block_perm,
+                                   n_splits=args.n_block_null_splits, seed=seeds['block_null'],
+                                   remove_mean=args.remove_mean)
+        np.savez(os.path.join(args.save_dir, 'null_block.npz'), **block_null)
     block_summaries = {}
     for unique, tag in ((False, ''), (True, '_unique')):
         seps, cons, block_summaries[tag] = ct.block_separations(
             labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
             seed=seeds['halves'], remove_mean=args.remove_mean, unique=unique,
-            n_boot=args.n_boot, alpha=args.alpha, boot_seed=seeds['block_bootstrap'])
+            n_boot=args.n_boot, alpha=args.alpha, boot_seed=seeds['block_bootstrap'],
+            null=block_null)
         seps = seps.merge(grid, on='window', how='left')
         cons = cons.merge(grid, on='window', how='left')
         seps.to_csv(os.path.join(args.save_dir, f'block_separations{tag}.csv'), index=False)
@@ -357,7 +372,7 @@ def main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, see
     ptraj, pchanges, prop_summary = ct.proportion_trajectories(
         labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
         seed=seeds['halves'], remove_mean=args.remove_mean, n_boot=args.n_boot,
-        alpha=args.alpha, boot_seed=seeds['proportion_bootstrap'])
+        alpha=args.alpha, boot_seed=seeds['proportion_bootstrap'], null=block_null)
     ptraj = ptraj.merge(grid, on='window')
     pchanges = pchanges.merge(grid, on='window', how='left')
     ptraj.to_csv(os.path.join(args.save_dir, 'proportion_trajectories.csv'), index=False)
@@ -373,21 +388,24 @@ def main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, see
         print(f"trajectories, axes {label}: plane holds {s['plane_fraction']:.3f} of the "
               f"centred cells' variance (chance {s['plane_fraction_chance']:.3f}), "
               f"{s['plane_fraction_signal']:.2f} of the signal")
+    def fmt(d):
+        return (f"{d['estimate']:+.3f} [{d['ci'][0]:+.3f}, {d['ci'][1]:+.3f}]"
+                + (f" p={d['p']:.3f}" if 'p' in d else ''))
+
     for tag, block_summary in block_summaries.items():
         for label, by_var in block_summary['axes'].items():
             for var, s in by_var.items():
                 own = s['own_proportion']
                 other = 'switchProp' if own == 'incProp' else 'incProp'
-                print(f"block separations{' (unique axes)' if tag else ''}, axes {label}, {var}: "
-                      + ' | '.join(f"{con} {s[con]['estimate']:+.3f} "
-                                   f"[{s[con]['ci'][0]:+.3f}, {s[con]['ci'][1]:+.3f}]"
-                                   for con in (own, other, 'own_minus_other')))
+                for where, d in (('own axis', s), ('other axis', s['other_axis'])):
+                    print(f"block separations{' (unique axes)' if tag else ''}, axes {label}, "
+                          f"{var} on its {where}: "
+                          + ' | '.join(f"{con} {fmt(d[con])}"
+                                       for con in (own, other, 'own_minus_other')))
     for label, s in prop_summary['axes'].items():
         for name, v in s['sets'].items():
             print(f"proportion trajectories, axes {label}, {name} ({'own' if v['own'] else 'cross'}): "
-                  + ' | '.join(f"along {a} {v[a]['estimate']:+.3f} "
-                               f"[{v[a]['ci'][0]:+.3f}, {v[a]['ci'][1]:+.3f}]"
-                               for a in ('congruency', 'switch')))
+                  + ' | '.join(f"along {a} {fmt(v[a])}" for a in ('congruency', 'switch')))
 
 
 def main(args):
@@ -413,7 +431,7 @@ def main(args):
                  null_switchType=args.seed + 2, bootstrap=args.seed + 3,
                  rt_match=args.seed + 4, subspace_bootstrap=args.seed + 5,
                  trajectory_bootstrap=args.seed + 6, block_bootstrap=args.seed + 7,
-                 proportion_bootstrap=args.seed + 8)
+                 proportion_bootstrap=args.seed + 8, block_null=args.seed + 9)
     os.makedirs(args.save_dir, exist_ok=True)
 
     # 0. the RT control (§3.3), before anything is scored, so the real axes, every
@@ -506,6 +524,7 @@ def main(args):
         rt_control=args.rt_control, rt_match_bins=args.rt_match_bins,
         n_splits=args.n_splits, n_perm=args.n_perm, n_null_splits=args.n_null_splits,
         n_boot=args.n_boot, alpha=args.alpha,
+        n_block_perm=args.n_block_perm, n_block_null_splits=args.n_block_null_splits,
         k_max=args.k_max, traj_axes=[list(w) for w in args.traj_axes],
         traj_first=args.traj_first,
         seed=args.seed, seeds=seeds,
