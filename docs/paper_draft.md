@@ -109,7 +109,9 @@ shared codes for conflict and task switching".
 *Figure arc:* F1 behaviour; F2 coverage and signal; F3 both adaptations in the
 power traces, with F4 the same in the population pattern (merging F3 and F4 is
 under consideration); F5 one population, the overlap inherited from the base
-effects (scatter with centroids; overlap under the controls); F6 the codes
+effects (scatter with centroids; the base-effect partialling is one Results
+sentence, not a panel: decided 2026-10-30, see the placement table in §1.4
+F5); F6 the codes
 partly shared (cosine against null and ceiling; principal angles), the
 trajectories as illustration, and the **block projections as the last panel**,
 the only result about adaptation in the population geometry. Gradient,
@@ -578,6 +580,7 @@ N4 doc):
 | Height gradient in the balance | F5a, c, d, with the electrode-bootstrap CI; the participant-level and random-slope p in S-N4; the parcel test as one sentence. Omnibus only, never a named parcel. |
 | Participant-level versions of the above (N4 §19.1–19.3) | S-N4, one paragraph (§3.5), for a reviewer who asks how far the results generalise across participants |
 | Congruency and switch share electrodes | Main text sentence; optional scatter beside F5b |
+| The LWPC–LWPS overlap follows the base effects: r 0.097 → 0.028 (p = 0.23) with each half's congruency and switch effects partialled out, while nonlinear responsiveness (0.094), MNI coordinates (0.100) and RT coupling (0.082) leave it | **Main text, one Results sentence, no panel** (decided 2026-10-30): it is the transition from F5 to F6, the reason to study the congruency and switch codes themselves. The draft dot-plot panel (`overlap_controls.png`, `dcc_scripts/stats/plot_overlap_controls.py`) was dropped as hard to read for one number's drop. The controls table (`overlap_controls.csv`) goes in S-N4. |
 | Congruency and switch-type codes partly aligned (coding axes: alignment 0.69, θ₁ 0.74 of the ceiling, shared from 0.56 s, not one code); not a common shift | Main text, F5 d–e; θ₁ and the alignment index in the text (2026-10-16) |
 | The codes go with RT matching (five seeds, against random subsets of the same size) | Main text, one sentence beside d–e; the seeds table in S5 |
 | Coding-axes `rt_adjust`, sig lPFC, DLPFC, subspace dimensions, early-vs-late-axis and uncentred trajectories | S5 |
@@ -639,7 +642,7 @@ work. Renumber at submission.
 | S7 | Per-participant high-gamma traces; demographics, electrode counts, exclusions | To build | – |
 | S8 | Cross-decoding control table for every transfer reported | The A4 block is filled in ([`decoding.md` › A4 §13.7](decoding.md#137-what-to-report-and-where-things-stand)); pseudo-trial counts missing | – |
 | S10 | Per-trial-baseline robustness rerun of the power traces; direct block comparisons | Not run | – |
-| S-N4 | Anatomy in full: the task-significant set; the matched-vs-crossed bars (the 2026-10-01 F5b, `fig5.png` b); the two balances by parcel; the four scores by distance from the midline and by height; per-parcel bars, coverage, leave-one-out tables; both coordinate tables and the hemisphere fits; the height vs midline models; Test 2 with the reliability and bootstrap; map similarity; **§19 of the N4 doc:** per-participant z slopes and their leave-one-out range, the mixed models, the per-participant overlap r, the local-similarity curves | All-lPFC parts ready; the parcel and band panels have data, not plots. The task-significant set is complete with main effects (2026-10-01, N4 §18). §19 coded 2026-10-02, not run. | §3.5 |
+| S-N4 | Anatomy in full: the task-significant set; the matched-vs-crossed bars (the 2026-10-01 F5b, `fig5.png` b); the overlap-controls table (`overlap_controls.csv`; in the text as one sentence, 2026-10-30); the two balances by parcel; the four scores by distance from the midline and by height; per-parcel bars, coverage, leave-one-out tables; both coordinate tables and the hemisphere fits; the height vs midline models; Test 2 with the reliability and bootstrap; map similarity; **§19 of the N4 doc:** per-participant z slopes and their leave-one-out range, the mixed models, the per-participant overlap r, the local-similarity curves | All-lPFC parts ready; the parcel and band panels have data, not plots. The task-significant set is complete with main effects (2026-10-01, N4 §18). §19 coded 2026-10-02, not run. | §3.5 |
 | S-BB | Brain–behavior across participants: RT-adjusted (primary) and raw correlations, reliabilities, ceiling, power | Run 2026-09-30; text final | §2.8, §3.7, §5.3 |
 
 ### 1.6 Left out of the paper
