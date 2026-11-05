@@ -1,0 +1,42 @@
+----------------------------------------------------------------------
+§19 — ELECTRODES AND PARTICIPANTS AS THE UNIT, LOCAL SIMILARITY, COMBINED FIGURE 5, OVERLAP CONTROLS
+  each part: electrodes as the unit first (the pre-specified tests' level), participants as the unit second (supplement)
+  mni_z SLOPE, ELECTRODES AS THE UNIT (the coordinate test; 398 electrodes, 22 participants)
+    slope -0.00770/mm  95 % CI [-0.01244, -0.00321] (electrode bootstrap within participant)  swap-null p = 0.007399
+  mni_z SLOPE, PARTICIPANTS AS THE UNIT (22 participants, 398 electrodes)
+    pooled slope -0.00770/mm = the coordinate test's; it is the weight-averaged participant slope
+    weighted:   -0.00770/mm  95 % CI [-0.01467, -0.00134]  sign-flip p = 0.041  (21 participants)
+    three participants carry 38% of the weight
+    unweighted: -0.01099/mm ± 0.00589  t-test p = 0.07781  13/20 negative (sign test p = 0.263)  [>= 3 electrodes, >= 5 mm spread]
+    mixed, random intercept: -0.00770/mm ± 0.00276  Wald p = 0.005244
+    mixed, random slope: -0.00831/mm ± 0.00399  Wald p = 0.03745  random-slope SD 0.01007/mm
+    leave one participant out: slope -0.00934 to -0.00496/mm, p 0.002 to 0.0989
+  FIGURE 5 (height) LWPC vs LWPS, ELECTRODES AS THE UNIT — fig5_height.png, fig5_height.pdf, fig5_height_points.csv, fig5_height_centroids.csv, fig5_height_balance.csv, fig5_height_partials.csv, fig5_height_brain_centroids.csv
+  bands: tertiles of mni_z at 16.3 and 38.1 mm; 397 of 397 points have coordinates
+  brain: fig5_height_brain.png
+  brain ventral  lh centroid MNI (-41.4, +27.6, +1.7) mm  (88 electrodes, 13 participants)
+  brain ventral  rh centroid MNI (+43.3, +21.8, +5.8) mm  (44 electrodes, 11 participants)
+  brain middle   lh centroid MNI (-33.6, +34.9, +26.0) mm  (93 electrodes, 12 participants)
+  brain middle   rh centroid MNI (+38.1, +34.3, +28.1) mm  (39 electrodes, 9 participants)
+  brain dorsal   lh centroid MNI (-23.2, +24.3, +52.5) mm  (72 electrodes, 13 participants)
+  brain dorsal   rh centroid MNI (+25.1, +27.5, +51.0) mm  (61 electrodes, 10 participants)
+  b  LWPC vs LWPS r = +0.097  p = 0.0001  [/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects/correlation.json]
+  b  ventral  centroid LWPC +0.016, LWPS +0.052; balance -0.036 [-0.223, +0.148] (electrode bootstrap; 132 electrodes, 19 participants)
+  b  middle   centroid LWPC +0.220, LWPS +0.289; balance -0.068 [-0.234, +0.107] (electrode bootstrap; 132 electrodes, 18 participants)
+  b  dorsal   centroid LWPC -0.140, LWPS +0.197; balance -0.337 [-0.492, -0.178] (electrode bootstrap; 133 electrodes, 19 participants)
+  table ventral  adjusted LWPC − LWPS -0.037 ± 0.096 SEM (133 electrodes)
+  table middle   adjusted LWPC − LWPS -0.068 ± 0.088 SEM (132 electrodes)
+  table dorsal   adjusted LWPC − LWPS -0.336 ± 0.084 SEM (133 electrodes)
+  c  mni_z slope -0.00770/mm (p = 0.0074); the plotted balance gives -0.00770/mm
+  c  line through the 398 electrodes: -0.00770/mm
+  FIGURE 5 (height) LWPC vs LWPS, PARTICIPANTS AS THE UNIT — fig5_height_participants.png, fig5_height_participants.pdf, fig5_height_points.csv, fig5_height_participants_centroids.csv, fig5_height_participants_balance.csv, fig5_height_balance_by_participant.csv, fig5_height_partials.csv, fig5_height_brain_centroids.csv
+  bands: tertiles of mni_z at 16.3 and 38.1 mm; 397 of 397 points have coordinates
+  b  LWPC vs LWPS r = +0.097  p = 0.0001  [/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects/correlation.json]
+  b  ventral  centroid LWPC +0.016, LWPS +0.052; balance -0.036 [-0.193, +0.119] (participant bootstrap; 132 electrodes, 19 participants)
+  b  middle   centroid LWPC +0.220, LWPS +0.289; balance -0.068 [-0.258, +0.058] (participant bootstrap; 132 electrodes, 18 participants)
+  b  dorsal   centroid LWPC -0.140, LWPS +0.197; balance -0.337 [-0.487, -0.201] (participant bootstrap; 133 electrodes, 19 participants)
+  table ventral  adjusted LWPC − LWPS -0.151 ± 0.085 SEM (20 participants)
+  table middle   adjusted LWPC − LWPS -0.141 ± 0.134 SEM (18 participants)
+  table dorsal   adjusted LWPC − LWPS -0.375 ± 0.121 SEM (19 participants)
+  c  mni_z slope -0.00770/mm (p = 0.0074); the plotted balance gives -0.00770/mm
+  c  line through the 398 electrodes: -0.00770/mm

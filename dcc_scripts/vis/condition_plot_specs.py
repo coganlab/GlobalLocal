@@ -212,13 +212,13 @@ ELECTRODE_PLOT_SETS = OrderedDict([
         ANOVA_EPOCHS_ROOT, color=(0.6, 0.6, 0.6), rois_dict=None,
         label="Analyzed electrodes")),
     ("all_lpfc_elecs", all_chans(
-        ANOVA_EPOCHS_ROOT, color=(0.55, 0.3, 0.8), rois_dict=LPFC_ROIS,
+        ANOVA_EPOCHS_ROOT, color=(0, 158/255, 115/255), rois_dict=LPFC_ROIS,
         label="Analyzed LPFC electrodes")),
     ("sig_elecs", sig_chans(
         ANOVA_EPOCHS_ROOT, color=(0.0, 0.0, 0.0), rois_dict=None,
         label="Task-significant electrodes")),
     ("sig_lpfc_elecs", sig_chans(
-        ANOVA_EPOCHS_ROOT, color=(0.3, 0.0, 0.5), rois_dict=LPFC_ROIS,
+        ANOVA_EPOCHS_ROOT, color=(204/255, 121/255, 167/255), rois_dict=LPFC_ROIS,
         label="Task-significant LPFC electrodes")),
     ("congruency_only", power_trace_set(
         _FULL_RUN, color=(1.0, 0.0, 0.0),

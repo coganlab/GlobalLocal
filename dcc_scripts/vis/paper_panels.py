@@ -13,7 +13,8 @@ averaged to the four sub-cells of each 2 x 2 term with the other proportion's
 blocks weighted equally, mean +- SEM across electrodes, and the term's
 cluster-corrected interaction mask (`*_interaction_cluster.npz`). Colour =
 proportion block (the decoding figures' colours), line style = condition
-(solid congruent / repeat, dashed incongruent / switch).
+(solid congruent / repeat, dashed incongruent / switch); one legend
+entry per trace, e.g. 'repeat, 25% switch'.
 
 Fig 4: the decoding results files (`replot.context_comparison_panel`): the two
 blocks' accuracies, the pooled shuffle, the contrast and against-chance bars;
@@ -27,6 +28,7 @@ import argparse
 import glob
 import json
 import os
+import re
 import sys
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -36,7 +38,6 @@ if project_root not in sys.path:
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
-from matplotlib.lines import Line2D
 
 from src.analysis.decoding.plots.accuracies import plot_accuracies_with_multiple_sig_clusters
 from src.analysis.decoding.plots.replot import context_comparison_panel, load_master_results
@@ -48,9 +49,9 @@ DCC = os.path.join(project_root, 'dcc_scripts')
 
 # --- choices for these figures -------------------------------------------------
 XLIM = (-1.0, 1.5)                    # s, every panel
-DECODING_YLIM = (0.3, 1.0)
-BASE_FONTSIZE = 7.0                   # pt; ticks 6, keys 5.5
-SIG_BAND_FRAC = 0.16                  # share of the axes height for the significance rows
+DECODING_YLIM = (0.3, 0.95)              # the highest mean + SD drawn is 0.94
+BASE_FONTSIZE = 8.0                   # pt: axis labels 8, ticks 7, legend 6.5, row labels 7
+SIG_BAND_FRAC = 0.10                  # share of the axes height for the significance rows
 # Fig 3 panels: (name, condition set, the term's two factors). Rows of the
 # figure: switch cost, congruency effect; columns: switch, incongruent proportion.
 POWER_PANELS = (('fig3_switch_x_switchprop_LWPS', 'lwps', ('switchType', 'switchProportion')),
@@ -64,15 +65,33 @@ DECODING_PANELS = (('fig4_LWPC', 57902167), ('fig4_LWPS', 57902168),
 
 # Cell names: Stimulus_<c|i|r|s>_<MC|MI>_<MR|MS>; MC / MI = 25 / 75 % incongruent
 # blocks, MR / MS = 25 / 75 % switch blocks.
-CONDITION = {'congruency': {'c': 'congruent', 'i': 'incongruent'},
-             'switchType': {'r': 'repeat', 's': 'switch'}}
-PROPORTION = {'incongruentProportion': (1, {'MC': '25% incongruent', 'MI': '75% incongruent'}),
-              'switchProportion': (2, {'MR': '25% switch', 'MS': '75% switch'})}
+# Legend words, abbreviated so the keys fit beside the axes at a readable size
+ABBREV = {'incongruent': 'inc.', 'congruent': 'con.', 'repeat': 'rep.', 'switch': 'swi.'}
+CONDITION = {'congruency': {'c': 'con.', 'i': 'inc.'},
+             'switchType': {'r': 'rep.', 's': 'swi.'}}
+PROPORTION = {'incongruentProportion': (1, {'MC': '25% inc.', 'MI': '75% inc.'}),
+              'switchProportion': (2, {'MR': '25% swi.', 'MS': '75% swi.'})}
 # The decoding figures' colours, light = 25 %, dark = 75 %
-PROPORTION_COLORS = {'25% incongruent': '#FF7E79', '75% incongruent': '#A32319',
-                     '25% switch': '#05B0F0', '75% switch': '#0B4F8A'}
-EASY = ('congruent', 'repeat')        # solid; the other condition dashed
-KEY_COLOR = '#52514e'                 # neutral ink for the line-style key
+PROPORTION_COLORS = {'25% inc.': '#FF7E79', '75% inc.': '#A32319',
+                     '25% swi.': '#05B0F0', '75% swi.': '#0B4F8A'}
+EASY = ('con.', 'rep.')               # solid; the other condition dashed
+
+
+def abbreviate(text):
+    """``text`` with the condition words of `ABBREV` shortened, e.g.
+    '25% incongruent' -> '25% inc.'."""
+    return re.sub(r'\b(' + '|'.join(ABBREV) + r')\b', lambda m: ABBREV[m.group(1)], text)
+
+
+def abbreviated(panel):
+    """A `context_comparison_panel` dict with its trace labels abbreviated
+    (`abbreviate`) in every place they key: the accuracies, colours, line
+    styles and ``labels``."""
+    out = dict(panel)
+    for key in ('accuracies_dict', 'colors', 'linestyles'):
+        out[key] = {abbreviate(k): v for k, v in panel[key].items()}
+    out['labels'] = tuple(abbreviate(lab) for lab in panel['labels'])
+    return out
 
 
 def power_panel(run_dir, condition_set, factors, n_subjects):
@@ -111,8 +130,9 @@ def common_power_ylim(panels):
 
 
 def draw_power(times, traces, mask, ylim):
-    """``draw(ax)`` for one Fig 3 panel: the four sub-cell traces, the
-    interaction bar, and a two-part key (colour = block, line = condition)."""
+    """``draw(ax)`` for one Fig 3 panel: the four sub-cell traces, each its
+    own legend entry naming condition and block (e.g. 'repeat, 25% switch'),
+    and the interaction bar."""
     order = sorted(traces, key=lambda k: (k[1], k[0] not in EASY))
     labels = {k: f'{k[0]}, {k[1]}' for k in order}
 
@@ -124,16 +144,9 @@ def draw_power(times, traces, mask, ylim):
             colors={labels[k]: PROPORTION_COLORS[k[1]] for k in order},
             linestyles={labels[k]: '-' if k[0] in EASY else '--' for k in order},
             band='sem', ylim=ylim, xlim=XLIM, ylabel='High gamma (z)',
-            show_chance_level=False, show_legend=False, show_sig_legend=True,
-            sig_legend_loc='rows', sig_band_frac=SIG_BAND_FRAC,
+            show_chance_level=False, show_legend=True, legend_loc='right',
+            show_sig_legend=True, sig_legend_loc='rows', sig_band_frac=SIG_BAND_FRAC,
             base_fontsize=BASE_FONTSIZE, linewidth=1.2, ax=ax)
-        props = list(dict.fromkeys(k[1] for k in order))
-        conds = list(dict.fromkeys(k[0] for k in sorted(order, key=lambda k: k[0] not in EASY)))
-        handles = ([Line2D([], [], color=PROPORTION_COLORS[p], lw=1.4, label=p) for p in props]
-                   + [Line2D([], [], color=KEY_COLOR, lw=1.2, ls='-' if c in EASY else '--', label=c)
-                      for c in conds])
-        ax.legend(handles=handles, loc='upper left', bbox_to_anchor=(1.02, 1.0 - SIG_BAND_FRAC - 0.06),
-                  frameon=False, borderaxespad=0, fontsize=BASE_FONTSIZE - 1.5, handlelength=1.8)
     return draw
 
 
@@ -157,7 +170,8 @@ def short_sig_labels(panel):
 
 def draw_decoding(panel):
     """``draw(ax)`` for one Fig 4 comparison panel (`context_comparison_panel`)."""
-    kwargs = {k: panel[k] for k in ('time_points', 'accuracies_dict', 'colors', 'linestyles')}
+    short = abbreviated(panel)
+    kwargs = {k: short[k] for k in ('time_points', 'accuracies_dict', 'colors', 'linestyles')}
     kwargs['significance_clusters_dict'] = short_sig_labels(panel)
 
     def draw(ax):
@@ -175,7 +189,7 @@ def difference_panel(panel, master, roi='lpfc'):
     a, b = panel['labels']
     diff = np.asarray(panel['accuracies_dict'][a], float) - np.asarray(panel['accuracies_dict'][b], float)
     sig = {k: v for k, v in short_sig_labels(panel).items() if v.get('kind') != 'chance'}
-    return panel['time_points'], {f'{a} − {b}': diff}, sig
+    return panel['time_points'], {f'{abbreviate(a)} − {abbreviate(b)}': diff}, sig
 
 
 def main():
