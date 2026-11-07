@@ -1,0 +1,33 @@
+Electrode deviation report for ROI: occ
+Metric: RMS deviation of each electrode trace from the condition's across-electrode mean trace.
+Scoring window: epoch start to 0s
+Larger values indicate greater deviation; this is a diagnostic ranking, not a statistical outlier test.
+
+[Stimulus] (68 electrodes, showing 25)
+rank	electrode	rms_deviation
+1	RHT5	0.364093
+2	LOPM8	0.320394
+3	LOPS7	0.276498
+4	LOAI14-1	0.238095
+5	LOHT15	0.234557
+6	LTPI2-0	0.223859
+7	LOPM9	0.218294
+8	LOHT14	0.206352
+9	LTPI3	0.192792
+10	LOAM15-1	0.171551
+11	LOPS10	0.163017
+12	LOHT16	0.161278
+13	LOAI13-1	0.161094
+14	LOPM10	0.150207
+15	LOAI15-1	0.148068
+16	LTPI4	0.144923
+17	LOMM1	0.132045
+18	LOPS3	0.120759
+19	LOAM2	0.118944
+20	LOMS13	0.117022
+21	LOPS1	0.114272
+22	LOMI7	0.103456
+23	LOPS11	0.101016
+24	LOAI12-0	0.099637
+25	LOPS9	0.0976075
+

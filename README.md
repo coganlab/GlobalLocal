@@ -39,6 +39,7 @@ only remember one thing about the layout, remember this:
 | **How to run the main-effect cross-decoding, decoding and power traces, and the task positive controls** | [`docs/analysis_guide.md` §17.5](docs/analysis_guide.md#175-runbook-main-effect-populations-and-the-task-positive-controls) — the step-by-step runbook, in submission order |
 | **What shape the data is at each step** of A1–A7, and **what each output file means** | [`docs/stability_flexibility_battery.md`](docs/stability_flexibility_battery.md) |
 | **Manuscript Methods text** | [`docs/methods.md`](docs/methods.md) |
+| **How to change a figure's look and redraw it without rerunning** (subspace, Figure 5 anatomy, window-mean bars and curves) | [`docs/figure_editing_guide.md`](docs/figure_editing_guide.md) |
 | **How to break up a file that got too big**, and **duplicated code that could be consolidated** | [`docs/code_maintenance.md`](docs/code_maintenance.md) |
 | **Using Claude Code / AI agents or VS Code with the DCC** (without breaking login-node policy) | [`docs/dcc_ai_agents.md`](docs/dcc_ai_agents.md); agent rules are in [`CLAUDE.md`](CLAUDE.md) |
 | **Environment setup, BIDS conversion, VPN, cluster access, running the experiment** | Parts 2–6 of this README |

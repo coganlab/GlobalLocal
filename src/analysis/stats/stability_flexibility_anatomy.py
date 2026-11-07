@@ -2438,6 +2438,51 @@ def _draw_height_bands_sagittal(ax, points, edges, axis='mni_z', centroids=None,
     ax.set_aspect('equal', adjustable='datalim')
 
 
+def _overlap_axes(ax, points, x_name, y_name):
+    """Square, equal limits on ``points``' ``x_plot``/``y_plot`` (0.5-99.5th
+    percentiles of both, padded 6 %, so a few extreme electrodes do not shrink
+    the cloud), the identity line, and the axis labels: the frame shared by
+    :func:`plot_figure5_height`'s panel b and :func:`plot_figure5_scatter`."""
+    vals = points[['x_plot', 'y_plot']].to_numpy(float)
+    lo, hi = np.nanpercentile(vals, 0.5), np.nanpercentile(vals, 99.5)
+    pad = 0.06 * (hi - lo)
+    lo, hi = lo - pad, hi + pad
+    ax.plot([lo, hi], [lo, hi], color=_MUTED, lw=0.7, zorder=1)
+    ax.set(xlim=(lo, hi), ylim=(lo, hi), aspect='equal',
+           xlabel=f'{x_name} (SD units)', ylabel=f'{y_name} (SD units)')
+
+
+def plot_figure5_scatter(points, out_stem, pair='adaptation'):
+    """The overlap scatter alone, with no height information, and write
+    ``<out_stem>.png``/``.pdf``.
+
+    Panel b of :func:`plot_figure5_height` without the tertile colours, the
+    band centroids or the zoom: every electrode with both scores in one colour,
+    on the same axes and identity line, sized (2.3 in square) to sit as a panel
+    of another figure. ``points`` is :func:`figure5_height_points`' table (or
+    its saved ``<prefix>_points.csv``); electrodes without coordinates are
+    drawn too, since nothing here needs them. ``pair`` (:data:`FIG5_PAIRS`)
+    names the axes. Like the combined figure it carries no statistics; the r
+    goes in the caption.
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    x_name, y_name = FIG5_PAIRS[pair]['x_name'], FIG5_PAIRS[pair]['y_name']
+    d = points.dropna(subset=['x_plot', 'y_plot'])
+    with plt.rc_context(_FIG5_RC):
+        fig, ax = plt.subplots(figsize=(2.3, 2.3))
+        ax.scatter(d['x_plot'], d['y_plot'], s=5, color=_INK, alpha=0.45, linewidths=0,
+                   rasterized=True, zorder=2)
+        _overlap_axes(ax, d, x_name, y_name)
+        paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]
+        for p in paths:
+            fig.savefig(p, dpi=300, bbox_inches='tight', pad_inches=0.03)
+        plt.close(fig)
+    return paths
+
+
 def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis='mni_z',
                         slope=None, brain_png=None, unit='participant', pair='adaptation'):
     """Draw the combined anatomy figure and write ``<out_stem>.png``/``.pdf``.
@@ -2492,13 +2537,7 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
         for c in centroids.itertuples():
             ax_b.scatter([c.x], [c.y], s=18, color=HEIGHT_CENTROID_COLORS[c.band],
                          edgecolor='white', linewidth=0.6, zorder=7)
-        vals = d[['x_plot', 'y_plot']].to_numpy(float)
-        lo, hi = np.nanpercentile(vals, 0.5), np.nanpercentile(vals, 99.5)
-        pad = 0.06 * (hi - lo)
-        lo, hi = lo - pad, hi + pad
-        ax_b.plot([lo, hi], [lo, hi], color=_MUTED, lw=0.7, zorder=1)
-        ax_b.set(xlim=(lo, hi), ylim=(lo, hi), aspect='equal',
-                 xlabel=f'{x_name} (SD units)', ylabel=f'{y_name} (SD units)')
+        _overlap_axes(ax_b, d, x_name, y_name)
 
         # b, right: the centroids enlarged, each with its 95 % bootstrap ellipse;
         # the box and connector lines tie it to the region it shows in the scatter
@@ -2799,7 +2838,9 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
       electrode means +/- SEM, the coordinate test's slope and p with
       ``electrode_res``'s interval (:func:`coordinate_slope_by_electrode`).
       Writes ``fig5_height.png``/``.pdf``, ``fig5_height_centroids.csv`` and
-      ``fig5_height_balance.csv``;
+      ``fig5_height_balance.csv``, and ``fig5_height_scatter.png``/``.pdf``,
+      the LWPC-LWPS scatter alone with no height colouring
+      (:func:`plot_figure5_scatter`);
     * ``'participant'`` (supplement): participant-bootstrap ellipses,
       participant means +/- SEM, and the participant-level p values of
       ``participant_res`` (:func:`coordinate_slope_by_participant`) beside the
@@ -2900,6 +2941,11 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
     paths = plot_figure5_height(pts, cents, partials, stat, edges,
                                 os.path.join(out_dir, stem), axis=axis, slope=slope,
                                 brain_png=brain_png, unit=unit, pair=pair)
+    # the overlap scatter alone, for use without the height gradient; it does
+    # not depend on the unit, so it is written once, with the electrode figure
+    if unit == 'electrode':
+        paths += plot_figure5_scatter(pts, os.path.join(out_dir, f'{prefix}_scatter'),
+                                      pair=pair)
 
     n_col = 'n_electrodes' if unit == 'electrode' else 'n_participants'
     lines = [f"  FIGURE 5 (height) {x_name} vs {y_name}, {unit.upper()}S AS THE UNIT — "

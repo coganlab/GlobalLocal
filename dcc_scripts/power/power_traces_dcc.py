@@ -240,6 +240,11 @@ def main(args):
     direction_clusters = {}
     direction_p_values = {}
     direction_deltas = {}
+    
+    # a single condition (e.g., stimulus_all_conditions) has nothing to compare, so no test applies: plot the traces alone and record that no stats ran
+    if len(condition_names) < 2:
+        print(f"\n[stats] '{condition_label}' has one condition; skipping stats.")
+        args.statistical_method = 'none'
 
     if args.statistical_method == 'time_perm_cluster':
         print("\nRunning statistical tests comparing TWO conditions")

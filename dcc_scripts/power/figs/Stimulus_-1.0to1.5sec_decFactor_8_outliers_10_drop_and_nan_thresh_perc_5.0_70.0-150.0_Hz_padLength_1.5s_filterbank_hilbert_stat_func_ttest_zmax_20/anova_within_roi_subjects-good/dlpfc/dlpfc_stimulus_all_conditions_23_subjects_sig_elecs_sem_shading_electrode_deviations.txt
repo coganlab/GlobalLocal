@@ -1,0 +1,33 @@
+Electrode deviation report for ROI: dlpfc
+Metric: RMS deviation of each electrode trace from the condition's across-electrode mean trace.
+Scoring window: epoch start to 0s
+Larger values indicate greater deviation; this is a diagnostic ranking, not a statistical outlier test.
+
+[Stimulus] (110 electrodes, showing 25)
+rank	electrode	rms_deviation
+1	LAI13	0.188352
+2	LFPS2	0.164616
+3	LAI14	0.14606
+4	RAI11	0.139715
+5	LFPS1	0.136359
+6	LFMM9-0	0.0908577
+7	RAI12	0.0906861
+8	LFPM10	0.0790913
+9	RPI14	0.0788217
+10	RFOA16-1	0.0768822
+11	LFPM12	0.0765675
+12	RPI15	0.0756077
+13	LFMM8-0	0.0747472
+14	RAMF12	0.0736901
+15	RINS13	0.0685514
+16	RINS12	0.0677087
+17	LFA11	0.0671277
+18	RFOA16-0	0.0666394
+19	LFAM10-0	0.0651506
+20	RFAM8	0.0650777
+21	RFMM9	0.0645616
+22	LINS12	0.0640063
+23	LFAM8-1	0.0619344
+24	RASF15	0.0615694
+25	LFMM8-1	0.0609181
+

@@ -49,11 +49,15 @@
 if [[ -n "${CONDITIONS:-}" ]]; then
     read -r -a CONDITIONS <<< "$CONDITIONS"
 else
+    # CONDITIONS=(
+    #     stimulus_lwpc_block_balanced_conditions
+    #     stimulus_lwps_block_balanced_conditions
+    #     stimulus_congruency_by_switch_prop_block_balanced_conditions
+    #     stimulus_switch_type_by_inc_prop_block_balanced_conditions
+    # )
+
     CONDITIONS=(
-        stimulus_lwpc_block_balanced_conditions
-        stimulus_lwps_block_balanced_conditions
-        stimulus_congruency_by_switch_prop_block_balanced_conditions
-        stimulus_switch_type_by_inc_prop_block_balanced_conditions
+        stimulus_all_conditions
     )
 fi
 

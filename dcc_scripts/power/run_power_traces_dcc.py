@@ -59,7 +59,8 @@ LAB_ROOT = None # Will be determined automatically in main()
 # SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
 
 # SUBJECT_SET in the environment picks a set from src/analysis/config/subjects.py
-SUBJECTS, SUBJECT_SET_SUFFIX = resolve_subject_set()
+SUBJECTS, SUBJECT_SET_SUFFIX = resolve_subject_set('good')
+# SUBJECTS, SUBJECT_SET_SUFFIX = resolve_subject_set('all24')
 
 # task
 TASK = 'GlobalLocal'
@@ -187,10 +188,7 @@ if ANOVA_UNIT is None:
 
 ROIS_DICT = {
       'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-      'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"]
-}
-
-ROIS_DICT = {
+      'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
       'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
 }
 
@@ -265,7 +263,7 @@ PLOT_STYLE = {
     # electrodes that misbehave in the baseline, which are the ones that can
     # manufacture a pre-stimulus cluster. Ranking over the whole epoch instead
     # just finds the biggest responders, which is not the question.
-    'show_electrode_traces': True,
+    'show_electrode_traces': False,
     'n_electrode_traces': 5,
     'electrode_trace_window': (None, 0.0),
     'n_outlier_labels': 5,

@@ -1,4 +1,9 @@
 plotting_parameters = {
+    'Stimulus': {
+    'condition_parameter': 'All trials',
+    'color': (204/255, 121/255, 167/255),
+    'line_style': '-'
+},
     'Stimulus_r': {
     'condition_parameter': 'repeat',
     'color': 'blue',

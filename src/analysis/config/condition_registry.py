@@ -23,7 +23,11 @@ CONDITION_REGISTRY = {
     # =========================================================================
     # 1. Basic Stimulus & Task Comparisons
     # =========================================================================
-
+    'stimulus_all_conditions': {
+        'conditions_obj': experiment_conditions.stimulus_all_conditions,
+        'comparisons': {}
+    },
+    
     'stimulus_conditions': {
         'conditions_obj': experiment_conditions.stimulus_conditions,
         'comparisons': {

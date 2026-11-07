@@ -19,7 +19,8 @@
 # Fig 2: every localized contact (bad ones included), then analyzed LPFC, then
 # task-significant analyzed LPFC. PLOT_SETS order is draw order, so later sets
 # draw on top.
-export PLOT_SETS="all_lpfc_elecs,sig_lpfc_elecs"
+# export PLOT_SETS="all_lpfc_elecs,sig_lpfc_elecs"
+export PLOT_SETS="all_recon_elecs"
 
 export PLOT_SET_LABEL="lpfc_power_trace_sets"
 

@@ -5,6 +5,7 @@ similarity, the combined Figure 5, and the RT-adjusted check on Fig. 3. Each
 test plants a known world and checks the analysis finds it, and that the
 participant-level versions decompose the pooled numbers exactly.
 """
+import json
 import os
 
 import numpy as np
@@ -320,10 +321,24 @@ def test_figure5_height_shows_the_planted_lean_and_matches_the_test(tmp_path):
     assert fig['check_slope'] == pytest.approx(coord, rel=0.25)
     for name in ('fig5_height.png', 'fig5_height.pdf', 'fig5_height_centroids.csv',
                  'fig5_height_balance.csv', 'fig5_height_points.csv',
-                 'fig5_height_brain_centroids.csv', 'fig5_height_partials.csv'):
+                 'fig5_height_brain_centroids.csv', 'fig5_height_partials.csv',
+                 'fig5_height_scatter.png', 'fig5_height_scatter.pdf'):
         assert (tmp_path / name).exists()
     # the brain is drawn only when asked: it needs the recon files
     assert fig['brain'] is None and not (tmp_path / 'fig5_height_brain.png').exists()
+
+
+def test_fig5_scatter_redraws_from_the_saved_points(tmp_path):
+    from dcc_scripts.stats.fig5_scatter import main
+    tab, _ = _gradient_world(slope=0.02)
+    pts, _ = sfa.figure5_height_points(tab)
+    pts.loc[0, ['mni_x', 'mni_y', 'mni_z', 'band']] = np.nan   # no coordinates: still drawn
+    pts.to_csv(tmp_path / 'fig5_height_points.csv', index=False)
+    main(['--dir', str(tmp_path)])
+    assert (tmp_path / 'fig5_height_scatter.png').exists()
+    assert (tmp_path / 'fig5_height_scatter.pdf').exists()
+    meta = json.loads((tmp_path / 'fig5_height_scatter.json').read_text())
+    assert meta['n_electrodes'] == len(pts)
 
 
 def test_height_partial_residuals_carry_the_coordinate_tests_slope():
