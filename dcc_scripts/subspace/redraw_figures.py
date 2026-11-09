@@ -4,7 +4,9 @@ Redraw every figure of a finished coding-axes run from its saved tables, with
 the current plotting code (no data loading, no statistics): the cosine figure,
 the subspace test, the condition trajectories (Gram-Schmidt and raw axes), the
 block separations (raw and unique axes) and the proportion trajectories, for
-each trajectory axis window the run used.
+each trajectory axis window the run used. Each figure is written as PNG and
+PDF, with its supplementary companion where it has one (``*_alignment``,
+``*_changes``).
 
     python dcc_scripts/subspace/redraw_figures.py --run-dir <coding-axes run> [--out-dir DIR]
 
@@ -21,9 +23,9 @@ if project_root not in sys.path:
 
 import pandas as pd
 
-from dcc_scripts.subspace.coding_axes_dcc import plot_coding_axes, VARIABLE_NAMES
+from dcc_scripts.subspace.coding_axes_dcc import VARIABLE_NAMES
 from dcc_scripts.subspace.subspace_figures import (
-    plot_subspace_test, plot_trajectories, plot_block_separations,
+    plot_coding_axes, plot_subspace_test, plot_trajectories, plot_block_separations,
     plot_proportion_trajectories, time_axis_label)
 
 

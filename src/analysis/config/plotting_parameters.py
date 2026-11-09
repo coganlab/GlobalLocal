@@ -1,3 +1,11 @@
+# Block-proportion colours shared by every paper figure (behavioural bars,
+# power traces, decoding, subspace, brain-behaviour scatter): Wong (2011)
+# colour-blind-safe palette, light = 25 % block, dark = 75 % block.
+PROPORTION_COLORS = {
+    'incongruentProportion': {25: '#E69F00', 75: '#D55E00'},   # orange, vermillion
+    'switchProportion':      {25: '#56B4E9', 75: '#0072B2'},   # sky blue, Wong blue
+}
+
 plotting_parameters = {
     'Stimulus': {
     'condition_parameter': 'All trials',

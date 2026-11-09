@@ -326,6 +326,8 @@ def compare_coding_axes(per_split, null=None, n_boot=2000, seed=0, alpha=0.05):
     plus, per window:
 
         congruency_ceiling_lo/_hi, switch_ceiling_lo/_hi   bootstrap CIs
+        cross_lo/_hi, ceiling_lo/_hi                         bootstrap CIs (the
+                        error bands of the cosine figure)
         reliable        both ceilings' CIs exclude 0 (grey out the rest)
         gap_lo/_hi      CI of ceiling - cross
         not_one_code    reliable and gap_lo > 0
@@ -358,7 +360,8 @@ def compare_coding_axes(per_split, null=None, n_boot=2000, seed=0, alpha=0.05):
         b_align = b_cross / b_ceiling
         q = [100 * alpha / 2, 100 * (1 - alpha / 2)]
         for name, draws in (('congruency_ceiling', b_cc), ('switch_ceiling', b_cs),
-                            ('gap', b_ceiling - b_cross), ('alignment', b_align)):
+                            ('gap', b_ceiling - b_cross), ('alignment', b_align),
+                            ('cross', b_cross), ('ceiling', b_ceiling)):
             table[f'{name}_lo'], table[f'{name}_hi'] = np.nanpercentile(draws, q, axis=0)
     table['reliable'] = (table['congruency_ceiling_lo'] > 0) & (table['switch_ceiling_lo'] > 0)
     table['not_one_code'] = table['reliable'] & (table['gap_lo'] > 0)

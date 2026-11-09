@@ -116,6 +116,7 @@ matplotlib.use('Agg')          # headless / cluster
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
 
+from src.analysis.config.plotting_parameters import PROPORTION_COLORS
 from src.analysis.decoding.plots.style import nature_style
 from src.analysis.stats import stability_flexibility_segregation as sfs
 from src.analysis.stats import stability_flexibility_brain_behavior as sbb
@@ -130,8 +131,9 @@ CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = 'cohens_d'
 
 STAB, FLEX = "#2c7fb8", "#d95f0e"
-# the decoding figures' LWPC / LWPS hues (condition_registry, the 75% shade)
-SCATTER_COLORS = {'lwpc': '#A32319', 'lwps': '#0B4F8A'}
+# the LWPC / LWPS hues of the shared palette (the 75% shade)
+SCATTER_COLORS = {'lwpc': PROPORTION_COLORS['incongruentProportion'][75],
+                  'lwps': PROPORTION_COLORS['switchProportion'][75]}
 
 # the neural summaries correlated against behavior, and the label columns each needs
 _NEURAL_MODES = (('count', 'n_S / n_F  (# selective electrodes)'),

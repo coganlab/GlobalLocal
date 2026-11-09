@@ -270,6 +270,11 @@ def test_compare_marks_shared_windows_and_greys_out_windows_without_a_code():
     assert not table['not_one_code'].any()
     lo, hi = summary['alignment_reliable_ci']
     assert lo <= summary['alignment_reliable_mean'] <= hi
+    # the error bands of the cosine figure bracket their estimates
+    assert (table['cross_lo'] <= table['cross']).all() and (table['cross'] <= table['cross_hi']).all()
+    ok = table['reliable']
+    assert (table.loc[ok, 'ceiling_lo'] <= table.loc[ok, 'ceiling']).all()
+    assert (table.loc[ok, 'ceiling'] <= table.loc[ok, 'ceiling_hi']).all()
 
 
 # ---------------------------------------------------------------------------

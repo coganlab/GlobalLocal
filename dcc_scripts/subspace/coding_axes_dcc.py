@@ -116,15 +116,11 @@ from src.analysis.utils.general_utils import resolve_lab_root, resolve_electrode
 from dcc_scripts.stats.stability_flexibility_segregation_dcc import (
     assemble_long_df, make_synthetic_df, _window_indices)
 from dcc_scripts.subspace.subspace_figures import (
-    plot_subspace_test, plot_trajectories, plot_block_separations,
-    plot_proportion_trajectories, time_axis_label)
+    plot_coding_axes, plot_subspace_test, plot_trajectories, plot_block_separations,
+    plot_proportion_trajectories, time_axis_label, true_runs, INK, MUTED)
 
 # The two scores' names per `effect`, for the figures.
 VARIABLE_NAMES = {'main': ('congruency', 'switch type'), 'interaction': ('LWPC', 'LWPS')}
-
-# Reference-palette slots 1-2 (dataviz skill), and recessive neutrals.
-CROSS, CEILING = '#2a78d6', '#eb6834'
-INK, MUTED, NULL_FILL, UNRELIABLE = '#0b0b0b', '#52514e', '#d9d8d4', '#f0efec'
 
 
 def load_time_courses(args, LAB_root):
@@ -151,69 +147,6 @@ def load_time_courses(args, LAB_root):
     df = assemble_long_df(subjects_epochs, args.windows_tmin, args.windows_tmax,
                           electrodes_to_keep=keep, time_courses=True)
     return df, times[s:e]
-
-
-def _runs(mask):
-    """(first, last) index of each run of True in `mask`."""
-    from src.analysis.decoding.accuracy_stats import find_contiguous_clusters
-    return find_contiguous_clusters(np.asarray(mask, bool))
-
-
-def plot_coding_axes(table, out_path, time_label=time_axis_label(), title=None):
-    """The §3.2 figure. (a) Cosines against time, A4's cross-decoding layout:
-    the raw cross cosine (and its Pearson version), the ceiling, the shuffle
-    null band (its top edge is the test's threshold under the stricter of the two
-    shuffles), and bars where something is shared (cluster-corrected) and where
-    it is not one code. (b) Alignment = cross / ceiling with its participant-
-    bootstrap CI. Windows whose ceilings are not reliable are greyed out in both
-    panels, and (b) leaves them blank. `title` is accepted for callers and not
-    drawn: the figures carry no titles or panel letters (those go in the
-    caption and in Illustrator)."""
-    t = table['window_center'].to_numpy()
-    half = np.median(np.diff(t)) / 2 if len(t) > 1 else 0.05
-    fig, (a, b) = plt.subplots(2, 1, figsize=(9.0, 6.2), sharex=True,
-                               gridspec_kw=dict(height_ratios=[3, 2], hspace=0.12))
-    for ax in (a, b):
-        for start, end in _runs(~table['reliable'].to_numpy()):
-            ax.axvspan(t[start] - half, t[end] + half, color=UNRELIABLE, lw=0, zorder=0)
-        ax.axhline(0, color=MUTED, lw=0.8, zorder=1)
-        ax.spines[['top', 'right']].set_visible(False)
-        ax.tick_params(colors=MUTED, labelcolor=INK, labelsize=8)
-
-    null_lo = [c for c in table if c.startswith('null_lo_')]
-    if null_lo:
-        lo = table[null_lo].min(axis=1)
-        hi = table[[c.replace('_lo_', '_hi_') for c in null_lo]].max(axis=1)
-        a.fill_between(t, lo, hi, color=NULL_FILL, lw=0, zorder=2, label='shuffle null')
-    a.plot(t, table['ceiling'], color=CEILING, lw=2, zorder=3, label='ceiling')
-    a.plot(t, table['cross'], color=CROSS, lw=2, zorder=4, label='cosine')
-    a.plot(t, table['cross_pearson'], color=CROSS, lw=1.5, ls='--', zorder=5,
-           label='Pearson r')
-
-    top = np.nanmax(table[['cross', 'ceiling']].to_numpy())
-    step = 0.06 * max(top, 0.1)
-    for i, (col, color, label) in enumerate((('shared', CROSS, 'shared'),
-                                             ('not_one_code', CEILING, 'not one code'))):
-        if col not in table:
-            continue
-        y = top + step * (i + 1.5)
-        for j, (start, end) in enumerate(_runs(table[col].to_numpy())):
-            a.hlines(y, t[start] - half, t[end] + half, color=color, lw=4,
-                     label=label if j == 0 else None, zorder=5)
-    a.set_ylabel('congruency–switch\nsimilarity', fontsize=9, color=INK)
-    a.legend(frameon=False, fontsize=7.5, loc='upper left', bbox_to_anchor=(1.01, 1))
-
-    align = table['alignment'].where(table['reliable'])
-    b.fill_between(t, table['alignment_lo'].where(table['reliable']),
-                   table['alignment_hi'].where(table['reliable']),
-                   color=CROSS, alpha=0.2, lw=0, zorder=2, label='95% CI')
-    b.plot(t, align, color=CROSS, lw=2, zorder=3, label='alignment')
-    b.axhline(1, color=MUTED, lw=0.8, ls=':', zorder=1)
-    b.set_ylabel('alignment\n(cross / ceiling)', fontsize=9, color=INK)
-    b.set_xlabel(time_label, fontsize=9, color=INK)
-    b.legend(frameon=False, fontsize=7.5, loc='upper left', bbox_to_anchor=(1.01, 1))
-    fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
-    plt.close(fig)
 
 
 # Reference-palette categorical slots 1-6, in fixed order: one per run.
@@ -271,10 +204,10 @@ def plot_coding_axes_controls(runs, out_path, time_label=time_axis_label()):
     for i, (color, (label, table)) in enumerate(zip(RUN_COLORS, runs)):
         t = table['window_center'].to_numpy()
         y = len(runs) - 1 - i
-        for start, end in _runs(table['reliable']):
+        for start, end in true_runs(table['reliable']):
             c.hlines(y, t[start] - half, t[end] + half, color=color, lw=1)
         if 'shared' in table:
-            for start, end in _runs(table['shared']):
+            for start, end in true_runs(table['shared']):
                 c.hlines(y, t[start] - half, t[end] + half, color=color, lw=5)
     for ax in (a, b, c):
         ax.spines[['top', 'right']].set_visible(False)

@@ -17,6 +17,10 @@ To add a new condition:
 """
 
 from src.analysis.config import experiment_conditions
+from src.analysis.config.plotting_parameters import PROPORTION_COLORS
+
+_INC = PROPORTION_COLORS['incongruentProportion']
+_SW = PROPORTION_COLORS['switchProportion']
 
 CONDITION_REGISTRY = {
 
@@ -126,8 +130,8 @@ CONDITION_REGISTRY = {
             'condition_comparison_2': 'c75_vs_i75',
             'pooled_shuffle_key': 'lwpc_shuffle_accs_across_pooled_conditions',
             'colors': {
-                'c25_vs_i25': '#FF7E79',
-                'c75_vs_i75': '#A32319',
+                'c25_vs_i25': _INC[25],
+                'c75_vs_i75': _INC[75],
                 'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
@@ -180,8 +184,8 @@ CONDITION_REGISTRY = {
             'condition_comparison_2': 's75_vs_r75',
             'pooled_shuffle_key': 'lwps_shuffle_accs_across_pooled_conditions',
             'colors': {
-                's25_vs_r25': '#05B0F0',
-                's75_vs_r75': '#0B4F8A',
+                's25_vs_r25': _SW[25],
+                's75_vs_r75': _SW[75],
                 'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
@@ -318,8 +322,8 @@ CONDITION_REGISTRY = {
             'condition_comparison_2': 'c_in_75switchBlock_vs_i_in_75switchBlock',
             'pooled_shuffle_key': 'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions',
             'colors': {
-                'c_in_25switchBlock_vs_i_in_25switchBlock': '#05B0F0',
-                'c_in_75switchBlock_vs_i_in_75switchBlock': '#0B4F8A',
+                'c_in_25switchBlock_vs_i_in_25switchBlock': _SW[25],
+                'c_in_75switchBlock_vs_i_in_75switchBlock': _SW[75],
                 'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
@@ -368,8 +372,8 @@ CONDITION_REGISTRY = {
             'condition_comparison_2': 's_in_75incongruentBlock_vs_r_in_75incongruentBlock',
             'pooled_shuffle_key': 'switch_type_by_incongruent_proportion_shuffle_accs_across_pooled_conditions',
             'colors': {
-                's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#FF7E79',
-                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#A32319',
+                's_in_25incongruentBlock_vs_r_in_25incongruentBlock': _INC[25],
+                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': _INC[75],
                 'switch_type_by_incongruent_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
@@ -420,8 +424,8 @@ CONDITION_REGISTRY = {
             'condition_comparison_2': 'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock',
             'pooled_shuffle_key': 'task_by_incongruent_proportion_shuffle_accs_across_pooled_conditions',
             'colors': {
-                'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': '#05B0F0',
-                'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': '#0B4F8A',
+                'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': _INC[25],
+                'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': _INC[75],
                 'task_by_incongruent_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
@@ -460,8 +464,8 @@ CONDITION_REGISTRY = {
             'condition_comparison_2': 'taskG_in_75switchBlock_vs_taskL_in_75switchBlock',
             'pooled_shuffle_key': 'task_by_switch_proportion_shuffle_accs_across_pooled_conditions',
             'colors': {
-                'taskG_in_25switchBlock_vs_taskL_in_25switchBlock': '#05B0F0',
-                'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': '#0B4F8A',
+                'taskG_in_25switchBlock_vs_taskL_in_25switchBlock': _SW[25],
+                'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': _SW[75],
                 'task_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
@@ -753,8 +757,8 @@ CONDITION_REGISTRY = {
         'condition_comparison_2': 'i_vs_c_at_inc75',
         'pooled_shuffle_key': 'lwpc_block_balanced_shuffle',
         'colors': {
-            'i_vs_c_at_inc25': '#FF7E79',
-            'i_vs_c_at_inc75': '#A32319',
+            'i_vs_c_at_inc25': _INC[25],
+            'i_vs_c_at_inc75': _INC[75],
             'lwpc_block_balanced_shuffle_across_bootstraps': '#949494',
         },
         'linestyles': {
@@ -830,8 +834,8 @@ CONDITION_REGISTRY = {
         'condition_comparison_2': 's_vs_r_at_sw75',
         'pooled_shuffle_key': 'lwps_block_balanced_shuffle',
         'colors': {
-            's_vs_r_at_sw25': '#05B0F0',
-            's_vs_r_at_sw75': '#0B4F8A',
+            's_vs_r_at_sw25': _SW[25],
+            's_vs_r_at_sw75': _SW[75],
             'lwps_block_balanced_shuffle_across_bootstraps': '#949494',
         },
         'linestyles': {
@@ -908,8 +912,8 @@ CONDITION_REGISTRY = {
         'condition_comparison_2': 'i_vs_c_at_sw75',
         'pooled_shuffle_key': 'congruency_by_switch_prop_block_balanced_shuffle',
         'colors': {
-            'i_vs_c_at_sw25': '#05B0F0',
-            'i_vs_c_at_sw75': '#0B4F8A',
+            'i_vs_c_at_sw25': _SW[25],
+            'i_vs_c_at_sw75': _SW[75],
             'congruency_by_switch_prop_block_balanced_shuffle_across_bootstraps': '#949494',
         },
         'linestyles': {
@@ -986,8 +990,8 @@ CONDITION_REGISTRY = {
         'condition_comparison_2': 's_vs_r_at_inc75',
         'pooled_shuffle_key': 'switch_type_by_inc_prop_block_balanced_shuffle',
         'colors': {
-            's_vs_r_at_inc25': '#FF7E79',
-            's_vs_r_at_inc75': '#A32319',
+            's_vs_r_at_inc25': _INC[25],
+            's_vs_r_at_inc75': _INC[75],
             'switch_type_by_inc_prop_block_balanced_shuffle_across_bootstraps': '#949494',
         },
         'linestyles': {

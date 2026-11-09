@@ -244,7 +244,11 @@ def test_job_writes_every_output_on_synthetic_data(tmp_path):
                  'trajectories_raw.csv', 'trajectories_0.0-1.5s_raw.png',
                  'trajectories_0.1-0.5s_uncentred_raw.png', 'block_separations_unique.csv',
                  'block_contrasts_unique.csv', 'block_summary_unique.json',
-                 'block_separations_0.0-1.5s_unique.png', 'null_block.npz'):
+                 'block_separations_0.0-1.5s_unique.png', 'null_block.npz',
+                 'coding_axis_cosines.pdf', 'coding_axis_cosines_alignment.png',
+                 'block_separations_0.0-1.5s_changes.png',
+                 'block_separations_0.0-1.5s_unique_changes.png',
+                 'proportion_trajectories_0.0-1.5s.pdf'):
         assert (tmp_path / name).stat().st_size > 0, name
     config = json.loads((tmp_path / 'run_config.json').read_text())
     assert config['k_max'] == 3 and config['traj_axes'] == [[0.0, 1.5], [0.1, 0.5]]

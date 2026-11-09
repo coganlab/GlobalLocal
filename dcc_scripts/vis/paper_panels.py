@@ -11,10 +11,12 @@ line up when stacked. Each is saved full and without its x and/or y axis label
 Fig 3: the windowed-ANOVA run's per-electrode cell means (`*_evoked.npz`),
 averaged to the four sub-cells of each 2 x 2 term with the other proportion's
 blocks weighted equally, mean +- SEM across electrodes, and the term's
-cluster-corrected interaction mask (`*_interaction_cluster.npz`). Colour =
-proportion block (the decoding figures' colours), line style = condition
-(solid congruent / repeat, dashed incongruent / switch); one legend
-entry per trace, e.g. 'repeat, 25% switch'.
+cluster-corrected interaction mask (`*_interaction_cluster.npz`).
+Colour = proportion block (`PROPORTION_COLORS`, shared with the behavioural and
+decoding figures), line style = condition (solid c / r, dashed i / s); one
+legend entry per trace, e.g. 'r, 25% S'. Each term also gets a difference
+panel: the per-block effect (i − c or s − r), one solid line per block, with
+the same interaction bar.
 
 Fig 4: the decoding results files (`replot.context_comparison_panel`): the two
 blocks' accuracies, the pooled shuffle, the contrast and against-chance bars;
@@ -39,6 +41,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 
+from src.analysis.config.plotting_parameters import PROPORTION_COLORS
 from src.analysis.decoding.plots.accuracies import plot_accuracies_with_multiple_sig_clusters
 from src.analysis.decoding.plots.replot import context_comparison_panel, load_master_results
 from src.analysis.utils.panel_layout import PANEL_MM, save_panel_variants
@@ -64,22 +67,24 @@ DECODING_PANELS = (('fig4_LWPC', 57902167), ('fig4_LWPS', 57902168),
                    ('sfig4_switch_by_incprop_cross', 57902170))
 
 # Cell names: Stimulus_<c|i|r|s>_<MC|MI>_<MR|MS>; MC / MI = 25 / 75 % incongruent
-# blocks, MR / MS = 25 / 75 % switch blocks.
-# Legend words, abbreviated so the keys fit beside the axes at a readable size
-ABBREV = {'incongruent': 'inc.', 'congruent': 'con.', 'repeat': 'rep.', 'switch': 'swi.'}
-CONDITION = {'congruency': {'c': 'con.', 'i': 'inc.'},
-             'switchType': {'r': 'rep.', 's': 'swi.'}}
-PROPORTION = {'incongruentProportion': (1, {'MC': '25% inc.', 'MI': '75% inc.'}),
-              'switchProportion': (2, {'MR': '25% swi.', 'MS': '75% swi.'})}
-# The decoding figures' colours, light = 25 %, dark = 75 %
-PROPORTION_COLORS = {'25% inc.': '#FF7E79', '75% inc.': '#A32319',
-                     '25% swi.': '#05B0F0', '75% swi.': '#0B4F8A'}
-EASY = ('con.', 'rep.')               # solid; the other condition dashed
+# blocks, MR / MS = 25 / 75 % switch blocks. Legends use the abbreviations the
+# paper defines earlier: c / i / r / s, and I / S for the block proportions.
+ABBREV = {'incongruent': 'I', 'switch': 'S'}    # decoding legends: '25% switch' -> '25% S'
+# Proportion factor -> (its level's position in the cell name, legend letter,
+# cell-name level -> % of the block)
+PROPORTION = {'incongruentProportion': (1, 'I', {'MC': 25, 'MI': 75}),
+              'switchProportion': (2, 'S', {'MR': 25, 'MS': 75})}
+# Legend label -> colour, e.g. '25% I' -> the shared 25 % incongruent colour
+COLORS = {f'{pct}% {letter}': PROPORTION_COLORS[factor][pct]
+          for factor, (_, letter, levels) in PROPORTION.items() for pct in levels.values()}
+EASY = ('c', 'r')                     # solid; the other condition dashed
+# Difference-panel y label, by the term's condition factor
+EFFECT_LABEL = {'congruency': 'i − c (z)', 'switchType': 's − r (z)'}
 
 
 def abbreviate(text):
     """``text`` with the condition words of `ABBREV` shortened, e.g.
-    '25% incongruent' -> '25% inc.'."""
+    '25% incongruent' -> '25% I'."""
     return re.sub(r'\b(' + '|'.join(ABBREV) + r')\b', lambda m: ABBREV[m.group(1)], text)
 
 
@@ -96,17 +101,23 @@ def abbreviated(panel):
 
 def power_panel(run_dir, condition_set, factors, n_subjects):
     """One Fig 3 panel's data from a windowed-ANOVA run: ``(times, traces,
-    mask)`` with traces ``{(condition, proportion): (electrodes, times)}``,
-    each the equal-weight mean of its two cells over the other proportion, and
-    the term's cluster mask over ``times``."""
+    mask)`` with traces ``{(condition, block): (electrodes, times)}`` (e.g.
+    ``('c', '25% S')``), each the equal-weight mean of its two cells over the
+    other proportion, and the term's cluster mask over ``times``. Raises if the
+    cells' electrodes differ, since cells are averaged and subtracted
+    electrode by electrode."""
     stem = f'stimulus_{condition_set}_block_balanced_conditions_{n_subjects}_subjects'
     condition, proportion = factors
-    pos, prop_names = PROPORTION[proportion]
-    traces, times = {}, None
+    pos, letter, levels = PROPORTION[proportion]
+    traces, times, channels = {}, None, None
     for path in sorted(glob.glob(os.path.join(run_dir, 'lpfc', f'{stem}_Stimulus_*_lpfc_evoked.npz'))):
         cell = os.path.basename(path).split('_Stimulus_')[1].split('_lpfc_')[0].split('_')
-        key = (CONDITION[condition][cell[0]], prop_names[cell[pos]])
+        key = (cell[0], f'{levels[cell[pos]]}% {letter}')
         z = np.load(path)
+        if channels is None:
+            channels = z['ch_names']
+        elif not np.array_equal(z['ch_names'], channels):
+            raise ValueError(f"{path}: electrodes differ from the run's other cells")
         traces.setdefault(key, []).append(z['data'])
         times = z['times']
     if len(traces) != 4 or any(len(v) != 2 for v in traces.values()):
@@ -116,9 +127,22 @@ def power_panel(run_dir, condition_set, factors, n_subjects):
     return times, {k: np.mean(v, axis=0) for k, v in traces.items()}, mask.astype(bool)
 
 
-def common_power_ylim(panels):
-    """One y range for all Fig 3 panels: the mean +- SEM extremes within XLIM,
-    rounded out to 0.1."""
+def effect_traces(traces):
+    """Per-block effect, per electrode, from `power_panel` traces:
+    ``{(None, block): i − c or s − r}``. Keyed like the traces so `draw_power`
+    styles them the same way; no condition -> solid line, block-only legend."""
+    out = {}
+    for (condition, block), data in traces.items():
+        if condition not in EASY:
+            easy = next(c for c, b in traces if b == block and c in EASY)
+            out[(None, block)] = data - traces[(easy, block)]
+    return out
+
+
+def common_power_ylim(panels, symmetric=False):
+    """One y range for a set of Fig 3 panels ``[(times, traces, mask)]``: the
+    mean +- SEM extremes within XLIM, rounded out to 0.1. ``symmetric`` makes
+    it +- the larger extreme, for difference panels centred on zero."""
     lo, hi = np.inf, -np.inf
     for times, traces, _ in panels:
         sel = (times >= XLIM[0]) & (times <= XLIM[1])
@@ -126,27 +150,34 @@ def common_power_ylim(panels):
             m = data.mean(0)[sel]
             sem = data.std(0)[sel] / np.sqrt(len(data))
             lo, hi = min(lo, (m - sem).min()), max(hi, (m + sem).max())
-    return np.floor(lo * 10) / 10, np.ceil(hi * 10) / 10
+    lo, hi = np.floor(lo * 10) / 10, np.ceil(hi * 10) / 10
+    if symmetric:
+        hi = max(-lo, hi)
+        lo = -hi
+    return lo, hi
 
 
-def draw_power(times, traces, mask, ylim):
-    """``draw(ax)`` for one Fig 3 panel: the four sub-cell traces, each its
-    own legend entry naming condition and block (e.g. 'repeat, 25% switch'),
-    and the interaction bar."""
+def draw_power(times, traces, mask, ylim, ylabel='High gamma (z)'):
+    """``draw(ax)`` for one Fig 3 panel. ``traces`` maps (condition, block) to
+    (electrodes, times): colour = block, dashed = i / s, solid otherwise;
+    legend 'c, 25% I', or just '25% I' for a difference wave (condition None,
+    `effect_traces`), whose panel also gets a zero line. Plus the interaction bar."""
     order = sorted(traces, key=lambda k: (k[1], k[0] not in EASY))
-    labels = {k: f'{k[0]}, {k[1]}' for k in order}
+    labels = {k: k[1] if k[0] is None else f'{k[0]}, {k[1]}' for k in order}
 
     def draw(ax):
         plot_accuracies_with_multiple_sig_clusters(
             time_points=times, accuracies_dict={labels[k]: traces[k] for k in order},
             significance_clusters_dict={'interaction': {
                 'clusters': mask, 'label': 'Interaction', 'color': '#0b0b0b', 'kind': 'contrast'}},
-            colors={labels[k]: PROPORTION_COLORS[k[1]] for k in order},
-            linestyles={labels[k]: '-' if k[0] in EASY else '--' for k in order},
-            band='sem', ylim=ylim, xlim=XLIM, ylabel='High gamma (z)',
+            colors={labels[k]: COLORS[k[1]] for k in order},
+            linestyles={labels[k]: '-' if k[0] in (*EASY, None) else '--' for k in order},
+            band='sem', ylim=ylim, xlim=XLIM, ylabel=ylabel,
             show_chance_level=False, show_legend=True, legend_loc='right',
             show_sig_legend=True, sig_legend_loc='rows', sig_band_frac=SIG_BAND_FRAC,
             base_fontsize=BASE_FONTSIZE, linewidth=1.2, ax=ax)
+        if any(k[0] is None for k in order):
+            ax.axhline(0, color='#BFBFBF', linewidth=0.8, zorder=0)
     return draw
 
 
@@ -205,10 +236,14 @@ def main():
 
     power = [power_panel(power_dir, cs, factors, n_subjects) for _, cs, factors in POWER_PANELS]
     power_ylim = common_power_ylim(power)
+    effects = [(times, effect_traces(traces), mask) for times, traces, mask in power]
+    effect_ylim = common_power_ylim(effects, symmetric=True)
     written = []
-    for (name, _, _), (times, traces, mask) in zip(POWER_PANELS, power):
-        written += save_panel_variants(draw_power(times, traces, mask, power_ylim),
-                                       os.path.join(args.out, name))
+    for (name, _, factors), raw, effect in zip(POWER_PANELS, power, effects):
+        written += save_panel_variants(draw_power(*raw, power_ylim), os.path.join(args.out, name))
+        written += save_panel_variants(
+            draw_power(*effect, effect_ylim, ylabel=EFFECT_LABEL[factors[0]]),
+            os.path.join(args.out, f'{name}_difference'))
 
     dec_dir = os.path.join(DCC, 'decoding', 'figs', EPOCHS)
     decoding_files, diffs = {}, []
@@ -237,10 +272,12 @@ def main():
     with open(os.path.join(args.out, 'paper_panels_config.json'), 'w') as f:
         json.dump(dict(subject_set=args.subject_set, power_run=power_dir,
                        decoding_files=decoding_files, panel_mm=PANEL_MM, xlim=XLIM,
-                       power_ylim=list(map(float, power_ylim)), decoding_ylim=DECODING_YLIM,
+                       power_ylim=list(map(float, power_ylim)),
+                       power_difference_ylim=list(map(float, effect_ylim)),
+                       decoding_ylim=DECODING_YLIM,
                        difference_ylim=list(map(float, diff_ylim)), base_fontsize=BASE_FONTSIZE,
                        sig_band_frac=SIG_BAND_FRAC), f, indent=2)
-    print(f"wrote {len(written)} files to {args.out} (power y {power_ylim}, difference y {diff_ylim})")
+    print(f"wrote {len(written)} files to {args.out} (power y {power_ylim}, power difference y {effect_ylim}, difference y {diff_ylim})")
 
 
 if __name__ == '__main__':
