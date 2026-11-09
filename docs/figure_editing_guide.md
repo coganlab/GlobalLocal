@@ -134,23 +134,26 @@ in Illustrator instead of being converted to outlines.
 
 Everything is in [dcc_scripts/subspace/subspace_figures.py](../dcc_scripts/subspace/subspace_figures.py)
 (the cosine figure moved there from `coding_axes_dcc.py` on 2026-11-09).
+Line numbers as of the last 2026-11-09 change (display names).
 
-### The style block (lines 26-54): change these first
+### The style block (lines 28-68): change these first
 
 Every subspace figure reads these constants, so one edit restyles all of them.
 
 | Constant | Line | What it controls | Now |
 |---|---|---|---|
-| `FONT_SIZE` | 28 | axis-label size; ticks 1 pt and legends 1.5 pt smaller | 7 |
-| `RC` | 30 | the matplotlib settings every figure is drawn with (`nature_style(FONT_SIZE)` + editable PDF fonts). Add any rcParam here, e.g. `'axes.linewidth': 0.6` | |
-| `LW` | 31 | width of every data line (pt) | 1.2 |
-| `INK`, `GREY`, `MUTED` | 34 | black (data), mid-grey (ceiling, congruent cells), dark grey (zero lines) | |
-| `NULL_FILL`, `UNRELIABLE`, `PRIMARY_FILL` | 35-36 | shuffle-null band, unreliable windows, primary-k band (subspace test) | pale greys |
-| `CROSS`, `CEILING` | 37 | colours of the cosine and the ceiling (cosine figure, subspace test) | ink, grey |
-| `CELL_STYLE` | 40 | the four cells in the trajectories: `cell: (colour, line style)` | incongruent ink, congruent grey; switch `'-'`, repeat `'--'` |
-| `PROP_COLOR` | 44 | the proportion blocks, `proportion: {'low': 25 %, 'high': 75 %}`; used by the block separations and the proportion trajectories | paradigm salmon/dark red, sky/navy |
-| `SIZES` | 49 | every figure's width and height in inches, at print size | see the dict |
-| `HALO` | 53 | white outline behind the i/c/s/r letters | 1.5 pt |
+| `FONT_SIZE` | 30 | axis-label size; ticks 1 pt and legends 1.5 pt smaller | 7 |
+| `RC` | 32 | the matplotlib settings every figure is drawn with (`nature_style(FONT_SIZE)` + editable PDF fonts). Add any rcParam here, e.g. `'axes.linewidth': 0.6` | |
+| `LW` | 33 | width of every data line (pt) | 1.2 |
+| `INK`, `GREY`, `MUTED` | 36 | black, mid-grey (both used by the trajectory cells), dark grey (zero lines) | |
+| `NULL_FILL`, `PRIMARY_FILL` | 37-38 | shuffle-null band; primary-k band (subspace test) | pale greys |
+| `CROSS`, `CEILING` | 41 | cross and ceiling: lines, CI bands, their significance bars (cosine figure), and the subspace test | Wong reddish purple `#CC79A7`, bluish green `#009E73` |
+| `LEVEL_LS` | 44 | line style per level, as the power traces | i, s dashed; c, r solid |
+| `CELL_STYLE` | 47 | the four trajectory cells: `cell: (colour, line style)` | incongruent black, congruent grey; line style from `LEVEL_LS` |
+| `PROP_COLOR` | 52 | the proportion blocks, `proportion: {'low': 25 %, 'high': 75 %}`, built from the paper's shared palette `PROPORTION_COLORS` in `src/analysis/config/plotting_parameters.py`. **Change block colours there**, so every figure family changes together | Wong orange / vermillion (inc. prop.), sky blue / blue (swi. prop.) |
+| `SIZES` | 58 | every figure's width and height in inches, at print size | see the dict |
+| `NAMES` | 63 | every display name: the variables (congruency, task seq.), their short forms in the subspace test's ticks (C, TS), the proportions in titles and legends (inc. prop., swi. prop.). Levels (switch / repeat, s / r) and block shorthand (25% I / S) are not here | congruency, task seq., C, TS, inc. prop., swi. prop. |
+| `SIG_BARS` | 67 | the cosine figure's significance bars: `(table column, colour, label beside the bar)`, bottom to top. Delete a row to drop a bar; edit the text to rename it | "cross > shuffle", "ceiling > cross" |
 
 Rules of thumb:
 
@@ -160,69 +163,80 @@ Rules of thumb:
 - To change a colour everywhere it means the same thing, change the constant,
   not the call.
 
-### Cosine over time (`plot_coding_axes`, line 109): Fig A
+### Cosine over time (`plot_coding_axes`, line 118): Fig A
 
-One panel: unreliable windows (pale), the shuffle-null band, the ceiling (grey),
-the cosine (black) and one black bar over the windows where the cosine is
-**shared**. No Pearson line and no "not one code" bar; both stay in
-`coding_axis_cosines.csv` (`cross_pearson`, `not_one_code`) for the text.
+One panel: the shuffle (pale band = the stricter shuffle's central 90 %,
+dotted centre line), the ceiling and the cross, each with its participant-bootstrap
+95 % CI as a band, and the two labelled significance bars. The ceiling and its
+band are drawn only where both codes are reliable (from 0.5 s); say so in the
+caption. "cross > shuffle" is cluster-corrected; "ceiling > cross" is pointwise
+(bootstrap CI of the gap per window), also for the caption.
 
-- Bar height: `y = 1.1 * ...` (line 137), 10 % above the highest curve. Bar
-  thickness: `lw=2.5` (line 139).
-- Legend position: `ax.legend(loc='upper left')` (line 142).
-- y-axis label: line 141.
-- The **supplementary** alignment figure (`coding_axis_cosines_alignment`) is the
-  second half of the same function (lines 145-157): cosine / ceiling with its
-  95 % CI, dotted line at 1.
-- There is no CI on the cosine itself: the saved table doesn't have one.
+- CI bands: `alpha=0.15` (cross) and `0.2` (ceiling), from line 156. They need
+  `cross_lo/_hi` and `ceiling_lo/_hi` in `coding_axis_cosines.csv`: runs made
+  before 2026-11-09 get them from `dcc_scripts/subspace/add_cosine_cis.py
+  --run-dir <run>` (recomputes from the run's saved inputs with its own seed,
+  refuses to write if any existing column changes; about 25 s).
+- Bars: height `top * (1.1 + 0.08 * i)` (line 173), 10 % above the top of the
+  bands, 8 % between bars; thickness `lw=2` (line 176); label text in `SIG_BARS`.
+- y label: line 180. Legend: line 182 (`bbox_to_anchor=(0, 0.6)` puts it in the
+  early, ceiling-free windows).
+- The **supplementary** figure `coding_axis_cosines_alignment` is the second half
+  of the function (to line 193): cross / ceiling with its 95 % CI (say "95 % CI"
+  in the caption), dotted line at 1, blank where unreliable.
 
-### Trajectories (`plot_trajectories`, line 235): Fig A
+### Trajectories (`plot_trajectories`, line 271): Fig A
 
-Plane on top, x(t) and y(t) as thin strips beneath.
+Plane on top, x(t) and y(t) as thin strips beneath; units z (HG z-scored to
+the pre-stimulus baseline).
 
-- Relative heights: `height_ratios=[2.6, 2]` (plane : both strips) and the
-  strips' `hspace` (lines 250-251).
-- Cell colours / dashes: `CELL_STYLE`. Legend text comes from the cell names
-  (`'incongruent, switch'` ...); position `loc='lower right'` (line 273).
-- Start marker `ms=3` (line 261); end arrow `mutation_scale=7` (line 265).
-- Axis names (`'switch beyond\ncongruency'`; `\n` is a line break): lines 245-247.
-- CI opacity in the strips: `alpha=0.12` (line 270).
+- Relative heights: `height_ratios=[2.6, 2]` (plane : both strips), line 287.
+- Cell colours / line styles: `CELL_STYLE` / `LEVEL_LS`. Legend text comes from
+  the cell names (`'incongruent, switch'` ...); position `loc='lower right'`
+  (line 310).
+- Start marker `ms=3` (line 298); end arrow `mutation_scale=7` (line 302).
+- Axis names (built from `NAMES`: "task seq. beyond\ncongruency"; `\n` is a line break): line 282.
+- CI opacity in the strips: `alpha=0.12` (line 307).
 
-### Block separations (`plot_block_separations`, line 281): Fig B
+### Block separations (`plot_block_separations`, line 318): Fig B
 
-Four panels: congruency separation in 25 % and 75 % switch blocks, then switch
-separation in 25 % and 75 % incongruent blocks. Inside each panel the
-variable's own proportion is light (25 %) vs dark (75 %) in its paradigm
-colours; the adaptation is the gap between the two lines.
+Four panels: congruency separation in 25 % and 75 % S blocks, then task-seq.
+separation in 25 % and 75 % I blocks. Inside each panel the variable's own
+proportion is light (25 %) vs dark (75 %); the adaptation is the gap between
+the two lines.
 
-- Panel titles ("25% switch blocks"): line 320. Legend: line 323. One shared
-  x-label for the whole figure: `fig.supxlabel` (line 324; `y=-0.08` sets its
-  distance below the panels).
-- Space between the two pairs: `wspace=0.25` (line 306); within a pair:
-  `wspace=0.08` (line 308).
-- The **supplementary** change figure (`..._changes`) is the second half (lines
-  327-340): 25 % − 75 % change with the own proportion (black, solid) and the
-  other (grey, dashed) with CIs. Its statistics are `block_contrasts.csv`
+- Space between the two pairs: `wspace=0.25` (line 343); within a pair:
+  `wspace=0.08` (line 345).
+- Panel titles ("25% S blocks"): line 357. Legend: line 360. One shared x-label:
+  `fig.supxlabel` (line 361; `y=-0.08` is its distance below the panels).
+- The **supplementary** figure `..._changes` is the second half (to line 377):
+  25 % − 75 % change with the own proportion (black, solid) and the other
+  (grey, dashed), with CIs. Its statistics are `block_contrasts.csv`
   (`estimate`, `lo`, `hi`, `p`, `excludes_0` per window, for `incProp`,
-  `switchProp` and `own_minus_other`), which is the supplementary table.
-- `unique=True` (the `_unique` files) is the switch axis with the congruency
-  axis removed, drawn the same way.
+  `switchProp` and `own_minus_other`): the supplementary table.
+- `unique=True` (the `_unique` files) is each axis with the other axis's
+  direction removed, drawn the same way.
 
-### Proportion trajectories (`plot_proportion_trajectories`, line 344): Fig B
+### Proportion trajectories (`plot_proportion_trajectories`, line 381): Fig B
 
-All four planes (matched on the diagonal, crossed off it). Colour = the block,
-in the column's proportion's paradigm colours; all lines solid; the level is
-the bold letter at the end of each path (i / c, s / r) with a white halo.
+All four planes (matched on the diagonal, crossed off it). Colour = the block
+(`PROP_COLOR`), line style = the level (`LEVEL_LS`: i, s dashed; c, r solid),
+one legend entry per path ("i, 25% I"), as the four-trace power plots.
 
-- Letter position: `xytext=(2, 2)` points right and up of the path's end
-  (line 377). Letter style: `fontweight='bold'`, `HALO`.
-- Legend (one entry per block): line 381, `loc='best'`.
-- Panel titles: line 380. Spacing: `hspace`, `wspace` (line 361).
+- Spacing: `hspace`, `wspace` (line 399). Line and legend: lines 410-419
+  (`loc='best'`). Panel titles ("task seq. × swi. prop.", from `NAMES`): line 418.
+  Start circle line 412, end arrow line 416.
 
-### Subspace test (`plot_subspace_test`, line 212): supplement
+### Subspace test (`plot_subspace_test`, line 248): supplement
 
-Unchanged logic, at print size and in the achromatic palette. Marker size
-`ms=4` in `_comparison_panel` and `_dims_panel`.
+Unchanged logic, at print size; cross and ceiling in `CROSS` / `CEILING`.
+Marker size `ms=4` in `_comparison_panel` and `_dims_panel`. What every mark
+means is in [`subspace_figure_todos.md`](subspace_figure_todos.md) item 1.9.
+
+### Schematic (`dcc_scripts/subspace/schematic_figure.py`): not in the paper
+
+`python dcc_scripts/subspace/schematic_figure.py --out <stem>`. Uses the style
+block's constants.
 
 ## 5. Figure 5 anatomy figures
 

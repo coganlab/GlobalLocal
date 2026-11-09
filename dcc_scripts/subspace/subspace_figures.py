@@ -58,19 +58,23 @@ PROP_COLOR = {prop: {'low': PROPORTION_COLORS[factor][25], 'high': PROPORTION_CO
 SIZES = dict(cosines=(3.4, 2.0), alignment=(3.4, 1.5), subspace_test=(7.2, 4.2),
              trajectories=(2.6, 4.0), separations=(7.2, 1.8), separation_changes=(5.0, 1.8),
              proportion_trajectories=(4.6, 4.8))
+# Display names: change a name here and every subspace figure follows. The
+# switch-type factor is called "task sequence"; its levels stay switch / repeat.
+NAMES = dict(congruency='congruency', switch='task seq.', congruency_short='C',
+             switch_short='TS', incProp='inc. prop.', switchProp='swi. prop.')
 # Significance bars of the cosine figure, bottom to top: (table column,
 # colour, label drawn beside the bar).
 SIG_BARS = (('shared', CROSS, 'cross > shuffle'), ('not_one_code', CEILING, 'ceiling > cross'))
 # -----------------------------------------------------------------------------
 
-_ARROWS = {'congruency_to_switch': 'C→S', 'switch_to_congruency': 'S→C'}
+_ARROWS = {'congruency_to_switch': f"{NAMES['congruency_short']}→{NAMES['switch_short']}",
+           'switch_to_congruency': f"{NAMES['switch_short']}→{NAMES['congruency_short']}"}
 PCT = {'low': '25%', 'high': '75%'}
 # Each variable's name, its own proportion and the other one.
-_VAR_NAMES = {'congruency': ('congruency', 'incProp', 'switchProp'),
-              'switchType': ('switch', 'switchProp', 'incProp')}
+_VAR_NAMES = {'congruency': (NAMES['congruency'], 'incProp', 'switchProp'),
+              'switchType': (NAMES['switch'], 'switchProp', 'incProp')}
 _PROP_COL = {'incProp': 'inc_prop', 'switchProp': 'switch_prop'}
-_PROP_LABEL = {'incProp': 'incongruent proportion', 'switchProp': 'switch proportion'}
-_PROP_NAMES = {'incProp': 'incongruent', 'switchProp': 'switch'}
+_PROP_LABEL = {'incProp': NAMES['incProp'], 'switchProp': NAMES['switchProp']}
 # Proportion shorthand, as the decoding figures write it ('25% I > 75% I').
 _PROP_SHORT = {'incProp': 'I', 'switchProp': 'S'}
 _PCT_LEVEL = {'25': 'low', '75': 'high'}
@@ -173,7 +177,7 @@ def plot_coding_axes(table, out_path, time_label=time_axis_label(), title=None):
             ax.annotate(text, (t[runs[0][0]] - half, y), xytext=(-3, 0),
                         textcoords='offset points', ha='right', va='center',
                         fontsize=FONT_SIZE - 1.5, color=color)
-        ax.set(xlabel=time_label, ylabel='congruency–switch cosine')
+        ax.set(xlabel=time_label, ylabel=f"{NAMES['congruency']}–{NAMES['switch']} cosine")
         # below the bars' labels, in the early windows (no ceiling there)
         ax.legend(*zip(*handles), loc='center left', bbox_to_anchor=(0, 0.6))
         paths = _save(fig, stem)
@@ -241,7 +245,7 @@ def _dims_panel(ax, d, variable):
     ax.set_title(variable, loc='left')
 
 
-def plot_subspace_test(table, dims, out_path, k=None, names=('congruency', 'switch type')):
+def plot_subspace_test(table, dims, out_path, k=None, names=(NAMES['congruency'], NAMES['switch'])):
     """The §3.4 figure (supplement). (a) principal angles, (b) alignment index,
     each congruency vs switch per k, against ceiling and null; (c, d) how many
     dimensions of each variable are reproducible (filled), which sets k.
@@ -274,9 +278,10 @@ def plot_trajectories(traj, fractions, axes_summary, label, out_path, cells='cen
     ``traj`` is the trajectories table with ``window_center`` merged in;
     ``fractions`` and ``axes_summary`` are accepted for callers and not drawn."""
     t_all = traj[(traj['axes'] == label) & (traj['cells'] == cells)]
-    x_name, y_name = {'congruency': ('congruency', 'switch beyond\ncongruency'),
-                      'switch': ('switch', 'congruency beyond\nswitch'),
-                      None: ('congruency', 'switch')}[first]
+    c, s = NAMES['congruency'], NAMES['switch']
+    x_name, y_name = {'congruency': (c, f'{s} beyond\n{c}'),
+                      'switch': (s, f'{c} beyond\n{s}'),
+                      None: (c, s)}[first]
     with plt.rc_context(RC):
         fig = plt.figure(figsize=SIZES['trajectories'])
         outer = fig.add_gridspec(2, 1, height_ratios=[2.6, 2], hspace=0.3)
@@ -392,9 +397,9 @@ def plot_proportion_trajectories(traj, changes, label, out_path):
     with plt.rc_context(RC):
         fig, axs = plt.subplots(2, 2, figsize=SIZES['proportion_trajectories'], sharex=True,
                                 sharey=True, gridspec_kw=dict(hspace=0.3, wspace=0.1))
-        for r, (var, var_name) in enumerate((('congruency', 'congruency'),
-                                             ('switchType', 'switch'))):
-            for col, prop in enumerate(_PROP_NAMES):
+        for r, (var, var_name) in enumerate((('congruency', NAMES['congruency']),
+                                             ('switchType', NAMES['switch']))):
+            for col, prop in enumerate(('incProp', 'switchProp')):
                 ax = axs[r, col]
                 d = traj[traj['set'] == f'{var} x {prop}']
                 for cond, dc in d.groupby('condition', sort=False):
@@ -410,10 +415,10 @@ def plot_proportion_trajectories(traj, changes, label, out_path):
                                     arrowprops=dict(arrowstyle='-|>', color=color, lw=0.8,
                                                     mutation_scale=7))
                 _zero(ax, vertical=True)
-                ax.set_title(f'{var_name} × {_PROP_NAMES[prop]} proportion', loc='left')
+                ax.set_title(f'{var_name} × {NAMES[prop]}', loc='left')
                 ax.legend(loc='best')
         for ax in axs[1]:
-            ax.set_xlabel('congruency axis (z)')
+            ax.set_xlabel(f"{NAMES['congruency']} axis (z)")
         for ax in axs[:, 0]:
-            ax.set_ylabel('switch axis (z)')
+            ax.set_ylabel(f"{NAMES['switch']} axis (z)")
         return _save(fig, _stem(out_path))

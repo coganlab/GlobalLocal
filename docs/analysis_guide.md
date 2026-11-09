@@ -36,6 +36,8 @@ doesn't:
 | [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) | **The 2026-10-13 analyses**: how to run, the code step by step, and the statistics for decoding with channels as features (and channel-space trajectories), window-mean decoding in sig / nonsig / all electrodes, the top-20 % score sets on held-out trials, and the redrawn Figure 5; and what of the subspace plan is not built |
 | [`coding_axes.md`](coding_axes.md) | **Runbook for the coding axes, subspace test and trajectories** (subspace plan §3–4): the congruency and switch coding axes per A4 window, the cosine between them against a shuffle null and a split-half ceiling, the principal angles and alignment index between the two codes' subspaces, the held-out condition trajectories, the `remove_mean` / RT / occipital controls, and the figures |
 | [`subspace_math_walkthrough.md`](subspace_math_walkthrough.md) | **The math behind the subspace test and trajectories**, from "what is a vector" to the numbers the job writes, each step with a small worked example |
+| [`figure_editing_guide.md`](figure_editing_guide.md) | **How to change a paper figure's look and redraw it without rerunning anything**: where each subspace, Figure 5 anatomy and window-mean decoding figure is drawn, the redraw commands, the shared size, font and colour settings, and the 2026-11-06 figure decisions |
+| [`subspace_figure_todos.md`](subspace_figure_todos.md) | **Open items from the figure discussion** (started 2026-11-09): for Fig A, Fig B and the supplement, what is done, decided or still open, and where each item lives in the code |
 | [`a6_brain_behavior.md`](a6_brain_behavior.md) | **Runbook for A6** (§19): the per-participant brain–behavior scores and the RT confound |
 | [`stability_flexibility_battery.md`](stability_flexibility_battery.md) | The **shape of the data at every step** of A1–A7, one fake dataset followed end to end with the actual intermediate tables printed (backed by the runnable `docs/examples/stability_flexibility_data_flow_demo.py`), and **what each output file means** |
 | [`dlpfc_results.md`](dlpfc_results.md) | **Whether the paper could report DLPFC instead of all lPFC**: every DLPFC result (traces, decoding, cross-decoding, segregation, anatomy) next to its lPFC counterpart, and the runs still needed |
@@ -148,13 +150,16 @@ src/analysis/
 │   ├── experiment_conditions.py          # condition name → BIDS event mapping
 │   ├── condition_registry.py             # CONDITION_REGISTRY + get_comparisons(), etc.
 │   ├── rois.py                           # ROI → Destrieux atlas label lists
-│   ├── plotting_parameters.py
+│   ├── subjects.py                       # named participant sets (all24, good, …) + resolve_subject_set (§3)
+│   ├── plotting_parameters.py            # PROPORTION_COLORS (paper-wide block colours) + per-condition styles
 │   └── group_data.py
 │
 ├── utils/       # Shared data-loading & array plumbing
 │   ├── general_utils.py                  # load_mne_objects, get_good_data, sig chans, ROI maps
 │   ├── labeled_array_utils.py            # MNE epochs → LabeledArray, bootstrapping (decoding)
-│   └── epoch_metadata_utils.py           # trial metadata construction
+│   ├── epoch_metadata_utils.py           # trial metadata construction
+│   ├── panel_layout.py                   # fixed-geometry figure panels + label-less variants (§10)
+│   └── image_utils.py                    # trim_whitespace, tighten_panels (brain screenshots)
 │
 ├── spec/        # ANALYSIS PATH: time-frequency / wavelets  (§5)
 │   ├── wavelet_functions.py
@@ -196,6 +201,10 @@ src/analysis/
 │   ├── stability_flexibility_anatomy.py        # A3: coverage-conditioned ROI/Destrieux enrichment + brain maps
 │   ├── stability_flexibility_timing.py         # A5: relative onset (50%-of-peak + jackknife)
 │   ├── stability_flexibility_brain_behavior.py # A6: brain↔behavior correlation
+│   ├── coding_axes.py                          # congruency/switch coding axes + cosine vs null and ceiling
+│   ├── coding_subspaces.py                     # subspace test: principal angles between the two codes
+│   ├── coding_trajectories.py                  # condition trajectories + block-split projections
+│   │                                           #   (these three: runbook in coding_axes.md)
 │   ├── stability_flexibility_*_tutorial.ipynb  # per-analysis walk-throughs
 │   └── stability_flexibility_assignments_sandbox.ipynb  # learn-by-doing A1–A6
 │
@@ -214,7 +223,13 @@ dcc_scripts/      # Cluster launchers (what you actually run)
 │                 # + the two def/decode split launchers (§21)
 ├── stats/        # A1/A2 (anova_conjunction, segregation) + A1′ (power_traces_conjunction)
 │                 # + A3 (anatomy) + A5 (timing) + A6 (brain_behavior) launchers
-└── vis/          # plot_sig_electrodes_dcc.py + condition_plot_specs.py
+│                 # + fig5_scatter.py (redraw the Fig 5 overlap scatter, §16)
+├── subspace/     # coding axes / subspace test / trajectories: coding_axes_dcc.py + submit *.sh;
+│                 # subspace_figures.py (every figure), redraw_figures.py, add_cosine_cis.py
+├── vis/          # plot_sig_electrodes_dcc.py + condition_plot_specs.py;
+│                 # paper_panels.py (Fig 3/4 panels at one size, §10)
+└── submit_subject_set_rerun.sh, submit_subject_set_supplement.sh,
+    submit_score_set_power_traces.sh   # rerun the paper on one participant set (§3)
 
 docs/examples/    # Runnable doc companions
 └── stability_flexibility_data_flow_demo.py   # every table in the data-flow doc
@@ -264,6 +279,41 @@ and exposes accessor functions the paths call:
 `rois_dict` maps an ROI name (`dlpfc`, `acc`, `lpfc`, `v1`, `occ`, `parietal`, …)
 to a list of Destrieux-atlas label substrings. Electrodes are assigned to ROIs
 by matching their anatomical labels against these lists.
+
+### Participant sets (`config/subjects.py`)
+
+`SUBJECT_SETS` names the participant lists the cluster entry points use:
+
+| Set | Who | Use |
+|---|---|---|
+| `all24` | the 24 participants of every paper run up to 2026-10-29 | the default (`DEFAULT_SUBJECT_SET`) |
+| `good` | the quality-checked list of 2026-10-29: `all24` plus D0130, minus D0144 (missing block D) and D0117 (accuracy 0.63) | the paper's current runs |
+| `good_rawacc70`, `good_acc70` | `good` minus the lowest-accuracy participants | sensitivity checks |
+
+`resolve_subject_set(name=None)` returns `(subjects, suffix)`. With no name it
+reads `$SUBJECT_SET`, so a launcher picks the set with
+`SUBJECT_SET=good bash submit_….sh` (`sbatch --export=ALL` carries it into the
+job). The suffix is `''` for `all24` and `_subjects-<name>` otherwise. Each
+run appends it to its output folder, so runs on another set never overwrite the
+`all24` results. An unknown name raises an error at submission.
+
+> **Currently pinned:** `dcc_scripts/power/run_power_traces_dcc.py` and
+> `dcc_scripts/decoding/run_decoding_dcc.py` call `resolve_subject_set('good')`,
+> so for those two entry points `$SUBJECT_SET` is **ignored** and every run uses
+> `good`. To pick the set from the environment again, change the call back to
+> `resolve_subject_set()`.
+
+To rerun the whole paper on one set, `dcc_scripts/submit_subject_set_rerun.sh`
+submits the main-text runs: F3 power traces, F4 decoding, F5 segregation →
+anatomy, and the coding axes with their controls. Then
+`dcc_scripts/submit_subject_set_supplement.sh` submits the supplement and
+reviewer runs: window-mean decoding, DLPFC power traces and segregation →
+anatomy, response-locked and occipital coding axes, Figure 5 on the top-20 %
+electrodes, and the every-trial score selection. Both scripts log the git
+commit and every job id to `dcc_scripts/out/`. This cluster's sbatch ignores
+`SBATCH_DEPENDENCY`, so the power traces of the score selection's electrode sets
+go in by hand once the selection job has finished:
+`SUBJECT_SET=good bash dcc_scripts/submit_score_set_power_traces.sh <score_selection.json>`.
 
 ### Data loading & electrode plumbing (`utils/general_utils.py`)
 
@@ -495,6 +545,15 @@ by the ANOVA-selector split (§21). A run directory is the one holding
 `summary.csv` + `run_config.json`:
 `dcc_scripts/power/figs/<EPOCHS_ROOT_FILE>/anova_within_electrode/<conditions_save_name>`.
 
+A condition label with **one** condition, such as `stimulus_all_conditions`
+(every stimulus trial, styled by the `'Stimulus'` entry of
+`plotting_parameters`), has nothing to compare. `power_traces_dcc.main` then
+sets `statistical_method = 'none'` and plots the trace with no test.
+
+The paper's **Fig 3 panels** are not the figures this job writes. They are
+redrawn from the windowed-ANOVA run's saved `*_evoked.npz` and
+`*_interaction_cluster.npz` files by `dcc_scripts/vis/paper_panels.py` (§10).
+
 **Run it:**
 ```bash
 # from dcc_scripts/power on the cluster:
@@ -614,6 +673,24 @@ sh submit_specific_conditions_decoding_dcc.sh
 The run-and-read walkthrough — electrode options, every knob, every output, and
 how to read the figures — is [`decoding.md`](decoding.md).
 
+**Redrawing from a results file.** `decoding/plots/replot.py` redraws a finished
+run from its `*_MASTER_RESULTS_*.pkl` file without decoding again.
+`context_comparison_panel(master, roi)` returns what one context-comparison
+panel draws (the two blocks' accuracies, the pooled shuffle, the contrast bar
+and each block's bar against chance, plus colours and line styles) as keyword
+arguments for `plot_accuracies_with_multiple_sig_clusters`. Both
+`replot_master_results` and the paper's Fig 4 panels (§10) are built on it.
+Recent changes to the plotting function:
+
+- `ax=` draws into an existing axes and returns it, with no `tight_layout` and
+  no saving, so a fixed panel geometry survives.
+- `legend_loc='right'` puts the trace legend outside the axes.
+- `sig_legend_loc='rows'` writes each significance row's label beside the row
+  instead of in a key.
+
+`replot_master_results` draws its context-comparison panels with both legend
+options, and its default `ylim` is now `(0.3, 1.0)`.
+
 > **Unit of analysis** matters here (`folds_as_samples` vs `repeats_as_samples`
 > vs bootstrap): it determines how accuracies are summed/averaged and how error
 > bars and stats are computed. See the "Decoding" section of the repo-root
@@ -692,6 +769,68 @@ Cross-path plotting and anatomy figures:
 - `vis/power_traces_anova_f_traces_vis.py` — plots the F-trace `.npz` files saved
   by the power path's windowed ANOVA.
 
+### Paper figures: shared style and redrawing
+
+Each paper figure is redrawn from saved outputs by a plotting-only function, so
+changing its look never means rerunning an analysis. How to change each figure,
+with the redraw commands, is in [`figure_editing_guide.md`](figure_editing_guide.md).
+The pieces the figures share:
+
+- **Block colours.** `config/plotting_parameters.PROPORTION_COLORS` holds one
+  colour-blind-safe palette (Wong 2011) for every figure, with light for 25 %
+  blocks and dark for 75 % blocks. Incongruent proportion is orange (`#E69F00`)
+  and vermillion (`#D55E00`); switch proportion is sky blue (`#56B4E9`) and blue
+  (`#0072B2`). `condition_registry.py` (the decoding colours), the A6 scatter
+  and the paper panels all read it, so a colour changes in one place.
+- **Panel geometry.** `utils/panel_layout.py`:
+  `save_panel_variants(draw, stem)` calls `draw(ax)` on an axes placed at fixed
+  millimetre margins (`PANEL_MM`, an 89 mm-wide Nature column). It saves the
+  whole canvas in four variants: full, `_noxlabel`, `_noylabel` and
+  `_nolabels`. Each variant is written as PNG, PDF (text editable) and
+  450-dpi LZW TIFF. Every panel's axes therefore land in the same place, and a
+  label-less variant stacks exactly on the full one in Illustrator. The
+  function also warns when content runs off the canvas.
+- **Font.** `decoding/plots/style.py` falls back to Nimbus Sans, the Helvetica
+  clone installed on the cluster, because Arial is not installed there.
+
+**`dcc_scripts/vis/paper_panels.py`** draws the Fig 3 power-trace panels and the
+Fig 4 decoding panels at one size and style. All panels share the x range
+−1 to 1.5 s, and panels within one figure share the y range.
+
+- **Fig 3** comes from the windowed-ANOVA run's per-electrode cell means. Each
+  2 × 2 term is averaged to its four sub-cells, with the other proportion's
+  blocks weighted equally, and shown as mean ± SEM across electrodes with the
+  term's cluster-corrected interaction bar. Each term also gets a `_difference`
+  panel showing i − c or s − r per block.
+- **Fig 4** and its cross-effect supplement come from the decoding results files
+  via `context_comparison_panel`, plus a 25 % − 75 % accuracy-difference panel.
+
+Which runs it reads (the decoding job ids, the subject set) is set at the top of
+the script. Every number it used is written to `paper_panels_config.json`
+beside the panels:
+
+```bash
+python dcc_scripts/vis/paper_panels.py --subject-set good   # → dcc_scripts/vis/paper_panels/
+```
+
+**Brain figures (`plot_sig_electrodes_dcc.py`).** `run_plot_sig_electrodes_dcc.py`
+now renders `HEMI = "split"` at `BRAIN_PANEL_PX = 1600` pixels per hemisphere.
+`save_brain_image` then pulls the two hemispheres together
+(`image_utils.tighten_panels`) and writes a 450-dpi TIFF beside every PNG. The
+standalone colour legends get a TIFF too. At 1600 px the split figure is about
+2200 px wide, or 125 mm at 450 dpi; about 2350 px per panel fills a 183 mm
+double column. The Fig 2 electrode-set colours are in `condition_plot_specs.py`.
+
+**Subspace figures.** `dcc_scripts/subspace/subspace_figures.py` holds every
+coding-axes figure (`plot_coding_axes` moved there from `coding_axes_dcc.py`),
+with one style block at the top. To redraw a finished run with the current
+code, run `redraw_figures.py --run-dir <run> [--out-dir DIR]`. Since
+2026-11-09, `coding_axes.compare_coding_axes` also saves the bootstrap CIs of
+the cross and ceiling cosines (`cross_lo/_hi`, `ceiling_lo/_hi`), which are the
+cosine figure's error bands. `add_cosine_cis.py --run-dir <run>` adds them to
+an older run. It first checks that every existing column reproduces, and
+refuses to write if one does not.
+
 ---
 
 ## 11. Quick reference
@@ -725,6 +864,12 @@ Cross-path plotting and anatomy figures:
   `power/windowed_anova.py`.
 - **Change how stability/flexibility electrodes are defined** →
   `stats/stability_flexibility_segregation.py` (`per_electrode_anova_labels`).
+- **Change which participants a run uses** → `SUBJECT_SET=<name>` at submission,
+  or add a set to `config/subjects.py` (but see the pinned entry points in §3).
+- **Change the block colours in every figure** →
+  `config/plotting_parameters.PROPORTION_COLORS`.
+- **Change a paper figure's look** → [`figure_editing_guide.md`](figure_editing_guide.md);
+  for the panel size and margins, `utils/panel_layout.PANEL_MM` (§10).
 
 ### Tests
 
@@ -745,6 +890,11 @@ Path-level tests live under `tests/analysis/`:
 | `stats/test_stability_flexibility_brain_behavior.py` | A6 levels 2–3, and the blockType → proportion map pinned against the task code and `combinedData.csv` |
 | `stats/test_participant_brain_behavior.py` | A6 level 1: per-participant scores, the RT adjustment, shared-split reliability (§19) |
 | `stats/test_assemble_long_df.py` | the long table's `trial` / `rt` / `acc` columns |
+| `stats/test_coding_axes.py`, `test_coding_subspaces.py`, `test_coding_trajectories.py` | coding axes (incl. the cross/ceiling CIs bracketing their estimates), the subspace test, the trajectories, and that the job writes every figure |
+| `stats/test_section19_anatomy.py` | N4 §19 and the combined Figure 5, incl. `fig5_height_scatter` and `fig5_scatter.py` redrawing from the saved points |
+| `decoding/test_decoding_figures.py` | the decoding figures and replotting from results files |
+| `config/test_subjects.py` | the participant sets and `resolve_subject_set` |
+| `utils/test_image_utils.py` | `trim_whitespace`, `tighten_panels` |
 | `utils/test_labeled_array_utils.py`, `utils/test_general_utils.py` | shared plumbing |
 | `preproc/test_time_perm_cluster.py` | cluster permutation |
 
@@ -1976,6 +2126,20 @@ LABEL_SOURCE=power_traces ROI_FILTER=lpfc PT_ROI=lpfc \
 - `anatomy_coverage_enrichment.png` — coverage heatmap + the permutation null with the observed χ².
 - `selectivity_groups_on_brain.png` (+ `..._both.png` / `..._S_only.png` / `..._F_only.png`), or `..._roi_hist.png` when the surface stack is unavailable.
 - `summary.txt` — printed verdict.
+
+**Figure 5 (continuous arm).** `figure5_height` writes `fig5_height.png`/`.pdf`
+and its CSVs; the run, results and caption are in
+[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md). The figure has no
+panel letters, titles or statistics. Its numbers are in the run's summary files
+and go in the caption. Since 2026-11-09 the run also writes
+`fig5_height_scatter.png`/`.pdf`: the LWPC–LWPS scatter alone, without the
+height colouring, the centroids or the zoom (`plot_figure5_scatter`), sized to
+sit as a panel of another figure. For a run made before then, draw it from the
+saved points without recomputing anything:
+
+```bash
+python dcc_scripts/stats/fig5_scatter.py --dir <anatomy run>/continuous[/section19...] [--pair main_effects]
+```
 
 **Reading:** a **significant** permutation p means selectivity-group membership is
 associated with ROI (or Destrieux label) *beyond* what electrode placement forces.
@@ -3214,3 +3378,11 @@ in order for depth. Runnable stubs for each assignment are in `docs/skeletons/`.
 | power_traces windowed ANOVA (temporal-profile figure) | `run_within_electrode_windowed_anova_cluster_correction`, `load_significant_electrodes` | `src/analysis/power/windowed_anova.py` |
 | Timing | `interaction_time_course`, `onset_50pct_peak`, `jackknife_onset_difference` | `src/analysis/stats/stability_flexibility_timing.py` |
 | Brain–behavior | `participant_scores`, `participant_brain_behavior`, `rt_adjust_hg`, `subject_level_brain_behavior`, `trialwise_brain_behavior`, `behavioral_lwpc_lwps_magnitudes` | `src/analysis/stats/stability_flexibility_brain_behavior.py` |
+| Figure 5 and its scatter-only panel | `figure5_height`, `plot_figure5_height`, `plot_figure5_scatter` | `src/analysis/stats/stability_flexibility_anatomy.py` |
+| Coding-axes cosine, ceiling and their CIs | `compare_coding_axes` | `src/analysis/stats/coding_axes.py` |
+| Participant sets | `SUBJECT_SETS`, `resolve_subject_set` | `src/analysis/config/subjects.py` |
+| Paper-wide block colours | `PROPORTION_COLORS` | `src/analysis/config/plotting_parameters.py` |
+| Fixed-geometry panels + label-less variants | `PANEL_MM`, `save_panel_variants` | `src/analysis/utils/panel_layout.py` |
+| Split-hemisphere screenshot tightening | `tighten_panels`, `trim_whitespace` | `src/analysis/utils/image_utils.py` |
+| One context-comparison panel from a results file | `context_comparison_panel` | `src/analysis/decoding/plots/replot.py` |
+| Fig 3 / Fig 4 paper panels | `power_panel`, `draw_power`, `draw_decoding` | `dcc_scripts/vis/paper_panels.py` |

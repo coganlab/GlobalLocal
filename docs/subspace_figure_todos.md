@@ -41,7 +41,7 @@ The shuffle is drawn as in the decoding figures (band + dotted centre line,
 significance bars are labelled beside them ("cross > shuffle", "ceiling >
 cross"; `SIG_BARS`). Redrawn in `figures_2026-11-09/`.
 
-### 1.2 Colours for the four trajectory cells (Fig A) (**open**)
+### 1.2 Colours for the four trajectory cells (Fig A) (**done**: black / grey, 2026-11-09)
 
 Rendered both options (temporary preview:
 `/tmp/claude-1491160/-hpc-home-jz421/285c9664-8ceb-475a-8097-1fff6b39ab8e/scratchpad/cells/compare.png`):
@@ -66,7 +66,7 @@ Wong colours and what they already mean:
 
 ### 1.3 Both significance bars (**done** in 1.1; correction in 1.6)
 
-### 1.4 Proportion trajectories: back to colour + line style, four legend entries (**next**)
+### 1.4 Proportion trajectories: back to colour + line style, four legend entries (**done** 2026-11-09)
 
 As the power traces: colour = block (25 % / 75 %), line style = level, with
 i and s dashed, c and r solid (`plotting_parameters.py`: `Stimulus_i25` '--',
@@ -75,13 +75,17 @@ no letters at the path ends. Note: the power traces use **dashed**, not dotted.
 Also: y and x units become **z** (HG is z-scored to the pre-stimulus baseline,
 `make_epoched_data.py:317`), in every subspace figure that says "(HG)".
 
-### 1.5 Unreliable windows: caption, not shading (**next**)
+### 1.5 Unreliable windows: caption, not shading (**done** 2026-11-09)
 
 Drop the grey span from the cosine panel and the alignment figure; don't draw
 the ceiling in unreliable windows (it means nothing there). Caption: "no
 reliable code before 0.5 s"; a little more in the Results.
 
-### 1.6 Cluster-correct "ceiling > cross" (**open**: method)
+### 1.6 Cluster-correct "ceiling > cross" (**decided**: leave pointwise, say so in the caption; revisit only if a reviewer asks)
+
+The "not one code" claim in the text rests on one test (the alignment averaged
+over the reliable windows, `alignment_reliable_ci` in `summary.json`), so the
+bar is descriptive. Notes from the discussion:
 
 Why it is pointwise now: "cross > shuffle" has a permutation null (labels
 shuffled), and cluster correction needs a null distribution of cluster sizes.
@@ -98,7 +102,7 @@ mass with the 95th percentile of the largest cluster mass across the centred
 draws. Computable from the saved `per_split_windows.csv` (no job rerun).
 Decide: this method, or another.
 
-### 1.7 Error bands on cross and ceiling (**open**)
+### 1.7 Error bands on cross and ceiling (**done** 2026-11-09: saved by `compare_coding_axes`; `add_cosine_cis.py` adds them to older runs)
 
 They exist in the computation but are not saved: `compare_coding_axes`
 bootstraps cross and ceiling (participant resampling) and only keeps the CIs of
@@ -109,11 +113,11 @@ as the decoding figures do. As in the decoding figures, the bands (bootstrap
 CI: how precise the curve is) and the bars (tests) are different things; the
 shuffle band is the null, not an error bar. Goes with 1.6 (same recompute).
 
-### 1.8 Alignment figure to the supplement (**next**)
+### 1.8 Alignment figure to the supplement (**done** 2026-11-09)
 
 y label "cross / ceiling"; "95% CI" out of the legend (to the caption).
 
-### 1.9 Subspace test (supplement) (**open**: redesign)
+### 1.9 Subspace test (supplement) (**decided**: keep as is, explain in caption and Methods)
 
 Elements, for reference (and for its caption):
 
@@ -153,7 +157,7 @@ variance is z².
 Decide: a simpler figure (e.g. only the k = 2 column of the top row plus the
 bottom row on a linear scale), or keep and caption.
 
-### 1.10 Fig A schematic (**open**: review draft)
+### 1.10 Fig A schematic (**decided**: code kept as `dcc_scripts/subspace/schematic_figure.py`, not in the paper)
 
 Draft (temporary):
 `/tmp/claude-1491160/-hpc-home-jz421/285c9664-8ceb-475a-8097-1fff6b39ab8e/scratchpad/schematic/fig_a_schematic.png`
@@ -188,11 +192,44 @@ Notes from before, for the record:
   `#05B0F0` / navy `#0B4F8A`. Pick one set for the paper.
 
 
+### 1.13 Cosine-panel colours (**done** 2026-11-09)
+
+Cross Wong reddish purple `#CC79A7`, ceiling Wong bluish green `#009E73`
+(`CROSS`, `CEILING`), shuffle band paler. These were Fig 2's LPFC electrode
+colours, so Fig 2 changes (1.14).
+
+### 1.14 Fig 2 electrode colours (**done** 2026-11-09 in `condition_plot_specs.py`: Wong yellow `#F0E442` analyzed, dark olive `#857300` task-significant; Fig 2 not re-rendered yet)
+
+The LPFC sets ("Analyzed LPFC", "Task-significant LPFC";
+`dcc_scripts/vis/condition_plot_specs.py:215, 221`) need new colours: the
+whole-brain sets already use grey and black, and green / purple are now cross
+/ ceiling. Idea (2026-11-09): light and dark yellow. Rendered three pairs
+(temporary: `/tmp/claude-1491160/-hpc-home-jz421/285c9664-8ceb-475a-8097-1fff6b39ab8e/scratchpad/yellow/yellow_pairs.png`):
+Wong yellow `#F0E442` + dark olive `#857300` is the most distinct and stays
+clear of the 25 % I orange; yellow + ochre leans orange; pale yellow + gold is
+too close to orange. Not checked with a colour-blindness simulator
+(`colorspacious` is not installed). On a light-grey surface yellow may need a
+thin dark edge.
+
+### 1.15 Decoding legends "25% I" / "25% S" (**done** 2026-11-09; existing decoding PNGs keep the old text until regenerated)
+
+`condition_registry.py` `trace_labels`: 20 labels, e.g. '25% incongruent' ->
+'25% I'. That file is also being edited by the other session (1.12).
+
+### 1.16 "switch" -> "task seq." in the subspace figures (**done** 2026-11-09: `NAMES` in `subspace_figures.py`; subspace-test ticks C→TS / TS→C)
+
+Variable / axis names, panel titles ("task seq. × swi. prop."), cosine y label.
+Levels (switch / repeat, s / r) stay.
+
 ---
 
 ## 2. Running / waiting on the cluster
 
-- **Sig-electrode coding-axes run**, job 61433366 (submitted 2026-11-09):
+- **Sig-electrode coding-axes run**, job 61433366: **done** (42 min). Folder
+  `windows_0.0to1.5s_w64s16_sig_lpfc-dlpfc_mean_diff_splits200_perm1000x20_seed0_subjects-good`
+  (ROIs in the order given, so `lpfc-dlpfc`); CIs added and redrawn in its
+  `figures_2026-11-09/`. 152 electrodes, 19 participants; alignment 0.63
+  [0.49, 0.85]; shared from window 8 (about 0.6 s) to the end. Originally:
   task-significant lPFC + DLPFC electrodes, good-subject set, otherwise the
   main run's settings. When done, redraw:
   `python dcc_scripts/subspace/redraw_figures.py --run-dir <run>/windows_0.0to1.5s_w64s16_sig_dlpfc-lpfc_mean_diff_splits200_perm1000x20_seed0_subjects-good --out-dir <that>/figures_<date>`.

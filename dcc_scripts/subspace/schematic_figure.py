@@ -20,7 +20,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch
 
-from dcc_scripts.subspace.subspace_figures import RC, INK, GREY, MUTED, NULL_FILL, FONT_SIZE
+from dcc_scripts.subspace.subspace_figures import RC, INK, GREY, MUTED, NULL_FILL, FONT_SIZE, NAMES
 
 N_ELECTRODES = 9           # bars drawn per effect vector
 
@@ -60,19 +60,20 @@ def plot_schematic(out_stem, seed=3):
             left.add_patch(plt.Rectangle((0.05, y - 1.3), 1.0, 2.6, fc=NULL_FILL, ec=MUTED, lw=0.6))
             left.text(0.55, y, label, ha='center', va='center')
         noisy = lambda v: v + 0.3 * rng.normal(0, 1, n)   # each half's estimate is noisy
-        _effect_column(left, 2.6, noisy(c), INK, 'congruency\neffect, A')
-        _effect_column(left, 3.9, noisy(s), GREY, 'switch\neffect, A')
-        _effect_column(left, 5.4, noisy(c), INK, 'congruency\neffect, B')
-        _effect_column(left, 6.7, noisy(s), GREY, 'switch\neffect, B')
+        cn, sn = NAMES['congruency'], NAMES['switch']
+        _effect_column(left, 2.6, noisy(c), INK, f'{cn}\neffect, A')
+        _effect_column(left, 3.9, noisy(s), GREY, f'{sn}\neffect, A')
+        _effect_column(left, 5.4, noisy(c), INK, f'{cn}\neffect, B')
+        _effect_column(left, 6.7, noisy(s), GREY, f'{sn}\neffect, B')
         left.text(2.0, n / 2 + 0.5, 'electrodes', rotation=90, ha='center', va='center',
                   color=MUTED, fontsize=small)
         _arrow(left, (1.1, n - 1.5), (2.15, n - 1.5), color=MUTED, lw=0.6)
         _arrow(left, (1.1, 2.5), (4.95, 2.5), color=MUTED, lw=0.6)
         left.text(8.55, n - 0.3, 'cross', ha='center', fontweight='bold')
-        left.text(8.55, n - 1.4, 'cos(congruency A, switch B)\nand B with A', ha='center',
+        left.text(8.55, n - 1.4, f'cos({cn} A, {sn} B)\nand B with A', ha='center',
                   va='top', fontsize=small)
         left.text(8.55, n - 4.9, 'ceiling', ha='center', fontweight='bold', color=GREY)
-        left.text(8.55, n - 6.0, 'cos(congruency A, congruency B)\n× cos(switch A, switch B),\n'
+        left.text(8.55, n - 6.0, f'cos({cn} A, {cn} B)\n× cos({sn} A, {sn} B),\n'
                   'square root', ha='center', va='top', fontsize=small, color=GREY)
         left.text(4.6, -1.6, 'one split; repeated over 200 splits and every time window',
                   ha='center', fontsize=small, color=MUTED)
@@ -96,8 +97,8 @@ def plot_schematic(out_stem, seed=3):
                    ls='--' if angle == 0 else '-')       # dashed so it shows on top of c
             ax.set_title(title, pad=2)
             ax.text(0.45, -0.22, note, ha='center', va='top', fontsize=small)
-        fig.text(0.56, 0.93, 'congruency axis', color=INK, fontsize=small)
-        fig.text(0.70, 0.93, 'switch axis', color=GREY, fontsize=small)
+        fig.text(0.56, 0.93, f'{cn} axis', color=INK, fontsize=small)
+        fig.text(0.70, 0.93, f'{sn} axis', color=GREY, fontsize=small)
         fig.text(0.80, 0.93, 'faint: one half of the trials', color=MUTED, fontsize=small)
         paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]
         for p in paths:

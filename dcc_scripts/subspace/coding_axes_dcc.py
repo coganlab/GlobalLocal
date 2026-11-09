@@ -117,10 +117,10 @@ from dcc_scripts.stats.stability_flexibility_segregation_dcc import (
     assemble_long_df, make_synthetic_df, _window_indices)
 from dcc_scripts.subspace.subspace_figures import (
     plot_coding_axes, plot_subspace_test, plot_trajectories, plot_block_separations,
-    plot_proportion_trajectories, time_axis_label, true_runs, INK, MUTED)
+    plot_proportion_trajectories, time_axis_label, true_runs, INK, MUTED, NAMES)
 
 # The two scores' names per `effect`, for the figures.
-VARIABLE_NAMES = {'main': ('congruency', 'switch type'), 'interaction': ('LWPC', 'LWPS')}
+VARIABLE_NAMES = {'main': (NAMES['congruency'], NAMES['switch']), 'interaction': ('LWPC', 'LWPS')}
 
 
 def load_time_courses(args, LAB_root):
