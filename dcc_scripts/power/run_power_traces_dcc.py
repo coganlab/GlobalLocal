@@ -43,6 +43,7 @@ from src.analysis.config import experiment_conditions
 from src.analysis.config.rois import select_rois
 from src.analysis.utils.anova_label_selection import anova_label_run_slug
 from src.analysis.config.subjects import resolve_subject_set
+from src.analysis.config.plotting_parameters import TRACE_FIGURE_STYLE
 
 # ============================================================================
 # ANALYSIS PARAMETERS
@@ -226,34 +227,33 @@ EXCLUDE_ELECTRODES = [
 
 # plotting
 PLOT_STYLE = {
+    **TRACE_FIGURE_STYLE,  # figsize, axis and tick font sizes, shared with the example spectrogram
+
     # Toggles
     'show_title': False,
     'show_xlabel': True,
     'show_ylabel': True,
-    'show_legend': True,
+    'show_legend': False,
     
     # Labels
     'title': None,        # None = auto-generate from ROI name
-    # 'x_label': 'Time from Stimulus Onset (s)',
-    'x_label': 'Time from Stimulus Onset (s)',
     'y_label': 'Power (z)',
     
     # Font sizes
     'title_font_size': 14,
-    'axis_font_size': 38,
-    'tick_font_size': 28,
     'legend_font_size': 14,
     
     # Tick customization
     'xticks': [ -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0],       # None = auto, or pass array
-    'yticks': [-0.3, 0, 0.3, 0.6, 0.9],
+    # 'yticks': [-0.3, 0, 0.3, 0.6, 0.9],
+    'yticks': [-0.1, 0, 0.1, 0.2, 0.3, 0.4],
     'xtick_labels': None, # Custom labels for xticks (like 'baseline', 'onset', etc), which are placed at the xtick locations.
     'ytick_labels': None,
     'xlim': (-1.0, 1.5),
-    'ylim': (-0.35, 0.9),
+    # 'ylim': (-0.35, 0.9),
+    'ylim': (-0.15, 0.4),
     
     # Other
-    'figsize': (12, 8),
     'text_color': 'black',
     'sig_cluster_height': 0.8,
 
@@ -269,6 +269,13 @@ PLOT_STYLE = {
     'n_outlier_labels': 5,
     'n_electrode_deviations_reported': 25,
 }
+
+# Per-condition changes to PLOT_STYLE, keyed by CONDITION_LABEL.
+PLOT_STYLE_BY_CONDITION = {
+    # F2c: every stimulus-locked trial, over the example spectrogram's -0.5 to 1.5 s window
+    'stimulus_all_conditions': {'xlim': (-0.5, 1.5), 'y_label': 'HG power (z)'},
+}
+PLOT_STYLE = {**PLOT_STYLE, **PLOT_STYLE_BY_CONDITION.get(CONDITION_LABEL, {})}
 
 # # # # testing params (comment out)
 # SUBJECTS = ['D0103']

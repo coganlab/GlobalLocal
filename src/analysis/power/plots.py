@@ -12,7 +12,8 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from typing import Union, List, Sequence
 
-from src.analysis.config.plotting_parameters import plotting_parameters
+from src.analysis.config.plotting_parameters import plotting_parameters, REFERENCE_LINE_STYLE
+from src.analysis.utils.panel_layout import save_figure
 
 
 def _subdir(directory, subfolder):
@@ -383,8 +384,8 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     if s['show_ylabel']:
         ax.set_ylabel(s['y_label'], fontsize=s['axis_font_size'], color=text_color)
 
-    ax.axhline(y=0, color='black', linestyle=':', alpha=0.5)
-    ax.axvline(x=0, color='black', linestyle=':', alpha=0.5)
+    ax.axhline(y=0, **REFERENCE_LINE_STYLE)
+    ax.axvline(x=0, **REFERENCE_LINE_STYLE)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.tick_params(axis='both', colors=text_color, labelsize=s['tick_font_size'])
@@ -478,9 +479,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         os.makedirs(save_dir, exist_ok=True)
         error_type = 'std' if show_std else 'sem' if show_sem else 'ci' if show_ci else 'no_error'
         base = f'{roi}_{conditions_save_name}_{save_name_suffix}_{error_type}_shading'
-        for ext in ('.pdf', '.png'):
-            filepath = os.path.join(save_dir, base + ext)
-            plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        for filepath in save_figure(fig, os.path.join(save_dir, base), bbox_inches='tight'):
             print(f"Saved plot to: {filepath}")
         report_path = os.path.join(save_dir, base + '_electrode_deviations.txt')
         _write_electrode_deviation_report(
@@ -578,7 +577,7 @@ def plot_direction_test_traces(direction_panels, direction_clusters, rois,
     bar on them, which leaves the two simple effects without a figure: you can
     see that the effect changed across blocks but not whether either block had
     an effect to begin with, and that is step 1 of reading N2
-    (``docs/n2_direction_tests.md`` §7).
+    (``docs/archive/n2_direction_tests.md`` §7).
 
     Parameters
     ----------
@@ -675,8 +674,8 @@ def apply_plot_style(ax, roi, style=None):
         ax.legend(loc='best', framealpha=0.95, fontsize=s['legend_font_size'])
 
     # Standard cleanup
-    ax.axhline(y=0, color='black', linestyle=':', alpha=0.5)
-    ax.axvline(x=0, color='black', linestyle=':', alpha=0.5)
+    ax.axhline(y=0, **REFERENCE_LINE_STYLE)
+    ax.axvline(x=0, **REFERENCE_LINE_STYLE)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
@@ -966,9 +965,7 @@ def plot_2way_interaction_for_roi(
         suf = save_name_suffix or ''
         base = (f'{roi}_{conditions_save_name}_2way_{factor1}_x_{factor2}_'
                 f'{suf}_{error_type}_shading')
-        for ext in ('.pdf', '.png'):
-            filepath = os.path.join(save_dir, base + ext)
-            plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        for filepath in save_figure(fig, os.path.join(save_dir, base), bbox_inches='tight'):
             print(f"Saved plot to: {filepath}")
     plt.close(fig)
     return fig
@@ -1075,9 +1072,7 @@ def plot_16_conditions_with_interaction_clusters_for_roi(
         suf = save_name_suffix or ''
         base = (f'{roi}_{conditions_save_name}_16cond_with_interaction_clusters_'
                 f'{suf}_{error_type}_shading')
-        for ext in ('.pdf', '.png'):
-            filepath = os.path.join(save_dir, base + ext)
-            plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        for filepath in save_figure(fig, os.path.join(save_dir, base), bbox_inches='tight'):
             print(f"Saved plot to: {filepath}")
     plt.close(fig)
     return fig

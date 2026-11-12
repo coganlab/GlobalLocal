@@ -18,6 +18,7 @@ Contents:
 8. [Decisions from 2026-11-06 and where they are in the code](#8-decisions-from-2026-11-06-and-where-they-are-in-the-code)
 9. [Checking you didn't break anything](#9-checking-you-didnt-break-anything)
 10. [Tweaking a subspace figure in a notebook](#10-tweaking-a-subspace-figure-in-a-notebook)
+11. [Every figure made 2026-11-06 to 11-09: where it is and how to rerun it](#11-every-figure-made-2026-11-06-to-11-09-where-it-is-and-how-to-rerun-it)
 
 ---
 
@@ -419,3 +420,206 @@ from `FONT_SIZE` at import, so to try another font size set
 The figures are drawn with the non-interactive Agg backend (the module sets it
 so it works on the cluster), so they don't appear inline by themselves; that is
 why the cell displays the saved PNG.
+
+## 11. Every figure made 2026-11-06 to 11-09: where it is and how to rerun it
+
+Paths are relative to the repo root (`/hpc/group/coganlab/jz421/GlobalLocal`),
+with `<EPOCHS>` =
+`Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20`.
+"Redraw" changes only the look (seconds, from saved tables); "rerun" recomputes
+the analysis on the cluster.
+
+### 11.1 Window-mean decoding: group bars and electrode-count curves (supplement)
+
+**Where:** `dcc_scripts/decoding/figs/<EPOCHS>_subjects-good/window_mean_groups/<run>/<comparison>/<roi>/`,
+files `group_bars.png/.pdf` and `electrode_curve.png/.pdf`, with the tables
+(`summary.csv`, `tests.csv`, `accuracies.csv`, `curve_summary.csv`,
+`curve_accuracies.csv`, `params.json`).
+
+| `<run>` | `<comparison>` | What |
+|---|---|---|
+| `stimulus_congruency_conditions_0to1.5s_20bts_1000perm_seed42` | `congruency` | matched (each group decoded on the smallest group's size), with membership-permutation tests |
+| `stimulus_congruency_conditions_0to1.5s_20bts_0perm_seed42_unmatched` | `congruency` | each group on all its electrodes, no tests |
+| `stimulus_switch_type_conditions_...` (both) | `switchType` | same, task sequence |
+| `stimulus_task_conditions_...` (both) | `Task` | same, task (2026-11-06, jobs 61245177 / 79) |
+| `stimulus_big_letter_conditions_...` (both) | `BigLetter` | same, big letter (2026-11-06, jobs 61245178 / 80) |
+
+`<roi>` is `lpfc` or `dlpfc`. Colours: sig Wong yellow, all dark olive, nonsig
+grey (`ELECTRODE_SET_COLORS` in `src/analysis/config/plotting_parameters.py`,
+shared with Fig 2). For the caption: curve bands = 2.5-97.5 % over bootstraps
+x random subsets, grey line = chance 0.5; bar whiskers = 2.5-97.5 % over
+bootstraps and repeats, dots = bootstrap means, dashes = shuffled-label chance,
+p = membership permutation, Holm.
+
+**Redraw** (every condition, ROI, matched and unmatched; or point `--root` at
+one run or one folder):
+
+```bash
+python dcc_scripts/decoding/redraw_window_mean_figures.py \
+  --root dcc_scripts/decoding/figs/<EPOCHS>_subjects-good/window_mean_groups
+```
+
+Look: `plot_group_accuracy_bars` in `src/analysis/decoding/plots/group_bars.py`,
+`plot_accuracy_by_electrode_count` in `src/analysis/decoding/plots/electrode_curve.py`.
+
+**Rerun** (from `dcc_scripts/decoding/`; one job per condition):
+
+```bash
+export CONDITIONS="stimulus_task_conditions stimulus_big_letter_conditions"   # or congruency / switch_type
+WINDOW_MEAN_MATCH_ELECTRODES=true  WINDOW_MEAN_N_PERM=1000 bash submit_window_mean_groups_dcc.sh   # matched
+WINDOW_MEAN_MATCH_ELECTRODES=false WINDOW_MEAN_N_PERM=0    bash submit_window_mean_groups_dcc.sh   # unmatched
+```
+
+(20 bootstraps, 10 subsets per count, lPFC and DLPFC, seed 42 are the
+launcher's defaults; matched jobs take 1-3.5 h, unmatched 0.5-3.5 h.)
+
+### 11.2 LWPC–LWPS scatter (Fig B)
+
+**Where:** `dcc_scripts/stats/results/<EPOCHS>/anatomy_a1_lpfc_window_0.0to1.5s_all/continuous/section19_paper_2026-10-30/fig5_height_scatter.png/.pdf`
+(all lPFC, 397 electrodes), and the same under
+`anatomy_a1_lpfc_window_0.0to1.5s_all_subjects-good/...` (370 electrodes). The
+old full `fig5_height.*` is next to it, unchanged.
+
+**Redraw:** `python dcc_scripts/stats/fig5_scatter.py --dir <that folder>`
+(add `--pair main_effects` for congruency vs task sequence). Look:
+`plot_figure5_scatter` in `src/analysis/stats/stability_flexibility_anatomy.py` (§5).
+
+**Rerun:** comes with the anatomy job's §19 (`n4_section19_followups.py`, which
+writes `fig5_height_scatter.*` too).
+
+### 11.3 Subspace / coding-axes figures (Fig A, Fig B, supplement)
+
+**Where:** `dcc_scripts/subspace/results/<EPOCHS>/coding_axes/<run>/figures_2026-11-09/`,
+for two runs:
+
+- all lPFC + DLPFC electrodes (main): `windows_0.0to1.5s_w64s16_all_dlpfc-lpfc_mean_diff_splits200_perm1000x20_seed0_subjects-good`
+- task-significant electrodes: `windows_0.0to1.5s_w64s16_sig_lpfc-dlpfc_mean_diff_splits200_perm1000x20_seed0_subjects-good`
+
+The PNGs directly in `<run>/` are the old 10-30 / job previews.
+
+| File (PNG + PDF) | Figure |
+|---|---|
+| `coding_axis_cosines` | Fig A: cross, ceiling, shuffle, labelled bars |
+| `trajectories_0.0-1.5s` | Fig A: trajectory plane + x(t), y(t) (other `trajectories_*`: other axis windows, uncentred, raw axes) |
+| `proportion_trajectories_0.0-1.5s` | Fig B: the four proportion planes |
+| `block_separations_0.0-1.5s` | Fig B: block separations, split panels (`_unique`: unique axes) |
+| `coding_axis_cosines_alignment` | supplement: cross / ceiling |
+| `block_separations_0.0-1.5s_changes` | supplement: 25 % − 75 % changes; statistics in `<run>/block_contrasts.csv` |
+| `subspace_test` | supplement |
+
+**Redraw** (both runs):
+
+```bash
+R=dcc_scripts/subspace/results/<EPOCHS>/coding_axes/<run>
+python dcc_scripts/subspace/add_cosine_cis.py --run-dir $R      # only for runs made before 2026-11-09 without cross_lo
+python dcc_scripts/subspace/redraw_figures.py --run-dir $R --out-dir $R/figures_<date>
+```
+
+Look: §4; a notebook loop for one figure: §10.
+
+**Rerun** (from `dcc_scripts/subspace/`; about 40 min each):
+
+```bash
+RT_CONTROL=none N_BLOCK_PERM=500 SUBJECT_SET=good ROIS=lpfc,dlpfc bash submit_coding_axes_dcc.sh                  # main
+RT_CONTROL=none N_BLOCK_PERM=500 SUBJECT_SET=good ROIS=lpfc,dlpfc ELECTRODES=sig bash submit_coding_axes_dcc.sh   # sig
+```
+
+(The launcher's own defaults are `RT_CONTROL=adjust` and `N_BLOCK_PERM=0`, so
+these two must be set to reproduce the runs above. The ROI order sets the
+folder name: `lpfc,dlpfc` gives `..._lpfc-dlpfc_...`.)
+
+### 11.4 Schematic (not in the paper)
+
+`python dcc_scripts/subspace/schematic_figure.py --out <stem>` writes
+`<stem>.png/.pdf`.
+
+### 11.5 Fig 2 coverage brain
+
+**Where:** `dcc_scripts/vis/figs/brain_all_recon_elecs__all_lpfc_elecs__sig_lpfc_elecs.png/.tif`
+(all 24 participants) and the same name in `dcc_scripts/vis/figs_subjects-good/`
+(good set), with `electrode_counts_...json` beside each. Re-rendered 2026-11-10
+(jobs 61503739 / 61503740): whole-brain contacts grey, analyzed LPFC dark
+olive, task-significant LPFC Wong yellow (`ELECTRODE_SET_COLORS`).
+
+**Rerun** (from `dcc_scripts/vis/`). The launcher hard-codes `PLOT_SETS`, so
+either edit its `export PLOT_SETS=...` line to
+`"all_recon_elecs,all_lpfc_elecs,sig_lpfc_elecs"` and run
+`bash submit_plot_sig_electrodes_dcc.sh` (add `SUBJECT_SET=good`), or submit
+directly with the launcher's settings, as on 2026-11-10:
+
+```bash
+export PLOT_SETS="all_recon_elecs,all_lpfc_elecs,sig_lpfc_elecs" PLOT_SET_LABEL="lpfc_power_trace_sets" \
+       ANOVA_UNIT="electrode" POWER_FIGS_BASE="$PWD/../power/figs" \
+       ANOVA_EPOCHS_ROOT="<EPOCHS>"
+export ANOVA_LABELS_CSV="$PWD/../stats/results/$ANOVA_EPOCHS_ROOT/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none/anova_labels.csv"
+SUBJECT_SET=good sbatch --job-name=plot_fig2_good --export=ALL sbatch_plot_sig_electrodes_dcc.sh
+```
+
+### 11.6 Occipital (control region), 2026-11-09/10
+
+- **Coding axes:** `dcc_scripts/subspace/results/<EPOCHS>/coding_axes/windows_0.0to1.5s_w64s16_{all,sig}_occ_mean_diff_splits200_perm1000x20_seed0_subjects-good/figures_2026-11-10/`
+  (jobs 61442719 / 20; all: 95 electrodes / 14 participants, sig: 68 / 12).
+  No window has a reliable code, so there is no ceiling, alignment or "shared"
+  bar: occipital carries no congruency or task-sequence code. Rerun as §11.3
+  with `ROIS=occ` (and `ELECTRODES=sig`).
+- **Window-mean bars and curves:** the `occ/` folder of every run in §11.1
+  (jobs 61442721-28; 27 electrodes per group matched). Rerun as §11.1 with
+  `export ROIS=occ`.
+
+### 11.7 Fig 3 power traces and Fig 4 decoding panels (made in another session)
+
+**Where:** `dcc_scripts/vis/paper_panels/` (`fig3_*`, `fig4_*`, `sfig4_*`;
+each full and without x / y labels, PNG, TIFF, PDF), with
+`paper_panels_config.json` naming the inputs: the windowed-ANOVA power run
+`dcc_scripts/power/figs/<EPOCHS>/anova_within_roi_subjects-good` and the
+`..._sig_elecs_...` decoding results files. Both use the **task-significant**
+electrodes.
+
+**Subject set:** `--subject-set` picks both inputs. `good` (the default) reads
+`anova_within_roi_subjects-good` and the decoding jobs 60508450–53 in
+`decoding/figs/<EPOCHS>_subjects-good/`; `all24` reads the unsuffixed power run
+and jobs 57902167–70. The job per panel is in `DECODING_JOBS` near the top of
+`paper_panels.py`. Until 2026-11-10 the decoding panels were read from the
+all24 jobs whatever the flag said; redrawn on the good set that day.
+
+**Power design (2026-11-10):** `--power-design` picks the Fig 3 source.
+- `two_way` (the default, `PAPER_DESIGN` in the script, the version in the
+  paper) uses one pooled 4-cell run per term and writes to `paper_panels/`.
+- `three_way` uses the 8-cell block-balanced runs and writes to
+  `paper_panels_three_way/`.
+- `four_way` uses the 16-cell `stimulus_experiment_conditions` run and writes
+  to `paper_panels_four_way/`.
+
+Only `two_way` is in the paper. In the pooled design, each trace is one cell
+holding every trial of that condition at that proportion level. In the other
+two, each trace is the equal-weight mean of its cells over the factors
+outside the term. Why: [`analysis_plans.md` › Power-trace ANOVA design](analysis_plans.md#power-trace-anova-design-two-way-three-way-or-four-way-2026-11-10).
+
+**Significance rows (2026-11-10):** one scheme in every panel.
+- **Black bars** are between-block tests: the power interaction, and each
+  decoding contrast direction. Each direction has its own row, labelled
+  "25% > 75%" or "75% > 25%".
+- **Coloured bars** are a block against chance, in that block's colour.
+- **Difference panels** show the black bars without labels; the sign of the
+  curve gives the direction.
+- **Row layout:**
+  - Every panel of a figure is laid out for the same number of rows, sized for
+    its fullest panel (`sig_layout` in `paper_panels.py`). Rows therefore sit
+    at the same heights across panels, 0.065 of the axes height apart
+    (`SIG_ROW_PITCH`).
+  - A panel with no significant cluster keeps the strip, so its data area
+    still lines up.
+  - There are two layouts: the main figure (power and `fig4_*`, 2 rows on
+    today's data) and the cross-effect supplement (`sfig4_*`, 4 rows). Both
+    are recorded in `paper_panels_config.json` as `sig_layouts`.
+- **What this fixed:** the old `sfig4_*` panels had overlapping row labels, a
+  contrast label pointing the wrong way, and text running off the canvas. All
+  three are fixed.
+
+**Cross-effects** (`fig3_*_cross`, `sfig4_*`) are in the paper, with no
+claim of independence ([`paper_draft.md`](paper_draft.md) §1.4).
+
+**Redraw:** `python dcc_scripts/vis/paper_panels.py --subject-set good` (see
+its docstring; `--out DIR` to write elsewhere). Add
+`--power-design three_way` or `--power-design four_way` for the other
+designs.

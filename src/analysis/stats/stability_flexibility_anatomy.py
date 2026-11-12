@@ -119,6 +119,7 @@ import numpy as np
 import pandas as pd
 
 from src.analysis.utils.ranking import top_fraction
+from src.analysis.utils.resampling import bootstrap_counts
 
 GROUPS = ["both", "S_only", "F_only", "neither"]
 # colour-blind-safe, matched to the segregation summary figure (STAB / FLEX)
@@ -1861,7 +1862,10 @@ _SAME_HALF_BASE = {'xA': ('mxA', 'myA'), 'xB': ('mxB', 'myB'),
 def overlap_controls(scores, per_split, rt_coupling=None, coord_cols=('mni_y', 'mni_z', 'mni_x'),
                      min_elec=3, n_perm=10000, seed=1, loso=True):
     """The pre-specified LWPC-LWPS separate-half r, and the same test with one
-    candidate confound removed at a time.
+    candidate confound removed at a time. ``per_split`` carries the pair in its
+    x/y columns: the adaptations, or ``main_effect_view(per_split)`` for
+    congruency–switch, whose table has no same-half base-effects row (those
+    columns are the pair itself).
 
     Rows (``control``):
 
@@ -2220,7 +2224,7 @@ FIG5_PAIRS = {
                        json='correlation.json', main_effects=False,
                        prefix='fig5_height'),
     'main_effects': dict(x='cong_s', y='switch_s', value_col='dm', x_name='congruency',
-                         y_name='switch', title='Main effects by electrode',
+                         y_name='task seq.', title='Main effects by electrode',
                          json='correlation_main_effects.json', main_effects=True,
                          prefix='fig5_height_main_effects'),
 }
@@ -2278,41 +2282,19 @@ def height_centroids(points, n_boot=2000, seed=0, unit='participant'):
     ``unit='electrode'`` draws electrodes within participant (each keeps its
     electrode count), the level of the pre-specified tests."""
     d = points.dropna(subset=['band']).reset_index(drop=True)
-    subjects = np.unique(d['subject'].astype(str))
-    s_index = {s: i for i, s in enumerate(subjects)}
-    rng = np.random.default_rng(seed)
-    if unit == 'electrode':
-        # counts[b, i]: how often electrode i is drawn in draw b
-        counts = np.zeros((int(n_boot), len(d)))
-        rows_b = np.arange(int(n_boot))[:, None]
-        for s in subjects:
-            m = np.where(d['subject'].astype(str).to_numpy() == s)[0]
-            np.add.at(counts, (rows_b, m[rng.integers(0, len(m), size=(int(n_boot), len(m)))]),
-                      1.0)
-    elif unit == 'participant':
-        draws = rng.integers(0, len(subjects), size=(int(n_boot), len(subjects)))
-    else:
-        raise ValueError(f"unit must be 'participant' or 'electrode', not {unit!r}")
+    # counts[b, i]: how often electrode i enters draw b (whole participants, or
+    # electrodes within participant)
+    counts = bootstrap_counts(d['subject'], n_boot, np.random.default_rng(seed), unit)
     rows = []
     for band in HEIGHT_BANDS:
         g = d[d['band'] == band]
         if g.empty:
             continue
-        if unit == 'electrode':
-            cb = counts[:, g.index.to_numpy()]
-            nb = cb.sum(1)
-            okb = nb > 0
-            bx = (cb @ g['x_plot'].to_numpy(float))[okb] / nb[okb]
-            by = (cb @ g['y_plot'].to_numpy(float))[okb] / nb[okb]
-        else:
-            si = g['subject'].astype(str).map(s_index).to_numpy()
-            n = np.bincount(si, minlength=len(subjects)).astype(float)
-            sx = np.bincount(si, weights=g['x_plot'].to_numpy(float), minlength=len(subjects))
-            sy = np.bincount(si, weights=g['y_plot'].to_numpy(float), minlength=len(subjects))
-            nb = n[draws].sum(1)
-            okb = nb > 0
-            bx = sx[draws].sum(1)[okb] / nb[okb]
-            by = sy[draws].sum(1)[okb] / nb[okb]
+        cb = counts[:, g.index.to_numpy()]
+        nb = cb.sum(1)
+        okb = nb > 0
+        bx = (cb @ g['x_plot'].to_numpy(float))[okb] / nb[okb]
+        by = (cb @ g['y_plot'].to_numpy(float))[okb] / nb[okb]
         cov = np.cov(np.vstack([bx, by]))
         x, y = float(g['x_plot'].mean()), float(g['y_plot'].mean())
         lo, hi = np.percentile(bx - by, [2.5, 97.5])
@@ -2438,32 +2420,41 @@ def _draw_height_bands_sagittal(ax, points, edges, axis='mni_z', centroids=None,
     ax.set_aspect('equal', adjustable='datalim')
 
 
-def _overlap_axes(ax, points, x_name, y_name):
+def _overlap_axes(ax, points, x_name, y_name, identity=True):
     """Square, equal limits on ``points``' ``x_plot``/``y_plot`` (0.5-99.5th
     percentiles of both, padded 6 %, so a few extreme electrodes do not shrink
-    the cloud), the identity line, and the axis labels: the frame shared by
-    :func:`plot_figure5_height`'s panel b and :func:`plot_figure5_scatter`."""
+    the cloud), the identity line (``identity``), and the axis labels: the frame
+    shared by :func:`plot_figure5_height`'s panel b and
+    :func:`plot_figure5_scatter`."""
     vals = points[['x_plot', 'y_plot']].to_numpy(float)
     lo, hi = np.nanpercentile(vals, 0.5), np.nanpercentile(vals, 99.5)
     pad = 0.06 * (hi - lo)
     lo, hi = lo - pad, hi + pad
-    ax.plot([lo, hi], [lo, hi], color=_MUTED, lw=0.7, zorder=1)
+    if identity:
+        ax.plot([lo, hi], [lo, hi], color=_MUTED, lw=0.7, zorder=1)
     ax.set(xlim=(lo, hi), ylim=(lo, hi), aspect='equal',
            xlabel=f'{x_name} (SD units)', ylabel=f'{y_name} (SD units)')
 
 
-def plot_figure5_scatter(points, out_stem, pair='adaptation'):
+def plot_figure5_scatter(points, out_stem, pair='adaptation', stat=None):
     """The overlap scatter alone, with no height information, and write
-    ``<out_stem>.png``/``.pdf``.
+    ``<out_stem>.png``/``.pdf``/``.tif`` (450 dpi).
 
     Panel b of :func:`plot_figure5_height` without the tertile colours, the
-    band centroids or the zoom: every electrode with both scores in one colour,
-    on the same axes and identity line, sized (2.3 in square) to sit as a panel
-    of another figure. ``points`` is :func:`figure5_height_points`' table (or
-    its saved ``<prefix>_points.csv``); electrodes without coordinates are
-    drawn too, since nothing here needs them. ``pair`` (:data:`FIG5_PAIRS`)
-    names the axes. Like the combined figure it carries no statistics; the r
-    goes in the caption.
+    band centroids, the zoom or the identity line (which only served to read
+    the centroids' spread across it): every electrode with both scores in one
+    colour, on the same axes, sized (2.3 in square) to sit as a panel of
+    another figure. ``points`` is :func:`figure5_height_points`' table (or its
+    saved ``<prefix>_points.csv``); electrodes without coordinates are drawn
+    too, since nothing here needs them. ``pair`` (:data:`FIG5_PAIRS`) names the
+    axes.
+
+    ``stat`` (the pair's pre-specified test, as :func:`_figure5_test` returns
+    it) gives the p printed small above the top-right corner, starred when
+    below 0.05; its separate-half r goes in the text. No fit line: the points
+    are full-data scores, whose own correlation is larger than the
+    separate-half r (shared trial noise), so a line through them would show a
+    different statistic from the test's. The caption must say so.
     """
     import matplotlib
     matplotlib.use('Agg')
@@ -2475,10 +2466,16 @@ def plot_figure5_scatter(points, out_stem, pair='adaptation'):
         fig, ax = plt.subplots(figsize=(2.3, 2.3))
         ax.scatter(d['x_plot'], d['y_plot'], s=5, color=_INK, alpha=0.45, linewidths=0,
                    rasterized=True, zorder=2)
-        _overlap_axes(ax, d, x_name, y_name)
-        paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]
-        for p in paths:
-            fig.savefig(p, dpi=300, bbox_inches='tight', pad_inches=0.03)
+        _overlap_axes(ax, d, x_name, y_name, identity=False)
+        if stat is not None:
+            # just above the axes' top-right corner, so it never covers a point;
+            # the r goes in the text
+            star = '*' if stat['p'] < 0.05 else ''
+            ax.text(1.0, 1.01, f"{star}p = {_fmt_p(stat['p'])}", transform=ax.transAxes,
+                    va='bottom', ha='right', fontsize=5, color=_INK)
+        from src.analysis.utils.panel_layout import save_figure
+        paths = save_figure(fig, out_stem, formats=('png', 'pdf', 'tif'), dpi=450,
+                            bbox_inches='tight', pad_inches=0.03)
         plt.close(fig)
     return paths
 
@@ -2945,7 +2942,7 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
     # not depend on the unit, so it is written once, with the electrode figure
     if unit == 'electrode':
         paths += plot_figure5_scatter(pts, os.path.join(out_dir, f'{prefix}_scatter'),
-                                      pair=pair)
+                                      pair=pair, stat=stat)
 
     n_col = 'n_electrodes' if unit == 'electrode' else 'n_participants'
     lines = [f"  FIGURE 5 (height) {x_name} vs {y_name}, {unit.upper()}S AS THE UNIT — "
@@ -3925,9 +3922,9 @@ def local_similarity_lines(loc, unit='electrode'):
     return lines
 
 
-def overlap_control_lines(table, loso=None):
+def overlap_control_lines(table, loso=None, names=('LWPC', 'LWPS')):
     """Summary lines for :func:`overlap_controls`."""
-    lines = ["  LWPC–LWPS SEPARATE-HALF r WITH EACH CANDIDATE CONFOUND REMOVED"]
+    lines = [f"  {names[0]}–{names[1]} SEPARATE-HALF r WITH EACH CANDIDATE CONFOUND REMOVED"]
     for r in table.itertuples():
         if not np.isfinite(r.corr):
             lines.append(f"    {r.control:<44} not run ({r.note})")
@@ -4127,16 +4124,24 @@ def section19(scores, per_split, out_dir, coord_res=None, seg_dir=None, axis='mn
                 except Exception as exc:
                     fail('reliabilities by split scheme', exc)
         if 5 in sections:
-            try:
-                table, oloso = overlap_controls(scores, ps, rt_coupling=rt_coupling,
-                                                n_perm=n_perm, seed=seed)
-                table.to_csv(os.path.join(out_dir, 'overlap_controls.csv'), index=False)
-                if oloso is not None:
-                    oloso.to_csv(os.path.join(out_dir, 'overlap_loso.csv'), index=False)
-                lines += overlap_control_lines(table, oloso)
-                out['overlap_controls'] = table.to_dict(orient='records')
-            except Exception as exc:
-                fail('overlap controls', exc)
+            # the adaptations' overlap, then (main-effects runs) the base
+            # effects', each with every candidate confound removed in turn
+            from .stability_flexibility_segregation import main_effect_view, MAIN_EFFECT_COLS
+            overlap_sets = [('', ps, ('LWPC', 'LWPS'))]
+            if set(MAIN_EFFECT_COLS) <= set(ps.columns):
+                overlap_sets.append(('_main_effects', main_effect_view(ps),
+                                     ('congruency', 'switch')))
+            for tag, table_in, names in overlap_sets:
+                try:
+                    table, oloso = overlap_controls(scores, table_in, rt_coupling=rt_coupling,
+                                                    n_perm=n_perm, seed=seed)
+                    table.to_csv(os.path.join(out_dir, f'overlap_controls{tag}.csv'), index=False)
+                    if oloso is not None:
+                        oloso.to_csv(os.path.join(out_dir, f'overlap_loso{tag}.csv'), index=False)
+                    lines += overlap_control_lines(table, oloso, names=names)
+                    out[f'overlap_controls{tag}'] = table.to_dict(orient='records')
+                except Exception as exc:
+                    fail(f'overlap controls, {names[0]}–{names[1]}', exc)
     elif any(k in sections for k in (2, 3, 5)):
         lines.append("  no per-split table: sections 2, 3 and 5 were skipped")
     if 4 in sections and has_coords:

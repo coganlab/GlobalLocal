@@ -110,6 +110,7 @@ import matplotlib.pyplot as plt
 
 from src.analysis.stats import stability_flexibility_segregation as sfs
 from src.analysis.stats import coding_axes as ca
+from src.analysis.utils.resampling import BOOT_UNITS
 from src.analysis.stats import coding_subspaces as cs
 from src.analysis.stats import coding_trajectories as ct
 from src.analysis.utils.general_utils import resolve_lab_root, resolve_electrodes_to_keep
@@ -117,7 +118,8 @@ from dcc_scripts.stats.stability_flexibility_segregation_dcc import (
     assemble_long_df, make_synthetic_df, _window_indices)
 from dcc_scripts.subspace.subspace_figures import (
     plot_coding_axes, plot_subspace_test, plot_trajectories, plot_block_separations,
-    plot_proportion_trajectories, time_axis_label, true_runs, INK, MUTED, NAMES)
+    plot_proportion_trajectories, plot_proportion_differences, time_axis_label, true_runs, INK,
+    MUTED, NAMES)
 
 # The two scores' names per `effect`, for the figures.
 VARIABLE_NAMES = {'main': (NAMES['congruency'], NAMES['switch']), 'interaction': ('LWPC', 'LWPS')}
@@ -241,7 +243,7 @@ def main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, see
     traj, fractions, traj_summary = ct.condition_trajectories(
         labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
         seed=seeds['halves'], remove_mean=args.remove_mean, first=args.traj_first,
-        n_boot=args.n_boot, alpha=args.alpha, boot_seed=seeds['trajectory_bootstrap'])
+        n_boot=args.n_boot, boot_unit=args.boot_unit, alpha=args.alpha, boot_seed=seeds['trajectory_bootstrap'])
     traj = traj.merge(grid, on='window')
     fractions = fractions.merge(grid, on='window', how='left')
     traj.to_csv(os.path.join(args.save_dir, 'trajectories.csv'), index=False)
@@ -251,7 +253,7 @@ def main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, see
     traj_raw, _, _ = ct.condition_trajectories(
         labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
         seed=seeds['halves'], remove_mean=args.remove_mean, first=None,
-        n_boot=args.n_boot, alpha=args.alpha, boot_seed=seeds['trajectory_bootstrap'])
+        n_boot=args.n_boot, boot_unit=args.boot_unit, alpha=args.alpha, boot_seed=seeds['trajectory_bootstrap'])
     traj_raw = traj_raw.merge(grid, on='window')
     traj_raw.to_csv(os.path.join(args.save_dir, 'trajectories_raw.csv'), index=False)
     for label in axis_labels:
@@ -279,7 +281,7 @@ def main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, see
         seps, cons, block_summaries[tag] = ct.block_separations(
             labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
             seed=seeds['halves'], remove_mean=args.remove_mean, unique=unique,
-            n_boot=args.n_boot, alpha=args.alpha, boot_seed=seeds['block_bootstrap'],
+            n_boot=args.n_boot, boot_unit=args.boot_unit, alpha=args.alpha, boot_seed=seeds['block_bootstrap'],
             null=block_null)
         seps = seps.merge(grid, on='window', how='left')
         cons = cons.merge(grid, on='window', how='left')
@@ -298,7 +300,8 @@ def main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, see
     ptraj, pchanges, prop_summary = ct.proportion_trajectories(
         labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
         seed=seeds['halves'], remove_mean=args.remove_mean, n_boot=args.n_boot,
-        alpha=args.alpha, boot_seed=seeds['proportion_bootstrap'], null=block_null)
+        boot_unit=args.boot_unit, alpha=args.alpha, boot_seed=seeds['proportion_bootstrap'],
+        null=block_null)
     ptraj = ptraj.merge(grid, on='window')
     pchanges = pchanges.merge(grid, on='window', how='left')
     ptraj.to_csv(os.path.join(args.save_dir, 'proportion_trajectories.csv'), index=False)
@@ -309,6 +312,8 @@ def main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, see
         plot_proportion_trajectories(
             ptraj, pchanges, label,
             os.path.join(args.save_dir, f'proportion_trajectories_{label}.png'))
+        plot_proportion_differences(
+            ptraj, label, os.path.join(args.save_dir, f'proportion_differences_{label}.png'))
 
     for label, s in traj_summary['axes'].items():
         print(f"trajectories, axes {label}: plane holds {s['plane_fraction']:.3f} of the "
@@ -336,6 +341,10 @@ def main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, see
 
 def main(args):
     effect = getattr(args, 'effect', 'main')
+    # callers that do not set it get the paper's unit
+    args.boot_unit = getattr(args, 'boot_unit', 'electrode')
+    if args.boot_unit not in BOOT_UNITS:
+        raise ValueError(f"boot_unit must be one of {BOOT_UNITS}, not {args.boot_unit!r}")
     LAB_root = resolve_lab_root(args.LAB_root)
     df, times = load_time_courses(args, LAB_root)
     print(f"assembled df: {len(df)} rows | {df.subject.nunique()} subjects | "
@@ -409,7 +418,7 @@ def main(args):
 
     # 3. cosines, ceilings, alignment, bootstrap, marks
     table, summary = ca.compare_coding_axes(
-        per, null=null, n_boot=args.n_boot, seed=seeds['bootstrap'],
+        per, null=null, n_boot=args.n_boot, boot_unit=args.boot_unit, seed=seeds['bootstrap'],
         alpha=args.alpha)
     table.to_csv(os.path.join(args.save_dir, 'coding_axis_cosines.csv'), index=False)
     with open(os.path.join(args.save_dir, 'summary.json'), 'w') as f:
@@ -421,7 +430,7 @@ def main(args):
 
     # 4. the subspace test (§3.4): the windows' axes stacked into effect matrices
     sub_table, sub_dims, sub_summary = cs.compare_subspaces(
-        per, null=sub_null, k_max=args.k_max, n_boot=args.n_boot,
+        per, null=sub_null, k_max=args.k_max, n_boot=args.n_boot, boot_unit=args.boot_unit,
         seed=seeds['subspace_bootstrap'], alpha=args.alpha)
     sub_table.to_csv(os.path.join(args.save_dir, 'subspace_test.csv'), index=False)
     sub_dims.to_csv(os.path.join(args.save_dir, 'subspace_dimensions.csv'), index=False)
@@ -449,7 +458,7 @@ def main(args):
         shared_split=True, remove_mean=args.remove_mean,
         rt_control=args.rt_control, rt_match_bins=args.rt_match_bins,
         n_splits=args.n_splits, n_perm=args.n_perm, n_null_splits=args.n_null_splits,
-        n_boot=args.n_boot, alpha=args.alpha,
+        n_boot=args.n_boot, boot_unit=args.boot_unit, alpha=args.alpha,
         n_block_perm=args.n_block_perm, n_block_null_splits=args.n_block_null_splits,
         k_max=args.k_max, traj_axes=[list(w) for w in args.traj_axes],
         traj_first=args.traj_first,

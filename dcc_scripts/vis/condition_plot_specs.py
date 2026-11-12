@@ -25,6 +25,9 @@ Two electrode sources are supported per condition:
 import os
 from collections import OrderedDict
 
+from matplotlib.colors import to_rgb
+
+from src.analysis.config.plotting_parameters import ELECTRODE_SET_COLORS
 from src.analysis.config.rois import rois_dict
 
 # ===========================================================================
@@ -202,10 +205,10 @@ ELECTRODE_PLOT_SETS = OrderedDict([
     ("all_lpfc", all_chans(ANOVA_EPOCHS_ROOT, color=(0.0, 0.7, 0.0))),
     ("task_relevant_lpfc", sig_chans(
         ANOVA_EPOCHS_ROOT, color=(1.0, 1.0, 0.0))),
-    # Fig 2 coverage. Hue = region (neutral whole brain, yellow LPFC: Wong
-    # yellow and a dark olive, clear of the Wong proportion and cross / ceiling
-    # colours);
-    # lightness = significance (light all analyzed, dark task significant).
+    # Fig 2 coverage. Hue = region (neutral whole brain, yellow LPFC: the
+    # shared ELECTRODE_SET_COLORS, also used by the electrode-group decoding
+    # figures). LPFC: bright yellow = task significant, dark olive = all
+    # analyzed; whole brain: black = task significant, grey = all analyzed.
     # Each sets its own ROI, so they can share a figure with any ROI.
     # 'label' is the legend text.
     ("all_recon_elecs", {"all_recon": True, "color": (0.5, 0.5, 0.5),
@@ -214,13 +217,13 @@ ELECTRODE_PLOT_SETS = OrderedDict([
         ANOVA_EPOCHS_ROOT, color=(0.6, 0.6, 0.6), rois_dict=None,
         label="Analyzed electrodes")),
     ("all_lpfc_elecs", all_chans(
-        ANOVA_EPOCHS_ROOT, color=(240/255, 228/255, 66/255), rois_dict=LPFC_ROIS,
+        ANOVA_EPOCHS_ROOT, color=to_rgb(ELECTRODE_SET_COLORS['all']), rois_dict=LPFC_ROIS,
         label="Analyzed LPFC electrodes")),
     ("sig_elecs", sig_chans(
         ANOVA_EPOCHS_ROOT, color=(0.0, 0.0, 0.0), rois_dict=None,
         label="Task-significant electrodes")),
     ("sig_lpfc_elecs", sig_chans(
-        ANOVA_EPOCHS_ROOT, color=(133/255, 115/255, 0), rois_dict=LPFC_ROIS,
+        ANOVA_EPOCHS_ROOT, color=to_rgb(ELECTRODE_SET_COLORS['sig']), rois_dict=LPFC_ROIS,
         label="Task-significant LPFC electrodes")),
     ("congruency_only", power_trace_set(
         _FULL_RUN, color=(1.0, 0.0, 0.0),

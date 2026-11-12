@@ -1,7 +1,7 @@
 """The subspace test (docs/analysis_plans.md, subspace plan §3.4): do the
 congruency and switch-type codes share any direction over the trial?
 
-The math, worked through with numbers: docs/subspace_math_walkthrough.md.
+The math, worked through with numbers: docs/walkthroughs/subspace_math_walkthrough.md.
 
 Input is the per-split, per-window table of `coding_axes` (congruency in
 `mxA`/`mxB`, switch type in `myA`/`myB`). For each split, stacking a half's
@@ -53,7 +53,8 @@ the primary k is the smaller of the two, so both subspaces are signal at it.
   * anything shared? The raw cross values against the label-shuffle nulls,
     one factor shuffled at a time (`coding_axes.null_draws`); "shared" needs
     both.
-  * not one code? A participant bootstrap of ceiling - cross: its CI excludes 0.
+  * not one code? A bootstrap of ceiling - cross (electrodes resampled within
+    participant, the paper's unit; `boot_unit`): its CI excludes 0.
   * reliable? Each variable's own ceiling above its shuffle null. Cosines of
     principal angles and alignment indices are never negative, so "CI
     excludes 0" (§3.2's rule) would pass even for noise; the null is the
@@ -71,6 +72,7 @@ import numpy as np
 import pandas as pd
 
 from . import coding_axes as ca
+from ..utils.resampling import bootstrap_counts
 
 ALIGNMENT_DIRECTIONS = ('congruency_to_switch', 'switch_to_congruency')
 VARIABLES = {'congruency': ('mxA', 'mxB'), 'switchType': ('myA', 'myB')}
@@ -314,21 +316,22 @@ def dimension_test(dims, null, alpha=0.05):
 # ---------------------------------------------------------------------------
 # bootstrap and the full comparison
 # ---------------------------------------------------------------------------
-def _bootstrap(arrays, subjects, k_max, n_boot, rng):
-    """Participant-bootstrap draws of (cross, ceil_c, ceil_s), each (n_boot, rows):
-    participants resampled with replacement, keeping their real labels; a
-    participant drawn twice contributes its electrodes twice."""
-    codes = pd.factorize(subjects)[0]
-    members = [np.flatnonzero(codes == p) for p in range(codes.max() + 1)]
+def _bootstrap(arrays, subjects, k_max, n_boot, rng, unit='electrode'):
+    """Bootstrap draws of (cross, ceil_c, ceil_s), each (n_boot, rows). `unit` as
+    `utils.resampling.bootstrap_counts` ('electrode', default: each
+    participant's electrodes resampled; 'participant': whole participants);
+    an electrode drawn twice enters the subspaces twice."""
+    counts = bootstrap_counts(subjects, n_boot, rng, unit).astype(int)
+    electrodes = np.arange(counts.shape[1])
     draws = []
-    for _ in range(n_boot):
-        pick = rng.integers(len(members), size=len(members))
-        idx = np.concatenate([members[p] for p in pick])
-        draws.append(_split_stats({c: a[..., idx] for c, a in arrays.items()}, k_max)[:3])
+    for c in counts:
+        idx = np.repeat(electrodes, c)
+        draws.append(_split_stats({k: a[..., idx] for k, a in arrays.items()}, k_max)[:3])
     return tuple(np.array(d) for d in zip(*draws))
 
 
-def compare_subspaces(per_split, null=None, k_max=3, n_boot=2000, seed=0, alpha=0.05):
+def compare_subspaces(per_split, null=None, k_max=3, n_boot=2000, seed=0, alpha=0.05,
+                       boot_unit='electrode'):
     """Everything §3.4 reports.
 
     `per_split` is the real-label table (module docstring); `null` maps a factor
@@ -339,7 +342,8 @@ def compare_subspaces(per_split, null=None, k_max=3, n_boot=2000, seed=0, alpha=
     `table` has the `subspace_stats` columns plus, per row:
 
         cross_lo/_hi, normalized_lo/_hi, congruency_ceiling_lo/_hi,
-        switch_ceiling_lo/_hi       bootstrap CIs (central 1 - `alpha`)
+        switch_ceiling_lo/_hi       bootstrap CIs (central 1 - `alpha`; `boot_unit`
+                                    resampled, as `coding_axes.compare_coding_axes`)
         gap_lo/_hi                  CI of ceiling - cross
         null_hi_<f>                 the (1 - `alpha`) percentile of the cross
                                     value with factor f shuffled: the threshold
@@ -360,7 +364,7 @@ def compare_subspaces(per_split, null=None, k_max=3, n_boot=2000, seed=0, alpha=
     table, dims = subspace_stats(per_split, k_max)
 
     rng = np.random.default_rng(seed)
-    b_cross, b_cc, b_cs = _bootstrap(arrays, subjects, k_max, n_boot, rng)
+    b_cross, b_cc, b_cs = _bootstrap(arrays, subjects, k_max, n_boot, rng, boot_unit)
     b_ceiling = ca._ceiling(b_cc, b_cs)
     q = [100 * alpha / 2, 100 * (1 - alpha / 2)]
     with warnings.catch_warnings():
@@ -416,6 +420,6 @@ def compare_subspaces(per_split, null=None, k_max=3, n_boot=2000, seed=0, alpha=
         theta_1=row('angle', '1'),
         alignment_congruency_to_switch=row('alignment', 'congruency_to_switch'),
         alignment_switch_to_congruency=row('alignment', 'switch_to_congruency'),
-        k_max=k_max, n_boot=n_boot, seed=seed, alpha=alpha,
+        k_max=k_max, n_boot=n_boot, boot_unit=boot_unit, seed=seed, alpha=alpha,
         n_perm={f: int(len(d['cross'])) for f, d in (null or {}).items()})
     return table, dims, summary

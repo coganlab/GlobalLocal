@@ -6,10 +6,18 @@ PROPORTION_COLORS = {
     'switchProportion':      {25: '#56B4E9', 75: '#0072B2'},   # sky blue, Wong blue
 }
 
+# Electrode-set colours shared by the coverage brain (Fig 2) and the
+# electrode-group decoding figures (bars and electrode-count curves): the
+# task-significant electrodes of the ROI in Wong yellow, all analyzed ones in a
+# dark olive (the two differ in lightness, so they stay apart for colour-blind
+# readers and stay clear of the proportion and cross / ceiling colours), the
+# non-significant rest in grey.
+ELECTRODE_SET_COLORS = {'sig': '#F0E442', 'all': '#857300', 'nonsig': '#999999'}
+
 plotting_parameters = {
     'Stimulus': {
     'condition_parameter': 'All trials',
-    'color': (204/255, 121/255, 167/255),
+    'color': '#F0E442',
     'line_style': '-'
 },
     'Stimulus_r': {
@@ -285,3 +293,13 @@ plotting_parameters = {
 "Stimulus_i75s75": {"condition_parameter": "i75s75", "color": "purple",  "line_style": "--", "linewidth": 2.5},
 
 }
+
+# Canvas (inches), font sizes (pt) and x label of the full-size trace figures:
+# the power traces (run_power_traces_dcc.py) and the example spectrogram.
+# Figures drawn at one canvas size and scaled to the same width show the same
+# text size.
+TRACE_FIGURE_STYLE = {'figsize': (12, 8), 'axis_font_size': 38, 'tick_font_size': 28,
+                      'x_label': 'Time from stimulus onset (s)'}
+
+# Reference lines (stimulus onset at t = 0, zero power) in every trace figure.
+REFERENCE_LINE_STYLE = {'color': 'black', 'linestyle': ':', 'alpha': 0.5}

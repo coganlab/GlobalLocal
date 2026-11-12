@@ -8,11 +8,11 @@ alignment index) and draws the condition trajectories. The design and the
 reasons behind each choice are in
 [`analysis_plans.md` › Subspace trajectory plan §3–4](analysis_plans.md#3-coding-axes-and-the-angle-between-them).
 The math is worked through with small examples in
-[`subspace_math_walkthrough.md`](subspace_math_walkthrough.md). This page
+[`walkthroughs/subspace_math_walkthrough.md`](walkthroughs/subspace_math_walkthrough.md). This page
 only says how to produce and read the numbers.
 
 **Status (2026-10-15):** §3.1–3.3 (coding axes and cosine) run on real data;
-results in [§10](#10-results-2026-10-15-run). The subspace test (§3.4) and
+results in [§10](#10-results-2026-10-15-runs). The subspace test (§3.4) and
 the trajectories (§4) were added to the job after that run and are tested on
 synthetic data only: rerun the job to get them. Not built: the
 lPFC-subsampled-to-occipital control, dPCA (§5) and the block-split adaptation
@@ -34,10 +34,11 @@ Still not built: the lPFC-subsampled control and dPCA.
 7. [Checks before trusting a run](#7-checks-before-trusting-a-run)
 8. [Code map and tests](#8-code-map-and-tests)
 9. [Deviations from the plan, and limits](#9-deviations-from-the-plan-and-limits)
-10. [Results (2026-10-15 run)](#10-results-2026-10-15-run)
+10. [Results (2026-10-15 run)](#10-results-2026-10-15-runs)
 11. [Results (2026-10-16 run): response-locked](#11-results-2026-10-16-run-response-locked)
 12. [Results (2026-10-22 runs): block-split adaptation](#12-results-2026-10-22-runs-block-split-adaptation)
 13. [Results (2026-10-22 evening runs): proportion trajectories, raw and unique axes](#13-results-2026-10-22-evening-runs-proportion-trajectories-raw-and-unique-axes)
+14. [Before the coding axes: the map-level cosine (2026-10-14)](#14-before-the-coding-axes-the-map-level-cosine-2026-10-14)
 
 ## 1. What it computes
 
@@ -1522,3 +1523,39 @@ response-locked).
   axes; the split is only as good as the two axes are.
 - Response-locked means over windows include 23 post-response windows.
 - Seed 0 only; each condition averages about a quarter of the held-out half.
+
+---
+
+## 14. Before the coding axes: the map-level cosine (2026-10-14)
+
+*Moved here on 2026-11-10 from `new_analyses_walkthrough.md` §5, written before the coding axes existed.*
+
+
+The plan is the [subspace trajectory plan](analysis_plans.md#subspace-trajectory-plan)
+(2026-10-13). **Update, 2026-10-15:** its §3.1-3.3 now exist: the coding axes
+per A4 window, the coding cosine over time against a shuffle null and a
+split-half ceiling, and the `remove_mean`, RT and occipital controls. How to
+run and read them is in [`coding_axes.md`](coding_axes.md). **Update, later on
+2026-10-15:** the subspace test (§3.4: principal angles and the alignment
+index) and the held-out four-cell trajectories (§4) now run in the same job;
+the math is worked through in
+[`walkthroughs/subspace_math_walkthrough.md`](walkthroughs/subspace_math_walkthrough.md). Still not
+built: dPCA.
+
+What existed when this doc was written (2026-10-14):
+
+- **`map_reliability(..., method='cosine')`**
+  (`src/analysis/stats/stability_flexibility_anatomy.py:1276`, added
+  2026-10-14). It compares the LWPC and LWPS maps by the uncentred cosine
+  instead of a correlation, the plan's §3.1. A correlation subtracts each map's
+  mean; the cosine keeps it, so it also asks whether the two effects move
+  activity in the same direction overall. Its `between_noise_corrected` is built
+  from the cosines themselves, which is the plan's alignment (§3.2), and the
+  `*_pearson` keys still report Pearson. This is a map-level number on the
+  per-split scores, not the subspace test.
+- **`dcc_scripts/subspace/subspace_notebook.ipynb`**: a scratch notebook that
+  steps through `map_reliability` on one segregation run's `per_split.csv`
+  (the path is hard-coded to one user's DCC folder).
+- **§1's channel-space trajectories**, which are descriptive and not
+  cross-validated. They are not the plan's trajectories (§4 of the plan fits the
+  axes on half A and projects half B).

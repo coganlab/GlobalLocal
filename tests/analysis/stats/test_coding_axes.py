@@ -372,9 +372,42 @@ def test_controls_figure_and_table(tmp_path):
     assert table['shared_from_s'].tolist() == [t[2], t[2]]
 
 
+def test_block_separations_draw_both_variables(tmp_path, monkeypatch):
+    """Every panel of the separations figure and of its ``_changes`` companion
+    has data: the own-axis filter matches the tables' axis keys ('congruency',
+    'switch'), whatever display names NAMES gives the factors."""
+    from dcc_scripts.subspace import subspace_figures as sf
+
+    t = np.arange(3) * 0.0625 + 0.125
+    own = {'congruency': 'congruency', 'switchType': 'switch'}
+    seps = pd.DataFrame([dict(axes='0.0-1.5s', variable=v, axis=a, inc_prop=i, switch_prop=s,
+                              window=w, window_center=t[w], separation=1.0, lo=0.5, hi=1.5)
+                         for v in own for a in ('congruency', 'switch')
+                         for i in ('low', 'high') for s in ('low', 'high') for w in range(3)])
+    cons = pd.DataFrame([dict(axes='0.0-1.5s', variable=v, axis=a, contrast=c, window=w,
+                              window_center=t[w], estimate=0.2, lo=0.1, hi=0.3)
+                         for v in own for a in ('congruency', 'switch')
+                         for c in ('incProp', 'switchProp') for w in range(3)])
+    figs = []
+    real_save = sf._save
+    # per panel, the number of data lines drawn with all three windows (an
+    # empty selection still adds a Line2D, with no points)
+    monkeypatch.setattr(sf, '_save', lambda fig, stem: (figs.append(
+        [sum(len(l.get_xdata()) == 3 for l in ax.get_lines()) for ax in fig.axes]),
+        real_save(fig, stem))[1])
+    sf.plot_block_separations(seps, cons, '0.0-1.5s', str(tmp_path / 'block_separations.png'))
+
+    separations, changes, stacked, *single = figs
+    # separations: the 25 % and 75 % lines in each of 4 panels; changes: own and
+    # other, side by side, stacked, and in each variable's single panel
+    assert separations == [2, 2, 2, 2] and changes == stacked == [2, 2]
+    assert single == [[2], [2]]
+
+
 def test_time_axis_label_follows_the_epochs_lock():
     from dcc_scripts.subspace.subspace_figures import time_axis_label
 
-    assert time_axis_label('Response_-1.0to1.5sec_zmax_20').endswith('(s from response)')
-    assert time_axis_label('Stimulus_-1.0to1.5sec_zmax_20').endswith('(s from stimulus onset)')
+    # sentence case, as the power-trace and decoding figures
+    assert time_axis_label('Response_-1.0to1.5sec_zmax_20') == 'Time from response (s)'
+    assert time_axis_label('Stimulus_-1.0to1.5sec_zmax_20') == 'Time from stimulus onset (s)'
     assert time_axis_label(None) == time_axis_label('Stimulus_x')       # synthetic runs

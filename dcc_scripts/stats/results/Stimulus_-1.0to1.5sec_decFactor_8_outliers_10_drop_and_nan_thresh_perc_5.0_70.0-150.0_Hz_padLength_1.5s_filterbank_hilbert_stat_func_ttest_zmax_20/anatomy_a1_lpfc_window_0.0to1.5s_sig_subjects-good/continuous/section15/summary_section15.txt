@@ -1,0 +1,149 @@
+152 electrodes, 19 subjects, 200 splits
+
+==============================================================================
+§15.3  split-half reliability and the noise ceiling  [pipeline: map_reliability]
+==============================================================================
+Spearman: between +0.119  rel LWPC +0.196  rel LWPS +0.070  -> Spearman ratio +1.016  (the old, out-of-range number)
+Pearson : between +0.134  rel LWPC +0.191  rel LWPS +0.072  -> corrected +1.143  split-bootstrap CI (1.066, 1.228)
+full-data reliability (Spearman-Brown of the half-data value, for reading the averaged map only): LWPC 0.32  LWPS 0.13
+SUBJECT-bootstrap of the corrected value (2000 resamples): 95% [+0.41, +3.87], 15.2% undefined
+sign agreement between disjoint halves: LWPC 0.585  LWPS 0.555  (coin flip = 0.500)
+
+==============================================================================
+§15.4  do the two effects share electrodes?  [follow-up]
+==============================================================================
+lwpc_s: mean +0.492  median +0.488  fraction<0 34.9% (53/152)
+lwps_s: mean +0.552  median +0.541  fraction<0 26.3% (40/152)
+positive on both: 81; within-subject shuffle null 75.7 ± 2.2; one-sided p = 0.0177; independence predicts 73
+per-split correlation, averaged over splits   pooled r   within-subject r
+  xA vs yA (shares trials)     +0.111     +0.096
+  xB vs yB (shares trials)     +0.149     +0.131
+  xA vs yB (disjoint)          +0.123     +0.116
+  xB vs yA (disjoint)          +0.144     +0.118
+split-averaged 'disjoint' within-subject r = +0.218 -- SHARES TRIALS: corr(mean xA, mean xB) = 0.989, so each averaged half is the full-data map
+thresholded maps: expected overlap under independence = 48% of electrodes
+corr(lwpc_s, resp) within subject +0.199
+corr(lwps_s, resp) within subject +0.316
+[pipeline: split_resolved_corr] subject + resp, disjoint halves (spearman): r +0.075  p 0.0795  reliabilities LWPC +0.057 / LWPS -0.054
+[pipeline: split_resolved_corr] subject + resp, disjoint halves (pearson): r +0.088  p 0.0525  reliabilities LWPC +0.081 / LWPS -0.040
+  NB: a cross-map r above sqrt(rel_x * rel_y) is impossible for independent halves. compute_sensitivities_per_split draws a new split per ELECTRODE, so within a subject electrode i's half A overlaps electrode j's half B; trial noise shared across electrodes then biases within-subject reliabilities down. The cross-effect r is barely affected (different contrasts on the same trials).
+
+==============================================================================
+§15.5  dorsoventral gradient in delta  [pipeline: relative_score_coordinate_test]
+==============================================================================
+[all] block F 1.343 p 0.3415 n 152  mni_y +0.00923 (p 0.2868)  mni_z -0.00804 (p 0.2234)  mni_x +0.00027 (p 0.9594)
+[lh] block F 1.251 p 0.3270 n 104  mni_y +0.00285 (p 0.7546)  mni_z -0.01355 (p 0.1041)  mni_x +0.00553 (p 0.7536)
+[rh] block F 1.436 p 0.4391 n 48  mni_y +0.01756 (p 0.5241)  mni_z +0.00049 (p 0.9815)  mni_x +0.03619 (p 0.2538)
+
+==============================================================================
+§15.5  cross-validated slope: refit on each disjoint half of every split  [follow-up]
+==============================================================================
+mean z slope  A -0.00872   B -0.00736   full -0.00804
+sign agreement between halves 74.5%  (both negative 74.5%)
+E[slope_A * slope_B] = +2.171e-05  (unbiased for slope^2: A and B share no trials)
+sqrt = 0.0047 vs |observed| 0.0080 -> 58% of the observed slope is signal
+within-subject coordinate-shuffle null on E[slope_A*slope_B]: p = 0.1724 (2000 shuffles)
+
+==============================================================================
+§15.5  robustness  [follow-up]
+==============================================================================
++ hemisphere dummy: z -0.00876 p 0.1797
+z x hemisphere interaction: coef +0.00217 p 0.9060
+drop resp covariate: z -0.00871 p 0.1779
+leave-one-subject-out: z p < .05 in 0/19 folds (worst: drop D0139A -> p 0.421)
+
+==============================================================================
+§15.5  parcel-level omnibus  [pipeline: relative_score_roi_test]
+==============================================================================
+F 0.743  p 0.4215  (141 electrodes)
+                        anat  n_electrodes  n_subjects  mean_delta  mean_delta_adj        p        q
+          ctx_rh_S_front_sup             7           4   -0.033442       -0.531190 0.018698 0.243076
+ctx_lh_S_circular_insula_sup            13           7    0.236298        0.309506 0.183882 0.712545
+ctx_rh_S_circular_insula_sup             8           5   -0.439377       -0.596181 0.270873 0.712545
+       ctx_lh_G_front_middle            35           6    0.209213        0.162888 0.271473 0.712545
+
+==============================================================================
+§15.6  anterior-posterior  [pipeline: relative_score_coordinate_test]
+==============================================================================
+all: y p 0.29  lh: y p 0.75  rh: y p 0.52
+
+==============================================================================
+§15.7  every magnitude version of the gradient  [follow-up]
+==============================================================================
+value                                            z slope      z p  null
+delta = lwpc_s - lwps_s                          -0.0080   0.2234  sign-flip swap
+abs_lwpc - abs_lwps                              -0.0072   0.1504  sign-flip swap
+cross-validated mu^2 difference                  -0.0117   0.3558  sign-flip swap
+lwpc_s alone                                     -0.0054   0.2084  within-subject coordinate shuffle
+lwps_s alone                                     +0.0026   0.5282  within-subject coordinate shuffle
+delta, both-positive electrodes only (n=81)      -0.0039   0.5913  sign-flip swap
+
+mean mu^2: LWPC +0.552  LWPS +0.426
+mu^2 difference block F p 0.556
+corr(mu2_lwpc, z) -0.109   corr(mu2_lwps, z) -0.094
+noise floor of |score| for a null electrode: E|N(0, s)| = 0.80 s
+
+==============================================================================
+§15.7  is delta just sign disagreement? concordance subsets  [follow-up]
+==============================================================================
+  all                      n  152   delta z slope -0.0080  p 0.2234
+  concordant (++ or --)    n  103   delta z slope -0.0063  p 0.2834
+  discordant (+- or -+)    n   49   delta z slope -0.0235  p 0.1610
+  ++ only                  n   81   delta z slope -0.0039  p 0.5913
+  -- only                  n   22   delta z slope +0.0005  p 0.9531
+  magnitude contrast within concordant: -0.0068  p 0.2431
+
+==============================================================================
+§15.7  what moves with z: the sign of each score, or their order?  [follow-up]
+==============================================================================
+  P(lwpc_s > 0)    vs z   within-subject r -0.022  p 0.8046 (coordinate shuffle)
+  P(lwps_s > 0)    vs z   within-subject r +0.136  p 0.1309 (coordinate shuffle)
+  P(delta > 0)     vs z   within-subject r -0.123  p 0.1334 (coordinate shuffle)
+
+==============================================================================
+§15.8  weighted centres  [pipeline: score_centers_per_subject]
+==============================================================================
+  abs, medoid=True                dx -0.18 (p 0.90)  dy +0.90 (p 0.67)  dz -2.61 (p 0.45)   zero-displacement groups 5/18
+  abs, medoid=False               dx +0.84 (p 0.20)  dy +0.52 (p 0.57)  dz -1.23 (p 0.41)   zero-displacement groups 0/18
+  positive-clipped, medoid=True   dx -0.30 (p 0.86)  dy +0.76 (p 0.78)  dz +0.11 (p 0.98)   zero-displacement groups 3/18
+
+==============================================================================
+§15.8  sign-defined centres: a restatement of the delta ~ z slope, not independent evidence  [follow-up]
+==============================================================================
+  pooled  LWPC-dominant n  78 z  28.1   LWPS-dominant n  74 z  28.1   dz -0.0
+  lh      LWPC-dominant n  52 z  28.3   LWPS-dominant n  52 z  28.3   dz -0.0
+  rh      LWPC-dominant n  26 z  27.7   LWPS-dominant n  22 z  27.7   dz -0.0
+  within subject x hemisphere (10 groups): mean dz -3.76 mm, 5/10 in the expected direction
+  as a test (sets re-formed in every swap, heights centred within participant): dz -3.58 mm, p 0.1921
+
+==============================================================================
+why not fit the gradient on the ++ electrodes only?  [simulation on the real layout]
+==============================================================================
+planted gradient (true delta slope -0.0077); 68% of observed-++ electrodes are truly ++
+  all electrodes                             mean slope -0.0077   P(p < .05) 0.20
+  ++ selected on the same data               mean slope -0.0037   P(p < .05) 0.07
+  ++ selected on half A, fitted on half B    mean slope -0.0063   P(p < .05) 0.05
+no gradient (true delta slope +0.0000); 70% of observed-++ electrodes are truly ++
+  all electrodes                             mean slope -0.0000   P(p < .05) 0.06
+  ++ selected on the same data               mean slope -0.0011   P(p < .05) 0.04
+  ++ selected on half A, fitted on half B    mean slope -0.0011   P(p < .05) 0.05
+
+==============================================================================
+are LWPC-positive and LWPS-positive electrodes in different places?  [centroid shuffle test]
+==============================================================================
+  shuffle across all electrodes            n 130 (LWPC+ 99, LWPS+ 112, both 81)  distance 3.78 mm (dz -0.57)  null median 2.39  p 0.160
+  shuffle within participant               n 130 (LWPC+ 99, LWPS+ 112, both 81)  distance 3.78 mm (dz -0.57)  null median 3.67  p 0.460
+  shuffle within participant x hemisphere  n 130 (LWPC+ 99, LWPS+ 112, both 81)  distance 3.78 mm (dz -0.57)  null median 3.76  p 0.489
+  left hemisphere, within participant      n  89 (LWPC+ 69, LWPS+ 74, both 54)  distance 2.95 mm (dz -1.11)  null median 3.39  p 0.648
+  right hemisphere, within participant     n  41 (LWPC+ 30, LWPS+ 38, both 27)  distance 0.51 mm (dz +0.23)  null median 2.12  p 0.987
+
+(section 11 skipped: pass --subset-scores <subset run>/scores_with_anatomy.csv)
+
+==============================================================================
+LWPC and LWPS by height band (descriptive; tertiles of this run's MNI z)
+==============================================================================
+   band  n        z  lwpc_d  lwps_d  mean_delta  lwpc_dominant  r_separate_halves
+ventral 51 -6 to 18   0.172   0.149       0.025          0.549              0.201
+ middle 50 18 to 34   0.124   0.107      -0.224          0.440              0.043
+ dorsal 51 34 to 76   0.116   0.152       0.018          0.549              0.008
+share of delta's variance explained by height, within participant: 2.0%

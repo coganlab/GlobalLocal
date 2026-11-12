@@ -794,7 +794,7 @@ def write_summary(labels, behavior, across, trialwise, save_dir, meta,
         "across participants, and RT coupling alone makes matched beat cross. (2) is",
         "kept for comparison only. In (3) every slope is 'significant' with thousands",
         "of trials; a plain HG-RT correlation leaks into both slopes, so read it with",
-        "docs/a6_brain_behavior.md.",
+        "docs/archive/a6_brain_behavior.md.",
     ]
     txt = "\n".join(str(x) for x in lines)
     with open(os.path.join(save_dir, 'summary.txt'), 'w') as f:

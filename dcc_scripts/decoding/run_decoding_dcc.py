@@ -148,7 +148,7 @@ SINGLE_COLUMN = True
 SHOW_LEGEND = True
 # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
 # Memory-heavy; a launcher can turn it off with RUN_VISUALIZATION_DEBUG=0.
-RUN_VISUALIZATION_DEBUG = _env_bool('RUN_VISUALIZATION_DEBUG', True)
+RUN_VISUALIZATION_DEBUG = _env_bool('RUN_VISUALIZATION_DEBUG', False)
 
 # Condition selection - this comes in via the submit script now. Kind of confusing because everything else is set in this script. Oh well.
 CONDITION_NAME = os.environ.get('CONDITION_NAME')

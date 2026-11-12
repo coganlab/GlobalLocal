@@ -69,7 +69,11 @@ SYNTHETIC_ENRICHMENT=${SYNTHETIC_ENRICHMENT:-0.6}
 # SUBJECT_SET (src/analysis/config/subjects.py) adds its suffix to every
 # segregation folder; read it from there so the rule lives in one place.
 SUBJECT_SET_SUFFIX=$(cd ../.. && python -c "from src.analysis.config.subjects import resolve_subject_set; print(resolve_subject_set()[1])") || exit 1
-SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_main_effects${SUBJECT_SET_SUFFIX}"
+# RT_ADJUST_HG=1 reads the RT-adjusted segregation run (N4 doc §18.10); the
+# anatomy job then writes to its own _rt_adjusted folder.
+RT_ADJUST_HG=${RT_ADJUST_HG:-0}
+RT_TAG=$([ "$RT_ADJUST_HG" = 1 ] && echo _rt_adjusted)
+SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_main_effects${RT_TAG}${SUBJECT_SET_SUFFIX}"
 
 ARM=${ARM:-continuous}
 SCORES_CSV=${SCORES_CSV:-"$SEG_RUN/electrodes.csv"}
@@ -99,6 +103,12 @@ LONG_DF_CSV=${LONG_DF_CSV:-"$SEG_RESULTS/window_0.0to1.5s_${ELECTRODES}_${ROI}_p
 RT_SEG_RUN="$SEG_RESULTS/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200${SUBJECT_SET_SUFFIX}"
 RT_LONG_DF_CSV=${RT_LONG_DF_CSV:-"$RT_SEG_RUN/long_df.csv"}
 RT_COUPLING_CSV=${RT_COUPLING_CSV:-"$RT_SEG_RUN/rt_adjustment_slopes.csv"}
+if [ "$RT_ADJUST_HG" = 1 ]; then
+    # Every §19 input RT-adjusted too: the RT-adjusted long table replaces the
+    # raw one, and the separate RT-adjusted companion would only repeat it.
+    LONG_DF_CSV=$RT_LONG_DF_CSV
+    RT_LONG_DF_CSV=
+fi
 SUBSET_SCORES_CSV=${SUBSET_SCORES_CSV:-}   # §15 section 11: a subset run's scores_with_anatomy.csv
 SHARED_N_SPLITS=${SHARED_N_SPLITS:-200}    # splits for the shared-split rescoring
 

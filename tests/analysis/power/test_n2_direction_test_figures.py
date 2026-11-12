@@ -1,4 +1,4 @@
-"""N2 direction-test figures (docs/n2_direction_tests.md).
+"""N2 direction-test figures (docs/archive/n2_direction_tests.md).
 
 The three direction tests used to leave exactly one figure behind -- the
 subtraction plot, carrying the interaction bar -- so the two simple effects had

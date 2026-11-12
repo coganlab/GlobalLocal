@@ -6,7 +6,7 @@ the label-based across-subject correlations, and the within-subject single-trial
 mixed model, each with its cross-pairing specificity control. Sets up input args
 and calls stability_flexibility_brain_behavior_dcc.main().
 Wrapped by sbatch_stability_flexibility_brain_behavior_dcc.sh for the cluster.
-How to run it and read the outputs: docs/a6_brain_behavior.md.
+How to run it and read the outputs: docs/archive/a6_brain_behavior.md.
 
 Most knobs can be overridden from the submit script via environment variables
 (EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOW_TMIN, WINDOW_TMAX, ELECTRODES, ROIS, ALPHA,

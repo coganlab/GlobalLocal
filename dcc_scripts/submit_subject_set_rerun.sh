@@ -34,10 +34,11 @@ submit() {
 }
 
 echo "=== F3 power traces"
-# Only these two sets: the cross-effect labels share their conditions objects
-# and would race on the same output paths (see the power submit script).
+# One pooled 2 x 2 run per term (the paper's design, `PAPER_DESIGN` in
+# vis/paper_panels.py). Each set has its own conditions object and writes
+# under its own label, so the four can run at once.
 cd "$DCC/power"
-submit env CONDITIONS="stimulus_lwpc_block_balanced_conditions stimulus_lwps_block_balanced_conditions" \
+submit env CONDITIONS="stimulus_lwpc_conditions stimulus_lwps_conditions stimulus_congruency_by_switch_proportion_conditions stimulus_switch_type_by_incongruent_proportion_conditions" \
     ELECTRODES=sig ROIS=lpfc bash submit_specific_conditions_power_traces_dcc.sh
 
 echo "=== F4 decoding (and the S5b cross-effects)"

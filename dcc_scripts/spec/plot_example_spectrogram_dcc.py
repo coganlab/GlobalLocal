@@ -5,7 +5,7 @@ stimulus onset in one lPFC electrode.
 
 Reads the rescaled (dB re: pre-stimulus baseline) TFRs written by
 make_wavelets_dcc.py, averages the requested conditions, and saves the panel
-as .png and .pdf to dcc_scripts/spec/figs/. The filename records the subject,
+as .pdf, .png and 450-dpi .tif to dcc_scripts/spec/figs/. The filename records the subject,
 channel, conditions, display window and colour limits.
 
 Light enough to run directly (no sbatch):
@@ -32,6 +32,8 @@ from ieeg.io import get_data
 from src.analysis.spec.wavelet_functions import (load_wavelets, load_multitaper,
                                                  plot_channel_spectrogram)
 from src.analysis.utils.general_utils import resolve_lab_root
+from src.analysis.config.plotting_parameters import TRACE_FIGURE_STYLE
+from src.analysis.utils.panel_layout import save_figure
 
 # ============================================================================
 # PARAMETERS
@@ -44,20 +46,22 @@ TASK = 'GlobalLocal'
 # Alternative inside lPFC: D0094 LFPM12 (ctx_lh_S_front_inf; in both the lPFC and
 # dlPFC ROIs), which had the largest mean 70-150 Hz response, 0.1-0.8 s after
 # onset, of the 418 lPFC channels across the 24 subjects.
-SUBJECT_ID = 'D0057'
-CHANNEL = 'RAI7'
+# SUBJECT_ID = 'D0057'
+# CHANNEL = 'RAI7'
+
+SUBJECT_ID = 'D0139A'
+CHANNEL = 'LIA15'
 
 # Stimulus_c + Stimulus_i together are all correct trials (stimulus_congruency_conditions).
 CONDITION_NAMES = ['Stimulus_c', 'Stimulus_i']
-SPEC_TYPE = 'multitaper'  # multitaper's linear 2 Hz bins resolve high gamma; wavelets have ~6 bins in 70-200 Hz
+SPEC_TYPE = 'wavelet'  # multitaper's linear 2 Hz bins resolve high gamma; wavelets have ~6 bins in 70-200 Hz
 
 TIMES = (-0.5, 1.5)    # display window (s); trims wavelet edge artifacts
 FREQ_RANGE = (None, 200.)  # Hz; None -> lowest computed frequency
 HG_BAND = (70., 150.)  # marked with dotted lines
 VLIM = (-3., 3.)       # dB; LFPM12's 70-150 Hz response peaks near +3 dB
 YSCALE = 'linear'
-FIGSIZE = (4, 3)       # inches
-FONT_SIZE = 10
+XTICKS = (-0.5, 0, 0.5, 1.0, 1.5)  # s; the power traces' 0.5-s spacing (28-pt labels collide at 0.25 s)
 
 # Save figures to the figs folder inside dcc_scripts/spec/figs.
 SAVE_DIR = os.path.join(project_root, "dcc_scripts", "spec", "figs")
@@ -75,20 +79,27 @@ def main():
     spec = mne.time_frequency.combine_tfr(specs, weights='equal')
     spec.crop(*TIMES)
 
-    with plt.rc_context({'font.size': FONT_SIZE}):
-        fig = plot_channel_spectrogram(spec, CHANNEL, fmin=FREQ_RANGE[0],
-                                       fmax=FREQ_RANGE[1], vlim=VLIM,
-                                       yscale=YSCALE, band=HG_BAND)
-        fig.set_size_inches(*FIGSIZE)
+    # Same canvas and font sizes as the power traces (TRACE_FIGURE_STYLE), so
+    # the two F2 panels show the same text size once scaled to one width.
+    # Axis labels and the colourbar label follow axes.labelsize; tick labels,
+    # the colourbar's included, follow x/ytick.labelsize.
+    style = TRACE_FIGURE_STYLE
+    with plt.rc_context({'axes.labelsize': style['axis_font_size'],
+                         'xtick.labelsize': style['tick_font_size'],
+                         'ytick.labelsize': style['tick_font_size']}):
+        fig, ax = plt.subplots(figsize=style['figsize'])
+        plot_channel_spectrogram(spec, CHANNEL, fmin=FREQ_RANGE[0],
+                                 fmax=FREQ_RANGE[1], vlim=VLIM,
+                                 yscale=YSCALE, band=HG_BAND, ax=ax)
+        ax.set_xlabel(style['x_label'])
+        ax.set_xticks(XTICKS)
         fig.tight_layout()
 
     os.makedirs(SAVE_DIR, exist_ok=True)
     stem = (f"example_spectrogram_{SUBJECT_ID}_{CHANNEL}_"
             f"{'+'.join(CONDITION_NAMES)}_{SPEC_TYPE}_"
             f"{TIMES[0]}to{TIMES[1]}s_vlim{VLIM[1]}dB")
-    for ext in ('png', 'pdf'):
-        path = os.path.join(SAVE_DIR, f'{stem}.{ext}')
-        fig.savefig(path, bbox_inches='tight', dpi=300)
+    for path in save_figure(fig, os.path.join(SAVE_DIR, stem), bbox_inches='tight'):
         print("Saved figure:", path)
     plt.close(fig)
 

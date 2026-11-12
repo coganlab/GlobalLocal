@@ -1,0 +1,161 @@
+----------------------------------------------------------------------
+§19 — ELECTRODES AND PARTICIPANTS AS THE UNIT, LOCAL SIMILARITY, COMBINED FIGURE 5, OVERLAP CONTROLS
+  each part: electrodes as the unit first (the pre-specified tests' level), participants as the unit second (supplement)
+  mni_z SLOPE, ELECTRODES AS THE UNIT (the coordinate test; 371 electrodes, 20 participants)
+    slope -0.00981/mm  95 % CI [-0.01514, -0.00497] (electrode bootstrap within participant)  swap-null p = 0.0005
+  mni_z SLOPE, PARTICIPANTS AS THE UNIT (20 participants, 371 electrodes)
+    pooled slope -0.00981/mm = the coordinate test's; it is the weight-averaged participant slope
+    weighted:   -0.00981/mm  95 % CI [-0.01727, -0.00340]  sign-flip p = 0.0154  (19 participants)
+    three participants carry 40% of the weight
+    unweighted: -0.01518/mm ± 0.00758  t-test p = 0.06155  13/18 negative (sign test p = 0.0963)  [>= 3 electrodes, >= 5 mm spread]
+    mixed, random intercept: -0.00981/mm ± 0.00288  Wald p = 0.0006623
+    mixed, random slope: -0.00937/mm ± 0.00427  Wald p = 0.02807  random-slope SD 0.00901/mm
+    leave one participant out: slope -0.01141 to -0.00700/mm, p 0.000999 to 0.024
+  LWPC–LWPS SEPARATE-HALF r, ELECTRODES AS THE UNIT (pre-specified test; 370 electrodes, 19 participants)
+    r = +0.098  95 % CI [+0.051, +0.153]  permutation p = 9.999e-05  (electrode bootstrap within participant, 100 of 200 splits)
+    (reliabilities: from the shared-split table, section 3; this table's per-electrode split biases them)
+  LWPC–LWPS SEPARATE-HALF r, PARTICIPANTS AS THE UNIT (18 participants with >= 4 electrodes, 367 electrodes)
+    weighted (n - 3): r = +0.100  95 % CI [+0.031, +0.158]  sign-flip p = 0.0223
+    unweighted: r = +0.048  t-test p = 0.2884  11/18 positive
+  LOCAL SIMILARITY, ELECTRODES AS THE UNIT (370 electrodes, 19 participants, 200 shared splits; linear gradient removed; 0 contact-sharing pairs dropped)
+    excess cross-half similarity over each participant's position-shuffle baseline [95 % CI ± 1.96 SE, one-sided p; SE from the scores' covariance across electrodes, trial noise shared by neighbours included]
+    LWPC − LWPS  reliability -0.063 [-0.245, +0.119]
+        < 10: -0.007 [-0.151, +0.136] p 0.54  10–20: -0.114 [-0.253, +0.025] p 0.95  20–40: +0.027 [-0.031, +0.085] p 0.18  > 40: +0.010 [-0.042, +0.061] p 0.36
+    LWPC         reliability +0.164 [+0.042, +0.287]
+        < 10: +0.157 [+0.047, +0.267] p 0.0025  10–20: +0.135 [+0.033, +0.237] p 0.0048  20–40: +0.008 [-0.043, +0.060] p 0.38  > 40: -0.058 [-0.095, -0.021] p 1
+    LWPS         reliability -0.016 [-0.174, +0.142]
+        < 10: -0.003 [-0.145, +0.139] p 0.52  10–20: +0.000 [-0.108, +0.109] p 0.5  20–40: -0.000 [-0.051, +0.051] p 0.5  > 40: +0.001 [-0.043, +0.044] p 0.49
+    congruency   reliability +0.224 [+0.107, +0.342]
+        < 10: +0.134 [+0.023, +0.245] p 0.0088  10–20: +0.037 [-0.082, +0.155] p 0.27  20–40: +0.007 [-0.051, +0.065] p 0.41  > 40: -0.031 [-0.067, +0.006] p 0.95
+    switch       reliability +0.192 [+0.073, +0.311]
+        < 10: +0.111 [+0.004, +0.218] p 0.021  10–20: +0.056 [-0.050, +0.162] p 0.15  20–40: +0.035 [-0.018, +0.088] p 0.096  > 40: -0.051 [-0.085, -0.017] p 1
+    LWPC − LWPS  nearest − farthest -0.017  p = 0.574
+    LWPC         nearest − farthest +0.215  p = 0.000397
+    LWPS         nearest − farthest -0.004  p = 0.518
+    congruency   nearest − farthest +0.165  p = 0.00481
+    switch       nearest − farthest +0.162  p = 0.00391
+    nearest bin, share of reliability, LWPC − LWPS vs LWPC: not defined (a reliability is not clearly positive (electrode level))
+    nearest bin, share of reliability, LWPC − LWPS vs LWPS: not defined (a reliability is not clearly positive (electrode level))
+    nearest bin, share of reliability, LWPC − LWPS vs congruency: not defined (a reliability is not clearly positive (electrode level))
+    nearest bin, share of reliability, LWPC − LWPS vs switch: not defined (a reliability is not clearly positive (electrode level))
+    NOTE: LWPC − LWPS: reliability -0.063 ± 0.093 (electrode-level SE), so its excess is not expressed as a share of it at the electrode level
+    NOTE: LWPS: reliability -0.016 ± 0.081 (electrode-level SE), so its excess is not expressed as a share of it at the electrode level
+    read: intermixed = no excess for LWPC − LWPS at short range while the single scores show one; if the single scores show none either, the test has no power
+  LOCAL SIMILARITY, PARTICIPANTS AS THE UNIT (370 electrodes, 19 participants, 200 shared splits; linear gradient removed; 0 contact-sharing pairs dropped)
+    excess cross-half similarity over each participant's position-shuffle baseline [95 % participant bootstrap, participant sign-flip p]
+    LWPC − LWPS  reliability -0.063 [-0.120, +0.010]
+        < 10: -0.007 [-0.062, +0.061] p 0.58  10–20: -0.114 [-0.203, -0.006] p 0.97  20–40: +0.027 [-0.046, +0.076] p 0.31  > 40: +0.010 [-0.021, +0.035] p 0.21
+    LWPC         reliability +0.164 [+0.069, +0.250]
+        < 10: +0.157 [+0.039, +0.272] p 0.0066  10–20: +0.135 [-0.041, +0.283] p 0.39  20–40: +0.008 [-0.031, +0.046] p 0.32  > 40: -0.058 [-0.137, +0.006] p 0.89
+    LWPS         reliability -0.016 [-0.131, +0.098]
+        < 10: -0.003 [-0.102, +0.104] p 0.54  10–20: +0.000 [-0.065, +0.051] p 0.51  20–40: -0.000 [-0.010, +0.008] p 0.53  > 40: +0.001 [-0.029, +0.024] p 0.46
+    congruency   reliability +0.224 [+0.045, +0.410]
+        < 10: +0.134 [-0.060, +0.316] p 0.085  10–20: +0.037 [-0.001, +0.104] p 0.047  20–40: +0.007 [-0.072, +0.054] p 0.45  > 40: -0.031 [-0.079, +0.001] p 0.93
+    switch       reliability +0.192 [+0.096, +0.266]
+        < 10: +0.111 [-0.009, +0.264] p 0.093  10–20: +0.056 [-0.019, +0.113] p 0.071  20–40: +0.035 [-0.031, +0.083] p 0.13  > 40: -0.051 [-0.107, +0.019] p 0.88
+    LWPC − LWPS  nearest − farthest -0.017  p = 0.636
+    LWPC         nearest − farthest +0.215  p = 0.0068
+    LWPS         nearest − farthest -0.004  p = 0.536
+    congruency   nearest − farthest +0.165  p = 0.073
+    switch       nearest − farthest +0.162  p = 0.0818
+    nearest bin, share of reliability, LWPC − LWPS vs LWPC: not defined (a reliability is not clearly positive)
+    nearest bin, share of reliability, LWPC − LWPS vs LWPS: not defined (a reliability is not clearly positive)
+    nearest bin, share of reliability, LWPC − LWPS vs congruency: not defined (a reliability is not clearly positive)
+    nearest bin, share of reliability, LWPC − LWPS vs switch: not defined (a reliability is not clearly positive)
+    NOTE: LWPC − LWPS: reliability -0.063 (positive in 5% of bootstrap draws), so its excess is not expressed as a share of it at the participant level
+    NOTE: LWPS: reliability -0.016 (positive in 39% of bootstrap draws), so its excess is not expressed as a share of it at the participant level
+    read: intermixed = no excess for LWPC − LWPS at short range while the single scores show one; if the single scores show none either, the test has no power
+  LWPC–LWPS SEPARATE-HALF r, ELECTRODES AS THE UNIT (the rescored table, shared by participant, RT-adjusted HG; 370 electrodes, 19 participants)
+    r = +0.110  95 % CI [+0.057, +0.167]  permutation p = 0.0003  (electrode bootstrap within participant, 100 of 200 splits)
+    within-participant reliability: LWPC +0.222 [+0.145, +0.291], LWPS -0.005 [-0.083, +0.074]; LWPC − LWPS +0.228 [+0.125, +0.325]
+    noise-corrected r: not estimable: both reliabilities positive in 45% of the electrode-bootstrap draws (needs 90%)
+  congruency–switch SEPARATE-HALF r, ELECTRODES AS THE UNIT (the rescored table, shared by participant, RT-adjusted HG; 370 electrodes, 19 participants)
+    r = +0.139  95 % CI [+0.073, +0.207]  permutation p = 9.999e-05  (electrode bootstrap within participant, 100 of 200 splits)
+    within-participant reliability: congruency +0.350 [+0.274, +0.418], switch +0.269 [+0.178, +0.338]; congruency − switch +0.081 [-0.011, +0.189]
+    noise-corrected r = +0.452  95 % CI [+0.254, +0.682]
+  WITHIN-PARTICIPANT SPLIT-HALF RELIABILITY BY SPLIT SCHEME (the per-electrode split biases these)
+                                    split   LWPC   LWPS  overlap_r  congruency  switch
+                            per electrode +0.093 -0.137     +0.098      +0.229  +0.153
+    shared by participant, RT-adjusted HG +0.222 -0.005     +0.110      +0.350  +0.269
+  LWPC–LWPS SEPARATE-HALF r WITH EACH CANDIDATE CONFOUND REMOVED
+    pre-specified                                r = +0.098  p = 0.0001  (370 electrodes, 19 participants)
+    + responsiveness, nonlinear                  r = +0.097  p = 0.0001  (370 electrodes, 19 participants)
+    + MNI coordinates                            r = +0.099  p = 0.0001  (370 electrodes, 19 participants)
+    + base effects, same half                    r = +0.054  p = 0.0213  (370 electrodes, 19 participants)
+    pre-specified, electrodes with RT coupling   r = +0.098  p = 0.0001  (370 electrodes, 19 participants)   [the reference for the next row]
+    + RT coupling                                r = +0.098  p = 0.0001  (370 electrodes, 19 participants)
+    all of the above                             r = +0.064  p = 0.0067  (370 electrodes, 19 participants)
+    responsiveness tertile: low                  r = +0.087  p = 0.0537  (118 electrodes, 10 participants)   [descriptive]
+    responsiveness tertile: middle               r = +0.152  p = 0.0015  (112 electrodes, 12 participants)   [descriptive]
+    responsiveness tertile: high                 r = +0.049  p = 0.255  (118 electrodes, 14 participants)   [descriptive]
+    leave one participant out: r +0.079 to +0.114, p 0.000999 to 0.002
+  congruency–switch SEPARATE-HALF r WITH EACH CANDIDATE CONFOUND REMOVED
+    pre-specified                                r = +0.133  p = 0.0001  (370 electrodes, 19 participants)
+    + responsiveness, nonlinear                  r = +0.130  p = 0.0001  (370 electrodes, 19 participants)
+    + MNI coordinates                            r = +0.118  p = 0.0004  (370 electrodes, 19 participants)
+    pre-specified, electrodes with RT coupling   r = +0.133  p = 0.0001  (370 electrodes, 19 participants)   [the reference for the next row]
+    + RT coupling                                r = +0.132  p = 0.0001  (370 electrodes, 19 participants)
+    all of the above                             r = +0.112  p = 0.0006  (370 electrodes, 19 participants)
+    responsiveness tertile: low                  r = +0.046  p = 0.356  (118 electrodes, 10 participants)   [descriptive]
+    responsiveness tertile: middle               r = +0.077  p = 0.176  (112 electrodes, 12 participants)   [descriptive]
+    responsiveness tertile: high                 r = +0.234  p = 0.0002  (118 electrodes, 14 participants)   [descriptive]
+    leave one participant out: r +0.084 to +0.148, p 0.000999 to 0.012
+  FIGURE 5 (height) LWPC vs LWPS, ELECTRODES AS THE UNIT — fig5_height.png, fig5_height.pdf, fig5_height_scatter.png, fig5_height_scatter.pdf, fig5_height_points.csv, fig5_height_centroids.csv, fig5_height_balance.csv, fig5_height_partials.csv, fig5_height_brain_centroids.csv
+  bands: tertiles of mni_z at 16.1 and 37.5 mm; 370 of 370 points have coordinates
+  brain: fig5_height_brain.png
+  brain ventral  lh centroid MNI (-41.6, +27.7, +1.2) mm  (83 electrodes, 12 participants)
+  brain ventral  rh centroid MNI (+43.8, +22.0, +5.3) mm  (40 electrodes, 10 participants)
+  brain middle   lh centroid MNI (-33.0, +36.0, +25.9) mm  (84 electrodes, 11 participants)
+  brain middle   rh centroid MNI (+38.2, +33.2, +27.6) mm  (39 electrodes, 9 participants)
+  brain dorsal   lh centroid MNI (-23.0, +26.0, +52.2) mm  (70 electrodes, 12 participants)
+  brain dorsal   rh centroid MNI (+24.9, +28.3, +50.8) mm  (54 electrodes, 9 participants)
+  b  LWPC vs LWPS r = +0.098  p = 0.0002  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects_rt_adjusted_subjects-good/correlation.json]
+  b  ventral  centroid LWPC -0.004, LWPS -0.039; balance +0.036 [-0.176, +0.232] (electrode bootstrap; 123 electrodes, 17 participants)
+  b  middle   centroid LWPC +0.075, LWPS +0.141; balance -0.066 [-0.257, +0.126] (electrode bootstrap; 123 electrodes, 16 participants)
+  b  dorsal   centroid LWPC -0.308, LWPS +0.051; balance -0.359 [-0.528, -0.190] (electrode bootstrap; 124 electrodes, 17 participants)
+  table ventral  adjusted LWPC − LWPS +0.032 ± 0.103 SEM (124 electrodes)
+  table middle   adjusted LWPC − LWPS -0.063 ± 0.098 SEM (123 electrodes)
+  table dorsal   adjusted LWPC − LWPS -0.359 ± 0.090 SEM (124 electrodes)
+  c  mni_z slope -0.00981/mm (p = 0.0005); the plotted balance gives -0.00981/mm
+  c  line through the 371 electrodes: -0.00981/mm
+  FIGURE 5 (height) LWPC vs LWPS, PARTICIPANTS AS THE UNIT — fig5_height_participants.png, fig5_height_participants.pdf, fig5_height_points.csv, fig5_height_participants_centroids.csv, fig5_height_participants_balance.csv, fig5_height_balance_by_participant.csv, fig5_height_partials.csv, fig5_height_brain_centroids.csv
+  bands: tertiles of mni_z at 16.1 and 37.5 mm; 370 of 370 points have coordinates
+  b  LWPC vs LWPS r = +0.098  p = 0.0002  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects_rt_adjusted_subjects-good/correlation.json]
+  b  ventral  centroid LWPC -0.004, LWPS -0.039; balance +0.036 [-0.128, +0.194] (participant bootstrap; 123 electrodes, 17 participants)
+  b  middle   centroid LWPC +0.075, LWPS +0.141; balance -0.066 [-0.261, +0.058] (participant bootstrap; 123 electrodes, 16 participants)
+  b  dorsal   centroid LWPC -0.308, LWPS +0.051; balance -0.359 [-0.531, -0.207] (participant bootstrap; 124 electrodes, 17 participants)
+  table ventral  adjusted LWPC − LWPS -0.088 ± 0.105 SEM (18 participants)
+  table middle   adjusted LWPC − LWPS -0.226 ± 0.153 SEM (16 participants)
+  table dorsal   adjusted LWPC − LWPS -0.366 ± 0.152 SEM (17 participants)
+  c  mni_z slope -0.00981/mm (p = 0.0005); the plotted balance gives -0.00981/mm
+  c  line through the 371 electrodes: -0.00981/mm
+  FIGURE 5 (height) congruency vs switch, ELECTRODES AS THE UNIT — fig5_height_main_effects.png, fig5_height_main_effects.pdf, fig5_height_main_effects_scatter.png, fig5_height_main_effects_scatter.pdf, fig5_height_main_effects_points.csv, fig5_height_main_effects_centroids.csv, fig5_height_main_effects_balance.csv, fig5_height_main_effects_partials.csv, fig5_height_main_effects_brain_centroids.csv
+  bands: tertiles of mni_z at 16.1 and 37.5 mm; 370 of 370 points have coordinates
+  brain ventral  lh centroid MNI (-41.6, +27.7, +1.2) mm  (83 electrodes, 12 participants)
+  brain ventral  rh centroid MNI (+43.8, +22.0, +5.3) mm  (40 electrodes, 10 participants)
+  brain middle   lh centroid MNI (-33.0, +36.0, +25.9) mm  (84 electrodes, 11 participants)
+  brain middle   rh centroid MNI (+38.2, +33.2, +27.6) mm  (39 electrodes, 9 participants)
+  brain dorsal   lh centroid MNI (-23.0, +26.0, +52.2) mm  (70 electrodes, 12 participants)
+  brain dorsal   rh centroid MNI (+24.9, +28.3, +50.8) mm  (54 electrodes, 9 participants)
+  b  congruency vs switch r = +0.133  p = 0.0002  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects_rt_adjusted_subjects-good/correlation_main_effects.json]
+  b  ventral  centroid congruency +0.274, switch +0.108; balance +0.166 [-0.024, +0.357] (electrode bootstrap; 123 electrodes, 17 participants)
+  b  middle   centroid congruency +0.098, switch +0.182; balance -0.085 [-0.280, +0.125] (electrode bootstrap; 123 electrodes, 16 participants)
+  b  dorsal   centroid congruency +0.167, switch +0.133; balance +0.034 [-0.155, +0.222] (electrode bootstrap; 124 electrodes, 17 participants)
+  table ventral  adjusted congruency − switch +0.168 ± 0.097 SEM (124 electrodes)
+  table middle   adjusted congruency − switch -0.088 ± 0.105 SEM (123 electrodes)
+  table dorsal   adjusted congruency − switch +0.034 ± 0.098 SEM (124 electrodes)
+  c  mni_z slope -0.00298/mm (p = 0.29); the plotted balance gives -0.00298/mm
+  c  line through the 371 electrodes: -0.00298/mm
+  FIGURE 5 (height) congruency vs switch, PARTICIPANTS AS THE UNIT — fig5_height_main_effects_participants.png, fig5_height_main_effects_participants.pdf, fig5_height_main_effects_points.csv, fig5_height_main_effects_participants_centroids.csv, fig5_height_main_effects_participants_balance.csv, fig5_height_main_effects_balance_by_participant.csv, fig5_height_main_effects_partials.csv, fig5_height_main_effects_brain_centroids.csv
+  bands: tertiles of mni_z at 16.1 and 37.5 mm; 370 of 370 points have coordinates
+  b  congruency vs switch r = +0.133  p = 0.0002  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects_rt_adjusted_subjects-good/correlation_main_effects.json]
+  b  ventral  centroid congruency +0.274, switch +0.108; balance +0.166 [+0.023, +0.321] (participant bootstrap; 123 electrodes, 17 participants)
+  b  middle   centroid congruency +0.098, switch +0.182; balance -0.085 [-0.214, +0.028] (participant bootstrap; 123 electrodes, 16 participants)
+  b  dorsal   centroid congruency +0.167, switch +0.133; balance +0.034 [-0.151, +0.262] (participant bootstrap; 124 electrodes, 17 participants)
+  table ventral  adjusted congruency − switch +0.220 ± 0.126 SEM (18 participants)
+  table middle   adjusted congruency − switch -0.019 ± 0.138 SEM (16 participants)
+  table dorsal   adjusted congruency − switch +0.076 ± 0.191 SEM (17 participants)
+  c  mni_z slope -0.00298/mm (p = 0.29); the plotted balance gives -0.00298/mm
+  c  line through the 371 electrodes: -0.00298/mm
+  §19 shared splits (shared by participant, RT-adjusted HG): /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200_subjects-good/long_df.csv, rescored with 200 splits -> per_split_shared.csv
+  §19 RT coupling: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200_subjects-good/rt_adjustment_slopes.csv

@@ -4,53 +4,49 @@ import os
 
 import matplotlib.pyplot as plt
 
+from src.analysis.config.plotting_parameters import ELECTRODE_SET_COLORS
 from .style import nature_style
 
-# categorical slots in fixed order, so a group keeps its color across figures
+# Groups named in ELECTRODE_SET_COLORS (sig, nonsig, all) take the paper's
+# electrode-set colours; any other group takes the next of these slots.
 _SERIES = ('#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300')
-_INK, _MUTED = '#262626', '#737373'
+_INK = '#262626'
 
 
 def plot_accuracy_by_electrode_count(result, out_stem, title=None, base_fontsize=9.0):
-    """Two panels of the same curves: the log grid (1, 2, 4, ... electrodes) on a
-    log x axis, and the linear grid (every ``step`` electrodes) on a linear one.
-    Lines are mean accuracy, bands the 2.5-97.5 percentiles over bootstraps x
-    subsets; each line ends at its group's full size. ``result`` is what
-    ``accuracy_by_electrode_count`` returns. Writes ``<out_stem>.png``/``.pdf``.
+    """Mean accuracy against the number of electrodes decoded from, on the log
+    grid (1, 2, 4, ... electrodes and each group's full size) and a log x axis.
+    Bands are the 2.5-97.5 percentiles over bootstraps x random subsets and the
+    grey line is chance (0.5); both go in the caption. Each line ends at its
+    group's full size. ``result`` is what ``accuracy_by_electrode_count``
+    returns; its linear-grid counts are not drawn. ``title`` is accepted for
+    callers and not drawn. Writes ``<out_stem>.png``/``.pdf``.
     """
     summary = result['summary']
+    log_grid = summary[summary['log_grid'].astype(bool)]
     groups = list(dict.fromkeys(summary['group']))
-    colors = dict(zip(groups, _SERIES))
+    colors = {g: ELECTRODE_SET_COLORS.get(g, fallback) for g, fallback in zip(groups, _SERIES)}
     with plt.rc_context(nature_style(base_fontsize)):
-        fig, axes = plt.subplots(1, 2, figsize=(6.4, 2.6), sharey=True)
-        for ax, grid, scale in zip(axes, ('log_grid', 'linear_grid'), ('log', 'linear')):
-            for g in groups:
-                s = summary[(summary['group'] == g) & summary[grid]].sort_values('n_electrodes')
-                ax.fill_between(s['n_electrodes'], s['lo'], s['hi'], color=colors[g],
-                                alpha=0.18, linewidth=0)
-                ax.plot(s['n_electrodes'], s['mean'], color=colors[g], lw=1.5, marker='o',
-                        markersize=3, label=f"{g} (n = {s['n_electrodes'].max()})")
-                # direct label at the line's end, in ink, so color is not the only cue
-                end = s.iloc[-1]
-                ax.annotate(g, (end['n_electrodes'], end['mean']), xytext=(4, 0),
-                            textcoords='offset points', va='center',
-                            fontsize=base_fontsize - 2, color=_INK)
-            ax.set_xscale(scale)
-            if scale == 'log':
-                # label the grid's own counts rather than powers of ten
-                ticks = sorted(summary.loc[summary[grid], 'n_electrodes'].unique())
-                ticks = [t for t in ticks if t & (t - 1) == 0]   # powers of two
-                ax.set_xticks(ticks, labels=[str(t) for t in ticks])
-                ax.minorticks_off()
-            ax.axhline(0.5, color='#cfcfcf', lw=0.6, zorder=0)
-            ax.set_xlabel('electrodes decoded' + (' (log scale)' if scale == 'log' else ''))
-        axes[0].set_ylabel('accuracy')
-        axes[0].legend(loc='upper left')
-        if title:
-            fig.suptitle(title, x=0.01, ha='left', fontsize=base_fontsize)
-        fig.text(0.99, -0.04, 'bands: 2.5-97.5 % over bootstraps x random subsets; '
-                 'grey line: 0.5', ha='right', va='top', fontsize=base_fontsize - 2.5,
-                 color=_MUTED)
+        fig, ax = plt.subplots(figsize=(3.4, 2.6))
+        for g in groups:
+            s = log_grid[log_grid['group'] == g].sort_values('n_electrodes')
+            ax.fill_between(s['n_electrodes'], s['lo'], s['hi'], color=colors[g],
+                            alpha=0.18, linewidth=0)
+            ax.plot(s['n_electrodes'], s['mean'], color=colors[g], lw=1.5, marker='o',
+                    markersize=3, label=f"{g} (n = {s['n_electrodes'].max()})")
+            # direct label at the line's end, in ink, so colour is not the only cue
+            end = s.iloc[-1]
+            ax.annotate(g, (end['n_electrodes'], end['mean']), xytext=(4, 0),
+                        textcoords='offset points', va='center',
+                        fontsize=base_fontsize - 2, color=_INK)
+        ax.set_xscale('log')
+        # label the grid's own counts (powers of two) rather than powers of ten
+        ticks = [t for t in sorted(log_grid['n_electrodes'].unique()) if t & (t - 1) == 0]
+        ax.set_xticks(ticks, labels=[str(t) for t in ticks])
+        ax.minorticks_off()
+        ax.axhline(0.5, color='#cfcfcf', lw=0.6, zorder=0)
+        ax.set(xlabel='# of electrodes decoded from', ylabel='accuracy')
+        ax.legend(loc='upper left')
         paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]
         os.makedirs(os.path.dirname(out_stem) or '.', exist_ok=True)
         for p in paths:

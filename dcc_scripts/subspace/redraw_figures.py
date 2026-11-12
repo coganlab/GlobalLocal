@@ -21,12 +21,15 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
+import numpy as np
 import pandas as pd
 
+from src.analysis.stats.coding_trajectories import contrast_clusters
 from dcc_scripts.subspace.coding_axes_dcc import VARIABLE_NAMES
 from dcc_scripts.subspace.subspace_figures import (
     plot_coding_axes, plot_subspace_test, plot_trajectories, plot_block_separations,
-    plot_proportion_trajectories, time_axis_label)
+    plot_proportion_trajectories, plot_proportion_differences,
+    plot_proportion_change_vectors, time_axis_label)
 
 
 def redraw(run_dir, out_dir=None):
@@ -65,17 +68,31 @@ def redraw(run_dir, out_dir=None):
                 plot_trajectories(table, fractions, traj_summary['axes'].get(label), label,
                                   out(f'trajectories_{label}{suffix}{tag}.png'), cells=cells,
                                   first=first, time_label=time_label)
+    # runs before 2026-11-12 saved the block null but not its band and clusters: add them
+    block_null = (dict(np.load(path('null_block.npz'))) if os.path.exists(path('null_block.npz'))
+                  else None)
     for tag, unique in (('', False), ('_unique', True)):
         seps = pd.read_csv(path(f'block_separations{tag}.csv'))
         cons = pd.read_csv(path(f'block_contrasts{tag}.csv'))
+        if block_null is not None and 'null_lo' not in cons:
+            cons = contrast_clusters(cons, block_null['contrasts_unique' if unique
+                                                      else 'contrasts'])
         for label in labels:
             plot_block_separations(seps, cons, label, out(f'block_separations_{label}{tag}.png'),
                                    time_label=time_label, unique=unique)
     ptraj, pchanges = (pd.read_csv(path('proportion_trajectories.csv')),
                        pd.read_csv(path('proportion_changes.csv')))
+    prop_summary = None
+    if os.path.exists(path('proportion_summary.json')):
+        with open(path('proportion_summary.json')) as f:
+            prop_summary = json.load(f)
     for label in labels:
         plot_proportion_trajectories(ptraj, pchanges, label,
                                      out(f'proportion_trajectories_{label}.png'))
+        plot_proportion_differences(ptraj, label, out(f'proportion_differences_{label}.png'))
+        if prop_summary is not None:
+            plot_proportion_change_vectors(prop_summary, label,
+                                           out(f'proportion_change_vectors_{label}.png'))
     return written
 
 

@@ -440,3 +440,20 @@ def test_axis_window_means():
     assert out.tolist() == [[2.0, 1.5], [4.0, 3.0]]
     with pytest.raises(ValueError, match='no samples'):
         ct.axis_window_means(hg, times, [(2.0, 3.0)])
+
+
+def test_both_bootstrap_units_give_the_same_estimate_and_their_own_intervals():
+    """`boot_unit` changes only the intervals: the point estimates come from
+    all electrodes either way, and each unit's CI brackets them."""
+    rng = np.random.default_rng(11)
+    c, s = rng.normal(size=(2, N_ELEC))
+    df, times = _trial_long(c, s, n_subj=N_SUBJ, n_elec=N_ELEC, n_time=2, noise=0.5)
+    _, part, _ = _run_blocks(df, times, n_boot=100, boot_unit='participant')
+    _, elec, summary = _run_blocks(df, times, n_boot=100, boot_unit='electrode')
+    assert summary['boot_unit'] == 'electrode'
+    np.testing.assert_allclose(part['estimate'], elec['estimate'])
+    assert not np.allclose(part['lo'], elec['lo'])
+    for t in (part, elec):
+        ok = t['lo'].notna()
+        assert (t.loc[ok, 'lo'] <= t.loc[ok, 'estimate'] + 1e-12).all()
+        assert (t.loc[ok, 'hi'] >= t.loc[ok, 'estimate'] - 1e-12).all()

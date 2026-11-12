@@ -1,5 +1,15 @@
 # Paper draft: figure plan, Methods and Results
 
+*2026-11-12: F4 decisions (§1.1, §1.5; draft text in §3.4 and §5.2). The
+anatomy panel is the LWPC–LWPS scatter; its overlap is shown in the text to go
+with the base effects (controls and matched-vs-crossed), which motivates the
+coding-axes panels on the base codes. Controls are reported in the text, with
+the table or forest plot in S-N4. F4 stays on all lPFC. Scatter restyled; the
+coding-axes figures are now in `figures_2026-11-11/` (task-seq. block
+separations were empty before).*
+
+*2026-11-10: new story, four main figures (§1). The previous figure plan (F1–F6, 2026-10-29) moved, unedited, to [`analysis_plans.md`](analysis_plans.md#paper-figure-plan-of-2026-10-29-superseded-2026-11-10). The Methods, Results and captions below (§2–§5) still use the old figure numbers; §1 maps them to the new ones.*
+
 *Assembled 2026-10-01 from the results written up so far. Revised the same day:
 F3 is described as made, and F5 is cut to two panels with the gradient moved to
 the supplement (§1.2). Later that day the task-significant N4 rerun with main
@@ -14,7 +24,7 @@ and waiting for runs.*
 
 *2026-10-08: DLPFC runs of F3–F5 are in. Reporting DLPFC instead of all lPFC
 is under consideration; the comparison, and what still has to run, is in
-[`dlpfc_results.md`](dlpfc_results.md) (§1.2, last row). Nothing below has been
+[`archive/dlpfc_results.md`](archive/dlpfc_results.md) (§1.2, last row). Nothing below has been
 switched to DLPFC.*
 
 *2026-10-16: the coding-axes runs are in: the subspace test, the trajectories,
@@ -26,8 +36,8 @@ Drafted by Claude; not yet reviewed.*
 
 This document has three parts:
 
-1. **Figure plan:** the main-text figures (F1–F5) and the supplement, panel by
-   panel, with where each one stands after the 2026-10-01 results.
+1. **Figure plan:** the main-text figures (F1–F4) and the supplement, panel by
+   panel, with where each figure file is and the code that makes it.
 2. **Methods text,** in paper order.
 3. **Results text,** in paper order, with the Discussion sentences and the
    figure captions.
@@ -58,13 +68,12 @@ the paper.
 ## Contents
 
 - [1. Figure plan](#1-figure-plan)
-  - [1.1 The arc](#11-the-arc)
-  - [1.2 What changed with the 2026-10-01 results](#12-what-changed-with-the-2026-10-01-results)
-  - [1.3 Status at a glance](#13-status-at-a-glance)
-  - [1.4 Main-text figures](#14-main-text-figures)
-  - [1.5 Supplement](#15-supplement)
-  - [1.6 Left out of the paper](#16-left-out-of-the-paper)
-  - [1.7 Before submission](#17-before-submission)
+  - [1.1 Status at a glance](#11-status-at-a-glance)
+  - [1.2 F1 — Task, proportion manipulation, behavior](#12-f1--task-proportion-manipulation-behavior)
+  - [1.3 F2 — lPFC: coverage, signal, and why lPFC](#13-f2--lpfc-coverage-signal-and-why-lpfc)
+  - [1.4 F3 — Both adaptations in power and in decoding](#14-f3--both-adaptations-in-power-and-in-decoding)
+  - [1.5 F4 — One population, partly shared codes, adapting to block proportion](#15-f4--one-population-partly-shared-codes-adapting-to-block-proportion)
+  - [1.6 Not in this story](#16-not-in-this-story)
 - [2. Methods](#2-methods)
 - [3. Results](#3-results)
 - [4. Discussion sentences](#4-discussion-sentences)
@@ -74,685 +83,210 @@ the paper.
 
 ## 1. Figure plan
 
-### 1.1 The arc
+**The story as of 2026-11-10.** Four main figures. The plan before this one
+(the 2026-10-29 F1–F6 arc and everything behind it) is kept, unedited, in
+[`analysis_plans.md` › Paper figure plan of 2026-10-29](analysis_plans.md#paper-figure-plan-of-2026-10-29-superseded-2026-11-10).
+Section numbers §1.1–§1.7 quoted in older docs and in §2–§5 below refer to that
+plan.
 
-**Current narrative (2026-10-29, after the 10-23 advisor meeting; drafted by
-Claude, not yet reviewed).** It supersedes the candidate endings below, which
-stay as history.
+All runs use the quality-checked participant set (`SUBJECT_SET=good`, 23
+participants; [`analysis_guide.md`](analysis_guide.md) §3) unless a row says
+otherwise. `<E>` stands for the epochs folder name
+`Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20`.
+Paths are relative to the repo root. **Redraw** changes only the look and runs in
+seconds from saved tables. **Rerun** recomputes the analysis on the cluster. How to change
+a figure's look is in [`figure_editing_guide.md`](figure_editing_guide.md), and
+the open items from the figure discussion are in
+[`subspace_figure_todos.md`](subspace_figure_todos.md).
 
-*Takeaway.* In human lPFC, stability and flexibility are adjusted at the same
-time by one population, and each adjustment is expressed where, and along,
-the signal it regulates. The congruency and switch codes are partly shared,
-and adapting to switch demands changes only the part of the switch code not
-shared with congruency.
+**Old names.** The code and output files still use the old figure numbers:
 
-*The organizing idea, which also reconciles the anatomy and the subspaces:*
-adaptation follows the signal it regulates, at two scales. Across electrodes
-(F5), the LWPC–LWPS overlap is inherited from the base effects (r 0.097 →
-0.028 with them partialled out). Across the population pattern (F6), the
-switch adaptation expands the switch separation along the switch axis,
-specific to switch proportion (own − other +0.80 [0.31, 1.47]) and in the
-part it does not share with congruency (unique axis +0.65 [0.22, 1.18]). The
-anatomy says where, the geometry along what. For the main effects the two
-measure the same thing: the anatomy's noise-corrected congruency–switch r is
-0.79, the coding axes' alignment 0.69–0.74, and every scoring variant (raw or
-d; cosine, Pearson or within-participant) gives 0.65–0.86
-(`segregation_results/…_main_effects/overlap_measures/`, 2026-10-30). The
-partialling result is the transition from F5 to F6: it says the base-effect
-codes are what the adaptations act on.
-
-*Title candidates:* "Concurrent adaptation of stability and flexibility in
-human lateral prefrontal cortex acts on partly shared population codes";
-"Lateral prefrontal cortex adapts stability and flexibility through partly
-shared codes for conflict and task switching".
-
-*Figure arc:* F1 behaviour; F2 coverage and signal; F3 both adaptations in the
-power traces, with F4 the same in the population pattern (merging F3 and F4 is
-under consideration); F5 one population, the overlap inherited from the base
-effects (scatter with centroids; the base-effect partialling is one Results
-sentence, not a panel: decided 2026-10-30, see the placement table in §1.4
-F5); F6 the codes
-partly shared (cosine against null and ceiling; principal angles), the
-trajectories as illustration, and the **block projections as the last panel**,
-the only result about adaptation in the population geometry. Gradient,
-top-20 % sets and circular score-set traces: supplement or reviewers only.
-
-*The congruency half is unresolved.* Its incongruent-proportion change sits
-on switch's unique dimension (oblique +0.32 [0.16, 0.47], ≈ +0.30 on s_perp)
-more than on its own (+0.20 [−0.02, 0.38]). Early-window axes (0.1–0.5 s)
-cannot test it: they carry no reliable code, and even the switch effect is 0
-on them. The shuffled-blocks null (`coding_trajectories.block_null`, runs
-60598899–904 and 60598938–40) decides between two Results versions: (a) the
-switch-unique dimension also carries conflict adaptation, a block-level control
-dimension rather than "switch" alone; (b) congruency adaptation is present in
-power and decoding but its direction in the population is not resolved. The
-takeaway holds under both.
-
-*Still to fix in the text:* "double dissociation" (F1) and "independent"
-(F3 header, intro) go; "no cross-domain adaptation" is scoped to the power
-traces, with the cross-effect decoders in the supplement; RT matching is
-reported as a limitation, not left out.
-
-**Framing (advisor meeting, 2026-10-02):** a characterization by systems
-neuroscientists, not a test of one cognitive hypothesis. The paper describes how
-lPFC carries two concurrent adaptations: whether (F3), in what population signal
-(F4), and where and in what format (F5). It makes no dissociation or
-independence claim.
-
-Behavior shows that stability and flexibility are regulated at the same time, in
-the same participants (F1). lPFC high gamma carries both adaptation effects in
-the behavioral direction (F3), and both are decodable from distributed lPFC
-activity (F4). F5 then characterizes their organization. The two adaptations
-share electrodes, intermixed locally, with a shallow dorsal–ventral bias in
-their balance. Over the same electrodes, congruency and switch type are each
-coded by essentially one population pattern, and the two patterns are partly
-aligned: about 0.7 of the most that noise allows, measurable from ~0.5 s, and
-tied to RT (2026-10-16; §1.4, F5 d–e).
-
-**The ending sentence** (provisional; the participant-level tests and the local
-similarity of §19 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md)
-decide its last clause):
-
-> LWPC and LWPS are carried by one intermixed lPFC population, with a shallow
-> dorsal–ventral bias in their balance, in which congruency and switch type are
-> coded along largely separable axes.
-
-The previous ending, "each tracks the local strength of the demand it
-regulates" (the matched-vs-crossed result, §16.6 of the N4 doc), stays as one
-Results sentence; its bars left the figure.
-
-**2026-10-05: the overlap controls point to a revised ending** (N4 §19.8).
-Partialling each half's congruency and switch-type effects removes most of the
-LWPC–LWPS overlap (r 0.097 → 0.028), while responsiveness, coordinates, RT
-coupling and any one participant do not. Local similarity had no power at
-these reliabilities, so "intermixed" has no direct support. Candidate:
-
-> LWPC and LWPS adaptation share lPFC electrodes because each is expressed where
-> the signal it regulates is, and congruency and switch type share electrodes;
-> the balance between them shows a shallow dorsal–ventral bias.
-
-*2026-10-05, raw all-lPFC rescoring:* the data also support "one population
-rather than two intermixed ones". Beyond the gradient, electrodes do not
-reliably differ in their LWPC–LWPS balance, though they reliably differ in
-LWPC (N4 §19.8, fourth run).
-
-This brings the matched-vs-crossed result back as the explanation of the
-overlap (one sentence or a small panel), not as a separate claim.
-
-The earlier ending had a second clause: whether the spatial gradient is
-inherited from the base effects could not be determined. It went to the
-supplement with the gradient (§1.4, F5).
-
-**2026-10-16: the geometry changes the last clause**
-([`coding_axes.md`](coding_axes.md) §10.4–10.7). "Largely separable axes" does
-not survive the noise ceiling. The raw angles (63–75°) look close to
-orthogonal, but the noise-corrected alignment is about 0.7 (θ₁ 0.74
-[0.66, 0.93] of its ceiling; per window 0.69 [0.57, 0.89]), and about half of
-each code's reproducible variance lies in the other's subspace. Each code is
-essentially one pattern, so the accurate description is two partly aligned
-patterns. Under RT matching the codes themselves largely disappear. Candidate,
-building on the 2026-10-05 one:
-
-> LWPC and LWPS adaptation share lPFC electrodes because each is expressed
-> where the signal it regulates is, with a shallow dorsal–ventral bias in
-> their balance; over the same electrodes, congruency and switch type are
-> coded by partly aligned population patterns **[, tied to RT: the
-> response-locked run decides this clause (§1.7)]**.
-
-Framing rules that still apply (concurrent-regulation plan §0):
-
-- The absent cross-effects (congruency × switch proportion, switch type ×
-  incongruent proportion) are scope, not a dissociation claim. The neural ones
-  are shown as F3b's off-diagonal subplots, labelled neutrally; the behavioral
-  ones are a sentence in the text and S4.
-- Decoding is not a multivariate-superiority claim. The claim is that adding
-  electrodes yields information no single electrode supplies.
-- Organize figures by claim, not by measure. Power and decoding for the same
-  claim go in the same figure.
-
-### 1.2 What changed with the 2026-10-01 results
-
-| Result | Effect on the figures |
+| New | Old name in files and in §2–§5 below |
 |---|---|
-| **N4 all-lPFC main-effect run written up and checked** ([`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) §17) | The numbers are checked against the run's outputs. Still needed: the plots. |
-| **N4 task-significant main-effect rerun** (2026-10-01; [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) §18) | F5 is unchanged, and all lPFC stays primary. The subset agrees in sign and size with both F5 panels: overlap at both levels (LWPC–LWPS *r* = 0.08, *p* = 0.055; congruency–switch 0.17, *p* = 0.001), and matched above crossed by the same margins (test *r* = 0.08, *p* = 0.049). Neither balance is spatially organized there, and the all-lPFC midline description does not repeat. One sentence in the main text (§3.4); the full subset paragraph is in S-N4 (§3.5). |
-| **F5 cut to two panels** (2026-10-01, later) | a: the overlap at both levels. b: each adaptation against its own and the other base effect (matched vs crossed). The parcel scatter (old b) and the gradient by score (old c) move to S-N4. The pre-specified parcel and coordinate tests keep one short paragraph in the main text. The balance-vs-balance correlation stays as the test behind b, but the main text no longer talks in balances. |
-| **A4 congruency ↔ switch cross-decoding run** ([`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01)) | Supplement S5, not the closing figure. The transfer is partial and late, and not yet shown to be specific to lPFC or free of RT. It earns one Discussion sentence. The main-effect group decoding is dropped. |
-| **A6 brain–behavior run** ([`a6_brain_behavior.md`](a6_brain_behavior.md) §13–§14) | Supplement S-BB only, framed as "could not be tested at this n", plus one Discussion sentence. |
-| **Weighted medoids** (§17.4 of the N4 doc) | Dropped from the supplement (old S9). They are null on every axis, and the two centre definitions disagree in sign. |
-| **F3 made** (2026-10-01) | Panel a plus one 2 × 2 grid of traces (b) that includes the two cross-effects as scope. Its bars are the windowed ANOVA's sign-split interaction clusters, so they give the direction themselves; the old direction-test panel moves to S2d. |
-| **Power traces and LWPC/LWPS decoding** | Unchanged. F3 and F4 stay in the main text; their results are not yet written up in the docs. |
-| **Advisor meeting, 2026-10-02: framing** | A characterization (§1.1). The absent cross-effects stay scope. The decoding cross-effects (congruency by switch proportion, switch type by incongruent proportion) do show results, so F4 is not a clean 2 × 2 and cannot carry a "but not" claim either; report what they show, in the supplement. |
-| **Advisor meeting: F5** | One figure for both anatomy results: the LWPC–LWPS scatter coloured by height tertile, with tertile centroids and the balance by height (§1.4, F5). The matched-vs-crossed bars leave it ("too confusing, not necessary"); their result is one Results sentence and S-N4. The congruency ↔ switch cross-decoding joins F5 as the population-code counterpart of the overlap. |
-| **Advisor meeting: is participant a random effect?** | No. Both anatomy tests treat participant as a fixed effect and electrodes as the units of inference (§19 of the N4 doc). Participant-level versions are coded: the z slope decomposed into per-participant slopes, mixed models with a random slope, leave-one-participant-out, and the overlap r per participant. |
-| **Advisor meeting: a stronger test of "intermixed"** | Local similarity (§19.3 of the N4 doc): cross-half similarity of electrode pairs by distance, with single scores as the positive control. Coded and validated on planted intermixed and patchy worlds; not run. |
-| **Advisor meeting: brain–behavior** | Not working. Stays a supplementary note (S-BB) with one Discussion sentence. |
-| **RT-adjusted check on F3** (2026-10-02) | Coded: `sbb.group_adaptation_rt_check`; new A6 runs write `group_adaptation_rt_check.csv`, and `dcc_scripts/stats/f3_rt_adjusted_check.py` reads an existing run's `participant_electrode_scores.csv` (§1.4, F3). |
-| **First §19 run and the F3 check** (2026-10-05; N4 §19.8) | F3: both adaptations survive the RT adjustment with participants as the unit (72 % and 77 % retained, p ≈ 0.007). The z gradient holds with participants as the unit at p ≈ 0.04 (weighted sign-flip, random slope) but varies across participants. The overlap r holds when participants are weighted by electrode count (p = 0.03), not unweighted (p = 0.35). The local-similarity numbers are **not usable**: the per-split table splits each electrode on its own, and shared trial noise between neighbours made every score look locally similar (N4 §19.3). Fixed: shared splits plus participant-level inference; needs a rerun with `--long-df`. The within-participant reliabilities quoted in §3.4 share the bias. |
-| **Overlap confound controls** (2026-10-05; N4 §19.7–19.8) | Run. The LWPC–LWPS overlap survives nonlinear responsiveness, coordinates, RT coupling (task-significant subset) and leave-one-participant-out, but **mostly vanishes with each half's base effects partialled** (0.097 → 0.028). Reading: the two adaptations overlap because each follows the signal it regulates. Revised ending proposed in §1.1. |
-| **All lPFC, raw rescoring** (2026-10-05; N4 §19.8, fourth run) | Shared-split reliabilities for the paper: LWPC 0.21, LWPS 0.04, congruency 0.46, switch 0.35 (were 0.07, −0.09, 0.34, 0.24). The LWPS reliability argument survives with these. Overlap r 0.111 (p = 0.0002). Local similarity as on RT-adjusted HG: positive control works, and the balance has no reliable variation beyond the gradient. Supports "one population rather than two intermixed ones" (wording in N4 §19.8). |
-| **All lPFC, RT-adjusted rescoring** (2026-10-05; N4 §19.8, third run) | **The overlap survives the regression-based RT control** *(2026-10-16: was "the full RT control". In the coding axes, regression kept what RT matching removed, so regression is not the full control; [`coding_axes.md`](coding_axes.md) §10.7)*: r = 0.103 (p = 0.0004) on RT-adjusted high gamma with shared splits, against 0.097 raw; the RT-coupling covariate on all electrodes gives 0.082 (p = 0.001). Local similarity: the positive control works (LWPC, p = 0.007), but the balance has no reliable within-participant variation beyond the gradient. Supportable wording: "no reliable electrode-by-electrode LWPC-vs-LWPS difference beyond a shallow dorsal–ventral bias". Not a positive test of "intermixed". Repeat on raw high gamma (Run 2). |
-| **§19 at the electrode level** (2026-10-06; [`n4_section19_electrode_level.md`](n4_section19_electrode_level.md)) | Decision: electrodes as the unit in the main text, as in the pre-specified tests; participants as the unit in S-N4. Every §19 part now reports both, electrode level first. New: electrode-bootstrap intervals for the z slope, the overlap r, the shared-split reliabilities and the noise-corrected r; a valid electrode-level test for local similarity (shared trial noise included; 4 % false positives at α = 0.05 on realistic null data, where a position shuffle gives 13 %). `fig5_height.png` is now electrode level; the participant version is `fig5_height_participants.png`. Needs one rerun of `n4_section19_followups.py` for the electrode-level numbers. |
-| **DLPFC runs** (2026-10-07/08; [`dlpfc_results.md`](dlpfc_results.md)) | Under consideration as the reported region; nothing switched yet. Replicates at the electrode level: F3 (4-cell sets; both adaptation clusters in the behavioral direction, no cross-effects), F4 (both adaptations decode only in low-proportion blocks), the overlap (r = 0.094, p = 0.0015, 275 electrodes / 19 participants; shared splits 0.121), its base-effect explanation, local similarity, and the A4 pattern. The parcel test is stronger (F = 2.65, p = 0.002). **Weaker or different:** the height gradient fails the participant-level rule (weighted p = 0.117), and distance from the midline replaces it (F = 19.1, p = 0.0001; z p = 0.86 with \|x\| in); the overlap fails with participants as the unit (p = 0.12); LWPS no longer tracks switch type more than congruency; congruency decodes pre-stimulus in A4. Anatomy rerun into its own folder on 10-08 with DLPFC-only §19 tables: same numbers. Anatomy is all-electrode only; the task-significant run has not been done yet. ⚠️ The all-lPFC anatomy folder still holds the DLPFC run (§1.7). |
-| **Local similarity, shared splits** (2026-10-05; task-significant subset) | No power for the adaptation scores (reliabilities 0.04–0.14); positive control only for switch type. Does not support "intermixed". Within-participant reliabilities were strongly biased by the per-electrode split (LWPC 0.01 → 0.17, LWPS 0.00 → 0.14, congruency 0.25 → 0.39, switch 0.25 → 0.39); the overlap r was not (0.073 vs 0.076). |
-| **Coding axes, subspace test and trajectories** (2026-10-15; [`coding_axes.md`](coding_axes.md) §10) | **They replace the A4 cross-decoding in F5**, as panels d (trajectories) and e (alignment over time); A4 moves to S5 (§1.4, F5). All lPFC (398 electrodes, 22 participants), the same set as a–c. Partly aligned: shared from 0.56 s, and 0.69 [0.57, 0.89] of the noise ceiling averaged over the reliable windows; θ₁ 63° raw, 0.74 [0.66, 0.93] of its ceiling, shared (p = 0.001) and not one code; each code essentially one pattern; the c–s plane holds 0.52 of the reproducible signal. `remove_mean` leaves it (0.67). No reliable code before 0.5 s, so nothing about early separation. "Largely distinct / separable" is withdrawn (§1.1). |
-| **Quality-checked subject set** (2026-10-29; [`results_log.md`](results_log.md), 2026-10-29) | Not switched yet; the set may lose D0102 too. Rerun on `SUBJECT_SET=good`, which drops D0117 and D0144; D0130 joins but has no frontal electrodes. Every claim checked so far holds: F3 both adaptation clusters (n 152 / 19), and the congruency × switch-proportion cluster is gone; F5 overlap r 0.106, z slope −0.0087/mm p = 0.003 (participant-level p 0.033 / 0.043); coding axes alignment 0.72, θ₁ 0.75 of ceiling, RT matching still removes the codes. Weaker: parcel test p = 0.047 (was 0.010). n becomes 370 / 19 (overlap) and 371 / 20 (coding axes). F4 and four RT seeds pending. |
-| **RT matching over five seeds** (2026-10-15; [`coding_axes.md`](coding_axes.md) §10.3) | Matching RT across the four cells removes the codes themselves (all lPFC: 1–6 reliable windows, ceilings 0.10–0.16), while random subsets of the same size keep them (9–12 windows, ceilings 0.22–0.28, alignment median 0.79). One main-text sentence with F5 d–e; the seeds table in S5. `rt_adjust` keeps the sharing (0.58), so regression and matching disagree: the regression-based checks on F3 and the overlap are now called "regression-based", not "full" (row above). Matching selects on the outcome, so it cannot tell response timing from a process that costs time; the response-locked run is the test (§1.7). |
+| F2 | F2 (coverage and signal) |
+| F3a power traces | F3, `fig3_*` in `dcc_scripts/vis/paper_panels/` |
+| F3b decoding | F4, `fig4_*` / `sfig4_*` |
+| F4a scatter | F5 a–b, `fig5_height_scatter` |
+| F4b–d coding axes | F5 d–e / F6, `coding_axis_cosines`, `trajectories_*`, `proportion_trajectories_*`, `block_separations_*` |
 
-### 1.3 Status at a glance
+### 1.1 Status at a glance
 
-| Fig | Claim | Status | Next step |
-|---|---|---|---|
-| F1 | Both adaptations are present concurrently in behavior | ⬜ Figure done; numbers not in the docs. Confirm it was not made with the swapped block map (§1.4, F1). | Confirm the source script; write the Results paragraph |
-| F2 | Coverage and signal validation | Needs the coverage table (S1) | Build the per-ROI, per-participant table |
-| F3 | lPFC high gamma carries LWPC and LWPS in the behavioral direction | ⬜ Figure made (a, b); both adaptation clusters have the behavioral sign; numbers not in the docs. RT-adjusted check run 2026-10-05: both survive (§3.2 item 4). | Optional 0–0.5 s A6 rerun; unify the trace encoding; save the cluster p-values; collect the simple effects; write up |
-| F4 | Both adaptations are decodable from distributed lPFC activity | ⬜ Done; results not in the docs. The cross-effect decoders show results too. | Report trial counts per decoder; write up, cross-effects included (supplement) |
-| F5 | One intermixed population with a shallow height bias in the balance; partly aligned base-effect codes over it, tied to RT | Anatomy results final for all lPFC (N4 §17) and the subset (§18). Combined figure, participant-level tests and local similarity coded (N4 §19), not run. Coding axes (d–e) run 2026-10-15, RT matching with five seeds; the A4 cross-decoding moved to S5. | Check the all-lPFC folder survived (§1.7); run `n4_section19_followups.py` on both anatomy runs; the response-locked coding-axes run, matched-subset cell counts, occipital and the controls figure (§1.7) |
-
-### 1.4 Main-text figures
-
-#### F1 — Task, manipulation, behavior (N1)
-
-| Panel | Content |
-|---|---|
-| a | Paradigm |
-| b | The 2 × 2 block-proportion design. Blocks: A 75 % incongruent / 25 % switch, B 75 / 75, C 25 / 25, D 25 / 75, fully crossed. |
-| c | RT: the congruency effect by incongruent proportion (LWPC), the switch cost by switch proportion (LWPS) |
-| d | Error rate, the same layout |
-
-**The point:** both adaptations are present in the same participants and the
-same sessions. The absent behavioral cross-effects go in the text as scope, and
-in S4.
-
-**Numbers so far** (a quick check from `combinedData.csv`, correct trials, 23
-participants, with the corrected block map;
-[`a6_brain_behavior.md`](a6_brain_behavior.md) §1.1): LWPC 123 ms (SD 147),
-positive in 20 of 23, t(22) = 4.0, p = 0.0006; LWPS 97 ms, positive in 20 of 23,
-t(22) = 4.5, p = 0.0002. These are not the paper's behavioral model.
-
-⚠️ **Check the source of F1 first.** Until 2026-09-27 the `blockType` map
-swapped blocks A and D. That turned "LWPC" into a congruency × switch-proportion
-contrast (mean 46 ms instead of 123 ms). `erin_linear_mixed_effects_model.py`,
-which the concurrent-regulation plan names as the N1 source, carried the swap
-and has no congruency × proportion term. Confirm which script produced the
-reported F1 numbers, and remake F1 if it used the old map.
-
-#### F2 — Coverage and signal validation
-
-| Panel | Content |
-|---|---|
-| a | All electrodes on the MNI surface, coloured by ROI |
-| b | Per-electrode high-gamma traces for one example participant, task-responsive electrodes outlined |
-| c | Example spectrogram (multitaper): D0057 RAI7, all correct trials. Labelled white matter, not lPFC; the in-ROI alternative is D0094 LFPM12. Made by `dcc_scripts/spec/plot_example_spectrogram_dcc.py` and saved to `dcc_scripts/spec/figs/` (see analysis_guide §5) |
-
-Cite the per-ROI, per-participant coverage table (S1) here, with the inclusion
-threshold. It answers "why only lPFC?". The counts in the old figure plan are
-stale.
-
-#### F3 — Adaptation effects in lPFC high gamma (N2) ⬜
-
-*Layout as made on 2026-10-01: a brain and one 2 × 2 grid of traces.*
-
-| Panel | Content | Data |
+| Fig | Claim | Status |
 |---|---|---|
-| a | Task-responsive lPFC electrodes on the surface, with electrode and participant counts | `sig` electrodes, lPFC |
-| b | High-gamma traces in a 2 × 2 grid. Rows: the condition effect (switch cost; congruency effect). Columns: the proportion manipulation (switch proportion; incongruent proportion). Each subplot shows its four cell means. The diagonal holds the two adaptation effects (LWPS top left, LWPC bottom right), each with its interaction cluster. The off-diagonal holds the two cross-effects, as scope. | The windowed-ANOVA run on the block-balanced sets: `stimulus_lwps_block_balanced_conditions` (top row) and `stimulus_lwpc_block_balanced_conditions` (bottom row); the `_2way_` figures and `anova_F_traces/*.npz`. **[Confirm the figure came from these two sets.]** |
+| F1 | Both proportion manipulations change behavior (RT and error rate) | Made outside this repo |
+| F2 | lPFC is covered, task-responsive, and the region that carries the task | a–c made. Supplement: window-mean task and letter decoding made, including occipital; time-resolved version submitted 2026-11-10 (jobs 61504712 task, 61504713 big letter) |
+| F3 | lPFC high gamma carries LWPC and LWPS in power and in decoding | Panels made, good set. Power traces from one pooled two-way ANOVA per term. LWPC (0.50–1.50 s) and LWPS (0.62–1.50 s) hold, and they also hold in the block-balanced three-way and the four-way ([`analysis_plans.md` › Power-trace ANOVA design](analysis_plans.md#power-trace-anova-design-two-way-three-way-or-four-way-2026-11-10) §6). Cross-effects shown, with no claim of independence. **Open:** subtractions or four-trace panels as the main figure |
+| F4 | The two adaptations sit on one intermixed population; their overlap goes with the base effects, whose congruency and task-seq. codes are partly shared and change with block proportion | Panels made (scatter 2026-11-12, coding axes 2026-11-11). **Decided 2026-11-12:** LWPC–LWPS scores in a; all lPFC. **Open:** one figure (a–d) or two (Fig A "partly shared" / Fig B "adapts", as in [`subspace_figure_todos.md`](subspace_figure_todos.md)) |
 
-**One letter for the grid, not four.** The four subplots are one 2 × 2 design,
-and the grid is read as a whole: a cluster on each diagonal subplot, none off
-it. Lettering them b–e reads as four separate results. In the text,
-name a subplot by its row and column ("Fig. 3b, switch cost by switch
-proportion"). If the journal wants a letter on every axis, use b–e in reading
-order.
+### 1.2 F1 — Task, proportion manipulation, behavior
 
-**What the old panels became.** Old b and c are the diagonal of b. Old d (the
-N2 difference waves) moves to the supplement as S2d: the bars in b are split by
-sign, so they already give each interaction's direction. The simple effects go
-in the Results text.
+a, the task; b, the 2 × 2 block-proportion manipulation (blocks A 75 %
+incongruent / 25 % switch, B 75 / 75, C 25 / 25, D 25 / 75); c, RT and error
+rate: the congruency effect by incongruent proportion (LWPC) and the switch cost
+by switch proportion (LWPS). Made outside this repo.
 
-**What the bars are.** They are not the N2 direction tests. They are the
-significant clusters of the windowed ANOVA's two-way interaction term
-(`run_windowed_anova_cluster_correction`, drawn by
-`plot_2way_interaction_for_roi`), split wherever the interaction's signed
-contrast changes sign. Blue marks a negative contrast.
-`_signed_contrast_per_window` orders factor levels alphabetically, so its
-contrast is high − low proportion. A negative value means the condition effect
-is smaller in high-proportion blocks, which is the behavioral direction. Both
-bars are blue, so both adaptation effects point the predicted way. Confirm with
-`neg_window_mask` in the `anova_F_traces` npz. The traces agree by eye: in both
-diagonal subplots, the gap between the two conditions is wider in the
-low-proportion blocks.
+### 1.3 F2 — lPFC: coverage, signal, and why lPFC
 
-**Before the figure is final:**
-
-1. **One encoding in all four subplots.** At present the diagonal colours by
-   proportion and dashes the harder condition. The off-diagonal colours by
-   condition and dashes the 75 % blocks, and its blue means switch in one
-   subplot and congruent in the other. Use colour for the proportion block
-   (light 25 %, dark 75 %) and line style for the condition (solid repeat or
-   congruent, dashed switch or incongruent) everywhere. Then in every subplot
-   the effect is the gap between a colour's two lines, and adaptation is that
-   gap narrowing from light to dark. The off-diagonal style comes from the
-   fallback branch at `src/analysis/power/plots.py:902-904`.
-2. **Row titles that do not claim a null.** "Modulated by demands on
-   flexibility but not stability" asserts that the cross-effects are absent.
-   A missing cluster does not show that, and the framing rule (§1.1) keeps the
-   cross-effects as scope. Label the rows "Switch cost" and "Congruency effect"
-   and the columns "Switch proportion" and "Incongruent proportion"; the claim
-   goes in the caption title. A "but not" claim would need a direct test of
-   each matched effect against its crossed one. In the block-balanced design
-   both reduce to block A against block D: LWPS − cross-effect = switch cost
-   in A − switch cost in D, and LWPC − cross-effect = congruency effect in D −
-   congruency effect in A.
-3. **Shared axes and aligned subplots.** The top-right axis now sits lower than
-   the top-left one. Use one legend per column instead of four.
-4. **The bar colour** encodes sign, and the same blue is a trace colour. Draw
-   the bars black and give the sign in the caption, or keep blue and say what
-   it means.
-5. **Panel a:** say whether right-hemisphere electrodes are mirrored onto the
-   left hemisphere.
-
-**To report with it** ([`n2_direction_tests.md`](n2_direction_tests.md) §7–§8):
-
-- `n_electrodes` and `n_subjects` together, from the run's `ch_names`. If this
-  is the same task-responsive set as S5 and S-BB, expect 171 electrodes from
-  21 participants.
-- Each cluster's window and p. The ANOVA computes a p per cluster
-  (`sig_clusters_with_sign`) but does not save it: `power_traces_dcc.py`
-  writes only the masks to `anova_F_traces/*.npz`, and the interaction npz gets
-  an empty `cluster_p_values`. Save it, and raise `N_PERM` above the default
-  500 (which floors p at ~0.002) for a reported p.
-- Each simple effect's sign and significance (the N2 tests). By eye, in both
-  diagonal subplots the easier condition in the low-proportion blocks (repeat
-  in 25 %-switch blocks, congruent in 25 %-incongruent blocks) sits lowest late
-  in the trial, and the two high-proportion traces nearly meet. If the
-  simple-effect tests agree, say so: the effect is present in low-proportion
-  blocks and smaller in high-proportion blocks.
-- The N2 tests run on the 4-cell sets, the figure's ANOVA on the 8-cell
-  block-balanced sets. Say so, or recompute the simple effects from the
-  block-balanced `_evoked.npz` files so that both come from the same cells.
-- The per-participant direction tally and a leave-one-participant-out sweep.
-  Neither is implemented on either path; both can be rebuilt from the saved
-  `_evoked.npz` files.
-- Bar starts are not onset estimates: a cluster test does not localize in time
-  (Sassenhagen & Draschkow, 2019). Do not write that LWPC began at 0.25 s and
-  LWPS at 0.45 s; an ordering claim belongs to A5 (Timing, below).
-- Both clusters run to the end of the epoch, past the median RT (1.19 s). A
-  matching sign is not independent evidence on its own: if high gamma tracks
-  RT within cells, the neural difference of differences inherits behavior's
-  sign. **The check is coded (2026-10-02):** `sbb.group_adaptation_rt_check`
-  takes the A6 electrode scores with and without the RT-linked part of high
-  gamma (`rt_adjust_hg`, §2.8) and tests the mean LWPC and LWPS with
-  participants as the unit (t-test, sign-flip, a mixed model with a participant
-  random intercept), plus the share retained after adjustment. On the existing
-  A6 run:
-
-  ```bash
-  python dcc_scripts/stats/f3_rt_adjusted_check.py \
-      --electrodes <A6 run>/participant_electrode_scores.csv
-  ```
-
-  New A6 runs write `group_adaptation_rt_check.csv` and block (0) of
-  `summary.txt` themselves. Rerun A6 with `WINDOW_TMAX=0.5` for a window before
-  most responses. Reading: adjusted means still positive → F3's direction is
-  not RT coupling alone; adjusted means near zero → the window-mean adaptation
-  goes with the HG–RT coupling, which the adjustment removes together with any
-  adaptation expressed through it (§2.8). On planted data an RT-only
-  "adaptation" keeps −5 % to 25 % of its raw size and a real one about 100 %.
-  It is a window-mean check on the task-significant set, not a test of the
-  time-resolved clusters. **Result (2026-10-05, N4 §19.8):** LWPC keeps 72 %
-  (adjusted mean d = 0.080, p = 0.007, 16/21 participants positive), LWPS 77 %
-  (0.122, p = 0.007, 15/21). RT coupling carries about a quarter of each; the
-  rest is not RT coupling.
-
-Main-effect traces (incongruent vs congruent, switch vs repeat) go to S2.
-
-**What would change it:** a direction opposite to behavior. That stops
-everything downstream until the epoch metadata are re-read.
-
-#### F4 — Decoding the two adaptations (N3) ⬜
-
-| Panel | Content |
-|---|---|
-| a | LWPC: congruency decoded within 25 %- and within 75 %-incongruent blocks, each against its refit shuffle null, and their difference |
-| b | LWPS: switch type decoded within 25 %- and within 75 %-switch blocks, the same layout |
-
-Use the `_block_balanced` condition sets
-([`decoding.md` › Decoding job](decoding.md#decoding-job) §2.1), so a tonic block
-difference cannot enter the contrast.
-
-**To report with it** (concurrent-regulation plan §3):
-
-- Trial counts per class for each decoder. If the LWPC and LWPS decoders differ
-  in n, either subsample to the common minimum or say that their accuracies are
-  not compared.
-- Pre-stimulus windows as the artifact meter: congruency cannot be decodable
-  before the stimulus.
-- The samples are CV repeats and bootstraps of one pseudopopulation, not
-  participants. The leave-one-subject-out run (`submit_loo_decoding_dcc.sh`)
-  checks that no participant carries a result.
-
-**Layout:** a trellis with shared axes and one legend reads as one panel.
-
-**Dropped:** the block-transfer panel (old F4c). The cross-proportion transfer
-is shelved: the within-block ceiling sits near chance with ~20 rare-class trials
-per participant per block, and a drop in transfer is confounded with LWPC itself.
-
-#### F5 — How the two adaptations are organized across lPFC (N4, with A4)
-
-All lPFC (398 electrodes, 22 participants) is the primary set, as specified
-before analysis. The task-significant set is reported in full in S-N4 (N4 §18).
-Data and status per panel: §16.7.3 and §17.4 of
-[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md).
-
-*Revised 2026-10-02 after the advisor meeting.* The overlap scatter and the
-height gradient go in one figure, the matched-vs-crossed bars leave it, and the
-congruency ↔ switch cross-decoding joins it. (The 2026-10-01 version had two
-panels: the overlap at both levels, and the bars. Its code still runs:
-`fig5.png`.)
-
-*Revised 2026-10-16 after the coding-axes runs
-([`coding_axes.md`](coding_axes.md) §10).* The coding axes replace the A4
-cross-decoding as the base-effect panels: d is the trajectory plane, e the
-alignment over time, and A4 moves to S5. The subspace plan (§9) left "join or
-replace" to the advisors. Replace, because:
-
-- **Same electrodes as a–c.** The coding axes use all lPFC (398 electrodes,
-  22 participants); A4 uses the 171 task-responsive electrodes.
-- **Inference across participants.** They have a participant bootstrap and a
-  split-half noise ceiling. A4 is one pseudopopulation with no estimate across
-  participants, which [`decoding.md` › A4 §13.8.4](decoding.md#138-results-2026-10-01)
-  lists as needed for a main-text claim.
-- **The same maps.** The axes are the per-electrode congruency and switch-type
-  effects that F5 already scores, so d–e are the population view of the
-  congruency–switch r = 0.23. That is how the subspace plan (§1) says to
-  present them.
-- **Nothing claimable is lost.** A4's one extra is early decoding with no
-  transfer, and "no transfer early" is a null the plan already says not to
-  claim.
-
-| Panel | Shows | Key numbers | Data / code | Status |
-|---|---|---|---|---|
-| a | **Where the height bands are:** the rendered brain (`fig5_height_brain.png`, white margins trimmed): electrodes by tertile, each tertile's centroid per hemisphere larger and darker, and the two cuts drawn (N4 §19.4). Revised 2026-10-10: the brain replaces the MNI y-vs-z projection, which is now only the fallback when no render exists | tertile cuts (mm); centroid positions | `sfa.plot_height_bands_on_brain` → `fig5_height_brain.png`, `fig5_height_brain_centroids.csv`; `figure5_height` reuses an existing render in its `out_dir` | Coded; render exists for all lPFC |
-| b | **The overlap, and the gradient across it:** LWPC against LWPS, coloured by tertile, with the identity line, the pre-specified separate-half r and the three tertile centroids; beside it, the centroids enlarged with their 95 % electrode-bootstrap ellipses, framed by the same dashed outline as their box in the scatter and tied to it by an arrow (the old panels b and c merged, 2026-10-10; arrow in place of connector lines, 2026-10-15). Dorsal sits above the identity line (leaning LWPS), ventral near it. | r = 0.10, p = 0.0001 (397 electrodes, 21 participants); centroids and balance CIs in `fig5_height_centroids.csv` | `fig5_height_points.csv`, `fig5_height_centroids.csv`; r from the segregation run's `correlation.json` | Coded; preview made 2026-10-10 |
-| c | **The gradient in the test's units:** every electrode's LWPC − LWPS against its MNI z, with participant, responsiveness and MNI x and y removed (component plus residual), and the coordinate test's z slope as the line; a straight line through these points has exactly the test's slope. The tertile means ± SEM are no longer drawn (2026-10-10); they stay in `fig5_height_balance.csv` | z slope −0.0077 SD/mm, 95 % CI [−0.0124, −0.0032], p = 0.0074; participant-level p and random-slope p in S-N4 (`fig5_height_participants.png`) | `sfa.height_partial_residuals` → `fig5_height_partials.csv`; `section19.json` → `slope_by_electrode` | Coded; preview made 2026-10-10 |
-| d | **Two partly aligned codes, as a picture:** held-out trajectories of the four centred congruency × switch-type cells (each the equal-weight mean of its four proportion blocks) in the plane of the congruency axis (x) and the switch axis beyond it (y); axes fit on the other half over 0–1.5 s, congruency first; x(t) and y(t) beneath, with participant-bootstrap CIs. Revised 2026-10-16: replaces the A4 cross-decoding (now S5) | plane signal fraction 0.52 [0.40, 0.63]; cos(c, s) 0.38; at 1.0 s switch moves along x by 0.96 against congruency's 1.60 (~60 %); 389 electrodes / 21 participants with every cell in each half | `trajectories_0.0-1.5s.png`, `trajectories.csv`, `trajectory_summary.json` in the all-lPFC main run's folder (`all_dlpfc-lpfc`, [`coding_axes.md`](coding_axes.md) §10.1) | Run 2026-10-15; the job's figure is a preview, to redraw in F5's style |
-| e | **When, and how much, the two codes align:** per window, the cross cosine (congruency axis from one half against switch axis from the other) against the ceiling, with the shuffle-null band, the shared and not-one-code bars, and unreliable windows greyed; the alignment (cross / ceiling) with its CI beneath. New 2026-10-16 | shared 0.56–1.38 s; cross 0.27 against ceiling 0.37, alignment 0.69 [0.57, 0.89]. In the text, not a panel: θ₁ 0.45 (63°) against its ceiling 0.61, 0.74 [0.66, 0.93] of it, shared (p = 0.001) and not one code | `coding_axis_cosines.png`/`.csv`, `summary.json`, `subspace_summary.json` in the same folder | Run 2026-10-15; same |
-
-Optional, beside b: the congruency-against-switch scatter (r = 0.23) with the
-same colouring, as the anatomical partner of d–e (both are about the base
-effects).
-
-**Why the two anatomy results fit one scatter.** On LWPC (x) against LWPS (y)
-they lie along perpendicular directions. The overlap is spread along the
-identity line; the gradient is a shift across it, because LWPC − LWPS is each
-point's signed distance from the line. Colour by height shows both, and the
-centroids (b, zoomed) make a 2 %-of-variance shift visible where 397 coloured dots
-cannot. The separating line in score space is the identity line; the
-dorsal/ventral cuts are drawn on the anatomy (a), where they mean something.
-The figure's choices are argued in §19.4 of the N4 doc.
-
-**What the bars became.** "Each adaptation tracks its own base effect more than
-the other" (matched − crossed r = 0.09, p < 0.001) is one Results sentence; the
-bars move to S-N4 (`fig5.png` b). The advisors found them confusing and not
-necessary for the story.
-
-**Panels d–e (coding axes): what they can carry** (2026-10-16;
-[`coding_axes.md`](coding_axes.md) §10.7–10.8).
-
-- **Their level differs.** d–e are about the base effects, a–c about
-  adaptation. One caption sentence says so; under the characterization framing
-  that is the same population described at two levels.
-- **Not independent of the anatomy.** The axes are the same per-electrode
-  effects as the congruency–switch r. Present d–e as the population view of
-  them, agreeing with it (subspace plan §1).
-- **The claim is "partly aligned".** Quote the raw value with its ceiling,
-  then the ratio: cross 0.27 against 0.37; θ₁ 63° (cosine 0.45) against 0.61.
-  The raw angles alone read as nearly orthogonal; the ratio (0.69–0.74) is the
-  noise-corrected answer. Each code is essentially one pattern (dimension 1
-  carries 16–21 % of the held-out variance, dimensions 2–3 about 1 % each), and
-  θ₂ fails its reliability check. So say "two partly aligned patterns", not
-  "one shared direction on top of separate ones". Neither orthogonal nor one
-  code.
-- **Not a common shift.** `remove_mean` leaves the alignment (0.67; θ₁ 0.69
-  against 0.72 at k = 1) and the plane fraction (0.54). It subtracts each
-  trial's mean across a participant's electrodes, so it does not rule out a
-  gain on the evoked pattern (the uncentred trajectories load on it).
-- **Nothing before 0.5 s.** No window before 0.50 s has a reliable
-  mean-difference code, and axes from 0.1–0.5 s carry ≈1 % of the signal. Do
-  not claim "separate early" from d–e. A4's early decoding stays in S5, and its
-  "no transfer early" is a null.
-- **The plane holds about half.** Its signal fraction is 0.52 [0.40, 0.63].
-  Say so in the caption, so d is not read as all of the condition-dependent
-  activity.
-- **RT goes in the main text, in one sentence.** Matching RT across the four
-  cells removes the codes in all five seeds, while random subsets of the same
-  size keep them (§1.2, last row). d–e show exactly these codes, so leaving the
-  result to the supplement would mislead. Say "tied to RT", not
-  "response-related": matching keeps fast incongruent and switch trials and
-  slow congruent and repeat ones, so it selects on the outcome and would also
-  remove a process that produces the slowing. Say too that `rt_adjust` keeps
-  the sharing (0.58). The response-locked run decides the wording (§1.7).
-- **Not lPFC-specific, yet.** The occipital run has not been done, and A4's
-  occipital electrodes transferred too. Make no regional claim.
-
-**A4 cross-decoding (now S5), before it is reported.**
-
-- The positive test is the time course: the share of each ceiling that
-  transfers rises from about 0 early to 26–47 % late (a window × within-vs-cross
-  interaction). Do not claim "no transfer early", which is a null.
-- RT: matching RTs cuts the transfer relative to its random control (43 % vs
-  70 %, 12 % vs 39 %). Needs A4's own seeds before it is a claim. The coding
-  axes went further, and theirs is the main-text RT result: matching removes
-  the codes, not only their shared part (§1.2, last row).
-- Occipital transfers too, later (+1.0 s on). Read as: the late shared
-  component is not lPFC-specific, consistent with a general slowing or response
-  signal. What lPFC should own is early separable codes for both variables and
-  the adaptations themselves. Check whether occipital decodes switch type early
-  at all (congruency may be partly visual), and, if coverage allows, run the F3
-  and F4 adaptation tests in occipital.
-- Still to run (S5 list): seeds for the baseline, `rt` and `random`; lPFC
-  subsampled to occipital's 54 electrodes; post-stimulus-only kept shares; the
-  task positive controls.
-
-**Design notes.**
-
-- Panel b plots the scores the test correlates (responsiveness out,
-  participant-centred, each score's mean added back, on delta's pooled scale),
-  not `joint_scatter.png`. The job prints the z slope of the plotted balance
-  next to the coordinate test's as a check that b–d and the test agree.
-- Height tertiles use the Wong (2011) colour-blind-safe blue, bluish green and
-  reddish purple, distinct hues so neighbouring bands are easy to tell apart;
-  the blue sits near the blue of d–e (incongruent cells, cross cosine).
-- No "electrodes driving the z effect": at single-electrode reliability ~0.3
-  the most influential electrodes are partly selected on noise. The centroids
-  carry the gradient.
-- Brain maps of the scores appear only as coverage or illustration.
-  Single-electrode reliability is ~0.3, so a map cannot carry a claim.
-
-**Placement of each result** (supersedes the 2026-10-01 table and §17.4 of the
-N4 doc):
-
-| Result | Where |
-|---|---|
-| LWPC and LWPS share electrodes; no centroid separation | Main text, F5b, with the electrode-bootstrap CI; the participant-level r in S-N4 |
-| Locally intermixed (local similarity, N4 §19.3) | Main text, one sentence at the electrode level (the balance's near-range excess against the single scores'); curves in S-N4, with the participant-level version. Only with the positive control beside it. |
-| Height gradient in the balance | F5a, c, d, with the electrode-bootstrap CI; the participant-level and random-slope p in S-N4; the parcel test as one sentence. Omnibus only, never a named parcel. |
-| Participant-level versions of the above (N4 §19.1–19.3) | S-N4, one paragraph (§3.5), for a reviewer who asks how far the results generalise across participants |
-| Congruency and switch share electrodes | Main text sentence; optional scatter beside F5b |
-| The LWPC–LWPS overlap follows the base effects: r 0.097 → 0.028 (p = 0.23) with each half's congruency and switch effects partialled out, while nonlinear responsiveness (0.094), MNI coordinates (0.100) and RT coupling (0.082) leave it | **Main text, one Results sentence, no panel** (decided 2026-10-30): it is the transition from F5 to F6, the reason to study the congruency and switch codes themselves. The draft dot-plot panel (`overlap_controls.png`, `dcc_scripts/stats/plot_overlap_controls.py`) was dropped as hard to read for one number's drop. The controls table (`overlap_controls.csv`) goes in S-N4. |
-| Congruency and switch-type codes partly aligned (coding axes: alignment 0.69, θ₁ 0.74 of the ceiling, shared from 0.56 s, not one code); not a common shift | Main text, F5 d–e; θ₁ and the alignment index in the text (2026-10-16) |
-| The codes go with RT matching (five seeds, against random subsets of the same size) | Main text, one sentence beside d–e; the seeds table in S5 |
-| Coding-axes `rt_adjust`, sig lPFC, DLPFC, subspace dimensions, early-vs-late-axis and uncentred trajectories | S5 |
-| A4 cross-decoding: early decoding, late partial transfer | S5 and one Discussion sentence (was F5e) |
-| Each adaptation tracks its own base effect more than the other (Test 1) | One Results sentence; bars in S-N4 |
-| Base-effect balance by parcel (label r = 0.73) | S-N4; descriptive |
-| Dorsomedial vs ventrolateral; carried by LWPC | S-N4, exploratory |
-| Inheritance (Test 2) | S-N4 only |
-| Leave-one-participant-out range of the z slope | S-N4 |
-| Task-responsive subset, with main effects (N4 §18) | One sentence at the end of §3.4; in full in S-N4 (§3.5) |
-
-**What would change it.**
-
-- The z slope's participant-level p (weighted sign-flip) or the random-slope p
-  above 0.05: a few participants carry the gradient. Keep it as one Results
-  sentence and S-N4, and drop panels a, c and d's claim to a gradient (b stays).
-- Local similarity: the balance rises at short range → "patchy", not
-  "intermixed"; say "overlapping". The single scores flat as well → no power;
-  say "overlapping" and report the null with its control.
-- The response-locked coding-axes run (§1.7). Codes that largely vanish when
-  trials are aligned to the response point to response timing: d–e stay as the
-  description, and the text says the aligned patterns are tied to the response.
-  Codes that persist before the response let "tied to RT" become "present
-  before the response".
-- The matched-subset cell counts show thin block × condition cells → part of
-  the matching loss is the block weighting ([`coding_axes.md`](coding_axes.md)
-  §10.7, reason 3); say so next to the RT sentence.
-- Occipital aligns like lPFC → say the alignment is not lPFC-specific (expected
-  from A4).
-
-**Open for the advisor:** all lPFC as the primary set; lPFC-only scope; d–e
-replacing A4 in F5 (recommended above); whether the late codes are called
-"tied to RT" now or after the response-locked run. The gradient's weight is
-settled: it stays in F5.
-
-#### Timing (A5): fold in or drop
-
-A panel (F3c) only if the LWPC/LWPS onset ordering is significant, with the
-latency–amplitude guard. No timing result is written up in the docs; a null
-folds it away.
-
-### 1.5 Supplement
-
-Numbers kept from the earlier plans so the cross-references in other docs still
-work. Renumber at submission.
-
-| S | Content | Status | Text |
+| Panel | Content | Figure | Code |
 |---|---|---|---|
-| S1 | Per-ROI, per-participant coverage table with the inclusion threshold | To build | – |
-| S2 | Main effects (congruency, switch type) in lPFC high gamma: traces and decoding | ⬜ Not in the docs | – |
-| S2b | Main-effect electrodes on the brain (one pre-specified method), other methods as robustness | Not run | – |
-| S2c | LWPC and LWPS traces within congruency, switch and both groups, selected on half A and tested on half B, with the group × effect-type test | Not run | – |
-| S2d | N2 direction tests (old F3d): for LWPC and LWPS, each simple effect and the difference waves, each with its own cluster bar | Implemented; results not collected | §2.3 |
-| S3 | Low-frequency bands, rerun with a ≥ 1 s baseline that predates the block context | Not run. Do not use the current low-band results: the 0.5 s pre-stimulus baseline is 2–4 cycles at theta and may contain the block-level effect. | – |
-| S4 | Absent behavioral cross-effects, as scope (the neural ones are F3b's off-diagonal) | – | One sentence in Results |
-| S5 | Base-effect geometry (revised 2026-10-16). The coding-axes controls: `remove_mean`, `rt_adjust`, the RT-matched vs random seeds table ([`coding_axes.md`](coding_axes.md) §10.3), sig lPFC, DLPFC, the subspace dimensions (`subspace_test.png`), the early-vs-late-axis and uncentred trajectories. The A4 cross-decoding, no longer in F5: the unselected lPFC transfer with its ceilings, `remove_mean`, RT-matched vs random, occipital. | Coding axes run 2026-10-15, RT with five seeds; occipital, the controls figure, matched-subset cell counts and the response-locked run still to do. A4 run 2026-10-01; its seeds, the electrode-matched region comparison, the positive controls, `mean_only` and response-locked runs still to do. | §2.6–2.7, §3.4, §3.6 |
-| S5b | LWPC/LWPS decoding cross-effects: congruency decoded within switch-proportion blocks, switch type within incongruent-proportion blocks. They show results, so F4 is not a clean 2 × 2; describe them. | Run; not in the docs | – |
-| S6 | Haufe-transformed decoder patterns, as convergent evidence | Optional; not run | – |
-| S7 | Per-participant high-gamma traces; demographics, electrode counts, exclusions | To build | – |
-| S8 | Cross-decoding control table for every transfer reported | The A4 block is filled in ([`decoding.md` › A4 §13.7](decoding.md#137-what-to-report-and-where-things-stand)); pseudo-trial counts missing | – |
-| S10 | Per-trial-baseline robustness rerun of the power traces; direct block comparisons | Not run | – |
-| S-N4 | Anatomy in full: the task-significant set; the matched-vs-crossed bars (the 2026-10-01 F5b, `fig5.png` b); the overlap-controls table (`overlap_controls.csv`; in the text as one sentence, 2026-10-30); the two balances by parcel; the four scores by distance from the midline and by height; per-parcel bars, coverage, leave-one-out tables; both coordinate tables and the hemisphere fits; the height vs midline models; Test 2 with the reliability and bootstrap; map similarity; **§19 of the N4 doc:** per-participant z slopes and their leave-one-out range, the mixed models, the per-participant overlap r, the local-similarity curves | All-lPFC parts ready; the parcel and band panels have data, not plots. The task-significant set is complete with main effects (2026-10-01, N4 §18). §19 coded 2026-10-02, not run. | §3.5 |
-| S-BB | Brain–behavior across participants: RT-adjusted (primary) and raw correlations, reliabilities, ceiling, power | Run 2026-09-30; text final | §2.8, §3.7, §5.3 |
+| a | All analyzed lPFC electrodes and the task-significant ones, on the brain (the render also draws every localized contact in grey) | `dcc_scripts/vis/figs_subjects-good/brain_all_recon_elecs__all_lpfc_elecs__sig_lpfc_elecs.png` / `.tif`, electrode counts in the `electrode_counts_*.json` beside it | `dcc_scripts/vis/plot_sig_electrodes_dcc.py` (sets and colours: `condition_plot_specs.py`, `ELECTRODE_SET_COLORS`) |
+| b | Example spectrogram, one lPFC electrode: D0094 LFPM12 (`ctx_lh_S_front_inf`), wavelet, correct trials, −0.5 to 1.5 s | `dcc_scripts/spec/figs/example_spectrogram_D0094_LFPM12_Stimulus_c+Stimulus_i_wavelet_-0.5to1.5s_vlim3.0dB.png` / `.pdf` | `dcc_scripts/spec/plot_example_spectrogram_dcc.py` |
+| c | High-gamma power trace over every stimulus-locked trial, all task-significant lPFC electrodes, mean ± SEM | `dcc_scripts/power/figs/<E>/anova_within_roi_subjects-good/lpfc/lpfc_stimulus_all_conditions_23_subjects_sig_elecs_sem_shading.png` | `dcc_scripts/power/power_traces_dcc.py`, condition label `stimulus_all_conditions` (one condition, so no test is run) |
+| S | Task (global/local) and big-letter decoding in lPFC and occipital cortex, to motivate lPFC (read the result off the runs before writing the claim) | Window-mean bars: `dcc_scripts/decoding/figs/<E>_subjects-good/window_mean_groups/stimulus_{task,big_letter}_conditions_0to1.5s_20bts_1000perm_seed42/{Task,BigLetter}/{lpfc,occ}/group_bars.png`. Time-resolved: submitted 2026-11-10 (jobs 61504712 / 61504713; `ELECTRODES=sig`, `ROIS=lpfc,occ`, `FEATURE_MODE=channels_x_time`); results will be `*_MASTER_RESULTS_job6150471{2,3}_*.pkl` in `dcc_scripts/decoding/figs/<E>_subjects-good/` | `dcc_scripts/decoding/decoding_dcc.py`; window-mean: `submit_window_mean_groups_dcc.sh` |
 
-### 1.6 Left out of the paper
+**Rerun / redraw:**
 
-| Result | Why |
-|---|---|
-| Weighted medoids (`score_centers.csv`) | Null on every axis; 6 of 25 groups have both medoids on the same contact; the two centre definitions disagree in sign on z |
-| Noise-corrected LWPC–LWPS ratio (1.03 electrode, 3.38 parcel) | Not estimable at these reliabilities |
-| `joint_scatter.png` correlations (pooled 0.32, within-participant 0.22) | Full-data correlations, not the pre-specified test |
-| A4 main-effect groups (`both`, `*_only`) | Opposite to the shared-code prediction, pre-stimulus windows, groups change with each run's selection trials |
-| A4 with RT matching and `remove_mean` together | Uninterpretable: the congruency ceiling is gone, in the random control too |
-| Cross-proportion (block) transfer | Shelved: no within-block ceiling, and confounded with LWPC itself |
-| A6 positive-electrode summary (r ≈ 0.53–0.56, p ≈ 0.07) | Post hoc, 11–12 participants, at or above its own ceiling, selects on the sign it averages |
-| A6 mean \|d\| joint regression; level-2 counts; level-3 slopes | Suppression from shared noise; uncorrected and coverage-driven; the slopes measure the high gamma–RT link |
-| "Correlated at the noise ceiling"; "LWPC dominance increases ventrally"; "the tilt survives the main effects" | Withdrawn or not supported; see §16.6.7 of the N4 doc for the wording to use instead |
-| Coding axes: θ₂, θ₃ and the k > 1 normalized values as headline numbers | θ₂ fails its reliability check; the ceiling normalization is a heuristic above k = 1. Quote θ₁ raw, with its ceiling ([`coding_axes.md`](coding_axes.md) §9, §10.4) |
-| "Separate early", or "orthogonal", from the coding axes | No reliable mean-difference code before 0.5 s; every angle is shared or unmeasured |
-| Trajectories under the RT-matched and random subsets | A quarter to three quarters of the electrodes drop out; CIs as wide as ±6 |
-| What is left after RT matching, read as "separate" | Ceilings about half the random subsets'; θ₁ shared in 1 of 4 seeds. No power, not evidence |
-| The morning's random-subset alignment (0.36) | The seed-0 draw; seeds 1–4 give 0.63–0.88 |
+```bash
+# a: re-render (the launcher hard-codes PLOT_SETS; the full command is in
+#    figure_editing_guide.md §11.5)
+# b: set SUBJECT_ID='D0094', CHANNEL='LFPM12', SPEC_TYPE='wavelet' at the top
+#    of the script (its defaults are D0057 RAI7, multitaper), then
+python dcc_scripts/spec/plot_example_spectrogram_dcc.py
+# c (from dcc_scripts/power):
+CONDITIONS=stimulus_all_conditions ELECTRODES=sig bash submit_specific_conditions_power_traces_dcc.sh
+# S, time-resolved (from dcc_scripts/decoding). FEATURE_MODE matches the F3b runs;
+# the submitter's own default is now `channels`, and the runner's ELECTRODES default is `all`:
+SUBJECT_SET=good ROIS=lpfc,occ ELECTRODES=sig FEATURE_MODE=channels_x_time \
+  CONDITIONS="stimulus_task_conditions stimulus_big_letter_conditions" \
+  bash submit_specific_conditions_decoding_dcc.sh
+# S, window-mean bars: figure_editing_guide.md §11.1 and §11.6 (ROIS=occ)
+```
 
-### 1.7 Before submission
+### 1.4 F3 — Both adaptations in power and in decoding
 
-**F5 and S-N4** (N4 §17.4):
+**Open decision:** the main figure shows either the **subtractions** (the
+per-block effect, i − c or s − r, one line per block) or the **four-trace**
+panels (each condition in each block). The other version goes to the
+supplement. Both exist for every panel.
 
-- [ ] **The all-lPFC anatomy folder was overwritten again, by the DLPFC run**
-      (2026-10-08). `anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/` (and
-      `…_all/`) now hold DLPFC results (277 electrodes), and commit 3461b20
-      committed the DLPFC `summary.txt` and `summary_section19.txt` there; the
-      lPFC versions are at `3461b20^`. DLPFC has since been rerun into
-      `anatomy_a1_dlpfc_window_0.0to1.5s_all/` (same numbers). Still to do:
-      rerun lPFC with `ROI=lpfc` and diff against `3461b20^`
-      ([`dlpfc_results.md`](dlpfc_results.md) §8.1).
-- [ ] **No task-significant DLPFC anatomy yet.** The DLPFC `_sig` anatomy
-      folder is identical to `_all`: `ELECTRODES` only names the folder, and
-      the scores default to the `all_dlpfc` segregation run. Pass the
-      `sig_dlpfc` tables ([`dlpfc_results.md`](dlpfc_results.md) §8.1, step 2).
-- [ ] **Check that the all-lPFC anatomy folder survived.** The task-significant
-      rerun wrote to `anatomy_a1_lpfc_window_0.0to1.5s_sig/`, the all-lPFC
-      folder (its `score_anatomy.json` → `maps`). If no copy was made first,
-      the matched-vs-crossed `delta_tracking.csv` and the S-N4 tables are
-      gone; rerun the anatomy job on the all-lPFC `_main_effects` segregation
-      run to get them back (N4 §18.1). That rerun also draws the combined F5
-      and everything in N4 §19. Then copy both folders to names that say which
-      set they hold.
-- [x] Rerun the task-significant set with main effects; report it in full
-      (2026-10-01; N4 §18, text in §3.4 and §3.5).
-- [ ] Confirm the subset's segregation run name, and that its
-      `correlation_main_effects.json` gives congruency–switch *r* = 0.167 (N4
-      §18.3 recomputed it from `per_split.csv`).
-- [x] Run `dcc_scripts/stats/n4_section19_followups.py` on the all-lPFC run
-      (2026-10-05; N4 §19.8): participant-level z slope and overlap r in §3.4.
-- [ ] Rerun it with `--long-df <segregation run>/long_df.csv` (shared splits;
-      the first local-similarity numbers are not usable, N4 §19.3) and
-      `--rt-coupling` (§19.7); replace the within-participant reliabilities in
-      §3.4 with the shared-split ones. Then the task-significant run.
-- [ ] Rerun `n4_section19_followups.py`, all sections, on the all-lPFC run with
-      the raw and the RT-adjusted `--long-df`, for the electrode-level numbers
-      (2026-10-06; [`n4_section19_electrode_level.md`](n4_section19_electrode_level.md)
-      §5); fill the **[run]** brackets in §3.4 and the Fig. 5 caption.
-- [ ] Run the segregation job with `RT_ADJUST_HG=1` (N4 §18.10) and the
-      anatomy job on it: the regression-based RT control for the overlap and
-      the gradient.
-- [ ] Advisors: d–e (coding axes) replace A4 in F5, A4 to S5 (§1.4, F5).
-- [ ] **Response-locked coding-axes run.** `EPOCHS_ROOT_FILE=Response_-1.0to1.5sec_…`
-      (the file [`decoding.md`](decoding.md) §13.2 names; check it exists on
-      the DCC), with `WINDOWS_TMIN`/`WINDOWS_TMAX` and `TRAJ_AXES` set in
-      response time, then the same with `RT_CONTROL=match`. The figures' x
-      labels say "from stimulus onset" (`coding_axes_dcc.py`); fix them first.
-- [ ] Trial counts per participant × block × condition in the matched subsets
-      ([`coding_axes.md`](coding_axes.md) §10.7, reason 3).
-- [ ] Occipital coding axes (`ROIS=occ`) and `plot_coding_axes_controls.py`.
-- [ ] Optional: rerun the sig lPFC seed-0 `rt_match10`/`rt_random10` with the
-      current code, for their subspace outputs.
-- [ ] Draw d–e in F5's style from `trajectories.csv` and
-      `coding_axis_cosines.csv`.
-- [ ] Plot the S-N4 panels (the bars, the balances by parcel, the bands).
-      *The bars are `fig5.png` b; the anatomy job already draws them.*
-- [ ] Leave-one-participant-out on the pre-specified LWPC–LWPS correlation, and
-      its p from 10,000 permutations.
-- [ ] Advisor decisions: primary set and scope; d–e in place of A4; "tied to
-      RT" now or after the response-locked run. *The gradient's weight was
-      decided on 2026-10-02: it stays in F5 with the scatter.*
+| Panel | Content | Figure (`dcc_scripts/vis/paper_panels/`) |
+|---|---|---|
+| a | Power traces, task-significant lPFC, mean ± SEM across electrodes, with the cluster-corrected interaction bar. LWPC: `fig3_congruency_x_incprop_LWPC`; LWPS: `fig3_switch_x_switchprop_LWPS` | four-trace: `fig3_*`; subtraction: `fig3_*_difference` |
+| b | Decoding, task-significant lPFC: each condition decoded within the 25 % and 75 % blocks, the pooled shuffle, the 25 % vs 75 % contrast and each block against chance | `fig4_LWPC`, `fig4_LWPS`; difference: `fig4_*_difference` |
+| c | **Cross-effects, pooled two-way (in the paper; placement open; decided 2026-11-10).** Congruency × switch proportion and switch type × incongruent proportion, in power and in decoding. Shown without a claim of independence: the text must not say the cross-effects are absent | power: `fig3_congruency_x_switchprop_cross`, `fig3_switch_x_incprop_cross`; decoding: `sfig4_*` |
+| S | Decoding accuracy by electrode count, in sig, non-sig and all lPFC electrodes, for congruency and switch type **and for task and big letter**. Motivates using all electrodes in F4 | `dcc_scripts/decoding/figs/<E>_subjects-good/window_mean_groups/<run>/<comparison>/lpfc/electrode_curve.png`, with `group_bars.png` beside it (matched counts, membership permutation tests). Runs: [`figure_editing_guide.md`](figure_editing_guide.md) §11.1 |
 
-**F1–F4:**
+No independence claim is made from the cross-effects. That drops the
+"behavior-independent, neurally interacting" dissociation that
+[`analysis_guide.md`](analysis_guide.md) §12 calls the headline result, so the
+Results and Discussion text should not rely on it.
 
-- [ ] F1: confirm the behavioral source script uses the corrected block map.
-- [ ] F2: build the coverage table (S1).
-- [ ] F3: run `dcc_scripts/stats/f3_rt_adjusted_check.py` on the A6 run's
-      `participant_electrode_scores.csv`, and rerun A6 with `WINDOW_TMAX=0.5`
-      (§1.4, F3).
-- [ ] F3: one trace encoding in all four subplots and neutral row labels
-      (§1.4, F3); save the ANOVA cluster p-values and raise `N_PERM`; collect
-      the simple effects; add the per-participant tally and
-      leave-one-participant-out.
-- [ ] F4: trial counts per class for each decoder; check pre-stimulus windows.
+Every panel is the same size, with label-less variants for assembly
+(`utils/panel_layout.py`). The inputs and every setting are recorded in
+`paper_panels/paper_panels_config.json`.
 
-**S5** ([`decoding.md` › A4 §13.8.4](decoding.md#138-results-2026-10-01)):
+- **Power inputs:** the windowed-ANOVA runs in
+  `dcc_scripts/power/figs/<E>/anova_within_roi_subjects-good` (good set). Each
+  term comes from its own pooled 2 × 2 run (`PAPER_DESIGN = 'two_way'` in
+  `paper_panels.py`; jobs 61512114–20):
+  - `stimulus_lwpc_conditions`
+  - `stimulus_lwps_conditions`
+  - `stimulus_congruency_by_switch_proportion_conditions`
+  - `stimulus_switch_type_by_incongruent_proportion_conditions`
 
-- [ ] Seeds for the baseline, `rt` and `random`; recompute `kept` over
-      post-stimulus windows.
-- [ ] lPFC subsampled to occipital's 54 electrodes.
-- [ ] Task positive controls; `mean_only`; response-locked.
-- [ ] Pseudo-trial counts per cell from each run.
+  Each cell holds every trial of that condition at that proportion level. The
+  block-balanced three-way and the four-way versions are not in the paper;
+  `--power-design three_way` or `four_way` draws them to
+  `dcc_scripts/vis/paper_panels_<design>/`. The three designs compared:
+  [`analysis_plans.md` › Power-trace ANOVA design](analysis_plans.md#power-trace-anova-design-two-way-three-way-or-four-way-2026-11-10).
+- **Decoding inputs:** the good-set results files, jobs 60508450–53
+  (`dcc_scripts/decoding/figs/<E>_subjects-good/`), set by `DECODING_JOBS` in
+  `paper_panels.py`. They have been in use since the 2026-11-10 redraw, so F3a
+  and F3b use the same participants.
 
-**Everywhere:**
+**Redraw:** `python dcc_scripts/vis/paper_panels.py --subject-set good`.
+**Rerun:**
+- **Power:** from `dcc_scripts/power`, run with
+  `CONDITIONS="stimulus_lwpc_conditions stimulus_lwps_conditions stimulus_congruency_by_switch_proportion_conditions stimulus_switch_type_by_incongruent_proportion_conditions"`
+  (jobs 61512114–20).
+- **Decoding:** from `dcc_scripts/decoding`, run the four block-balanced
+  labels.
+- `dcc_scripts/submit_subject_set_rerun.sh` submits both: the four pooled
+  power sets and the four block-balanced decoding labels.
+The electrode-count curves: [`figure_editing_guide.md`](figure_editing_guide.md) §11.1.
+How the decoding job works: [`decoding.md`](decoding.md).
 
-- [ ] Fill in the preprocessing paragraph (§2.1) and check it describes the
-      epochs file every run used.
-- [ ] Archive the git commit, submission command and Slurm log with each run.
+### 1.5 F4 — One population, partly shared codes, adapting to block proportion
+
+**The argument (decided 2026-11-12).** The anatomy is shown on the
+adaptations: LWPC and LWPS share electrodes (a). The text then shows that this
+overlap goes with the base effects: it is not detectable once each half's
+congruency and task-seq. effects are partialled out, while responsiveness,
+location and RT coupling leave it in place; and each adaptation tracks its
+own base effect more than the other (matched − crossed). That is the bridge to
+b–d, which look at the base codes themselves. Wording: "not detectable beyond
+the base effects" or "largely accounted for", not "goes away" (the partialled
+r is a null, p = 0.19). Caveat for the Discussion: the base effects are also
+the best proxy for an electrode's signal-to-noise; the matched > crossed
+pattern argues against pure signal-to-noise, and the sharper control (each
+adaptation partialled on its own base effect only, N4 §19 B) has not been run.
+
+**Controls: text, not a figure (decided 2026-11-12).** One sentence in §3.4
+with the good-set numbers (`overlap_controls.csv`, all lPFC; all24 values in
+brackets for reference): none 0.106 (0.097); + responsiveness 0.103 (0.094);
++ MNI 0.109 (0.100); + RT coupling 0.091 (0.082); + congruency and task-seq.
+effects 0.031, p = 0.19 (0.028, p = 0.23). Matched − crossed r = 0.082,
+p = 0.002 (0.079 with MNI). In S-N4: the control table **or** the forest plot
+(`continuous/overlap_controls.png`), not both; and the matched-vs-crossed bars.
+
+**Electrode set: all lPFC (decided 2026-11-12).** The anatomy needs it: in the
+task-significant subset (148 electrodes, 16 participants) the overlap is
+0.073, p = 0.086 and matched − crossed 0.061, p = 0.16, at about 60–75 % of
+the all-lPFC estimates on 40 % of the electrodes (lost power, not a different
+result), so the pivot cannot be shown there. The coding-axes results hold in
+the subset (alignment 0.63 [0.49, 0.85]; switch-axis block effect p = 0.006).
+Report the subset in S-N4 and the coding-axes supplement. F3 uses
+task-significant electrodes and F4 all lPFC: Methods needs one sentence on why
+(the pre-specified anatomy population, and the electrode-count curves in S-F3).
+
+| Panel | Content | Figure | Code |
+|---|---|---|---|
+| a | Each electrode's LWPC score against its LWPS score (full-data scores, SD units). No identity line, no fit line (the points' own correlation, 0.23, is not the test's 0.106). Only "\*p = 0.0001", small, above the top-right corner; the separate-half Spearman *r* goes in the text (decided 2026-11-12) | `dcc_scripts/stats/results/<E>/anatomy_a1_lpfc_window_0.0to1.5s_all_subjects-good/continuous/section19_paper_2026-10-30/fig5_height_scatter.png` / `.pdf` (370 electrodes, 19 participants) | `plot_figure5_scatter` in `src/analysis/stats/stability_flexibility_anatomy.py`; launcher `dcc_scripts/stats/fig5_scatter.py`; runbook [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) §19 |
+| b | Cosine between the congruency and task-seq. coding axes over time, against the shuffle null and the split-half ceiling, with error bands | `coding_axis_cosines` | `plot_coding_axes` |
+| c | Trajectories of the four condition means (c/i × r/s) in the congruency–task-seq. plane, with x(t) and y(t) | `trajectories_0.0-1.5s` | `plot_trajectories` |
+| d | The same plane per proportion block, and the block separations along each axis | `proportion_trajectories_0.0-1.5s`, `block_separations_0.0-1.5s` | `plot_proportion_trajectories`, `plot_block_separations` |
+| S | The subspace test (principal angles, alignment index); also the alignment over time (`coding_axis_cosines_alignment`) and the 25 % − 75 % separation changes (`block_separations_0.0-1.5s_changes`, statistics in `block_contrasts.csv`) | `subspace_test` | `plot_subspace_test` |
+| S-N4 | The congruency–task-seq. scatter (r = 0.237, same style as a; supplement rather than main, since b shows the shared base codes more directly and over time, and its r is quoted in the text; dropping it is also fine): `continuous/fig5_height_main_effects_scatter.png` / `.pdf`. The overlap controls (table or forest plot) and the matched-vs-crossed bars (`continuous/fig5.png` panel b, old colours). The task-significant versions | as named | `fig5_scatter.py --pair main_effects`; `sfa.overlap_controls`, `sfa.figure5` |
+
+b–d and S are PNG + PDF in
+`dcc_scripts/subspace/results/<E>/coding_axes/windows_0.0to1.5s_w64s16_all_dlpfc-lpfc_mean_diff_splits200_perm1000x20_seed0_subjects-good/figures_2026-11-11/`.
+Don't use `figures_2026-11-09/`: its task-seq. block separations are empty (a
+label-rename bug, fixed 2026-11-11). The PNGs one folder up are the old
+2026-10-30 previews.
+
+**Open, to check before writing d.** For congruency by incongruent
+proportion, all lPFC, the bootstrap CI excludes 0 ([0.06, 0.56]) but the
+block-permutation p is 0.13 (`block_summary.json`). Decide which test the claim
+rests on. The plotting functions
+are in `dcc_scripts/subspace/subspace_figures.py`. The analysis is
+`src/analysis/stats/coding_axes.py`, `coding_subspaces.py` and
+`coding_trajectories.py`; its runbook and results are in [`coding_axes.md`](coding_axes.md),
+and the math in [`walkthroughs/subspace_math_walkthrough.md`](walkthroughs/subspace_math_walkthrough.md).
+Occipital cortex, run the same way, has no reliable code
+([`figure_editing_guide.md`](figure_editing_guide.md) §11.6).
+
+```bash
+# a, redraw (--seg-dir supplies the p; the main-effects points are in continuous/):
+S=dcc_scripts/stats/results/<E>/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects_subjects-good
+python dcc_scripts/stats/fig5_scatter.py --dir <the section19_paper_2026-10-30 folder> --seg-dir $S
+python dcc_scripts/stats/fig5_scatter.py --dir <the anatomy run>/continuous --pair main_effects --seg-dir $S
+# b-d and S, redraw:
+R=dcc_scripts/subspace/results/<E>/coding_axes/windows_0.0to1.5s_w64s16_all_dlpfc-lpfc_mean_diff_splits200_perm1000x20_seed0_subjects-good
+python dcc_scripts/subspace/redraw_figures.py --run-dir $R --out-dir $R/figures_<date>
+# b-d and S, rerun (from dcc_scripts/subspace, about 40 min):
+RT_CONTROL=none N_BLOCK_PERM=500 SUBJECT_SET=good ROIS=lpfc,dlpfc bash submit_coding_axes_dcc.sh
+```
+
+### 1.6 Not in this story
+
+These analyses are out of the main text. Their docs stay as the record:
+- the height gradient and the parcel tests ([`n4_continuous_anatomy.md`](n4_continuous_anatomy.md));
+- the A4 congruency ↔ switch cross-decoding ([`decoding.md`](decoding.md));
+- brain–behavior ([`archive/a6_brain_behavior.md`](archive/a6_brain_behavior.md));
+- the N2 direction tests ([`archive/n2_direction_tests.md`](archive/n2_direction_tests.md));
+- DLPFC as the reported region ([`archive/dlpfc_results.md`](archive/dlpfc_results.md)).
+
+Any of them can come back as a supplement or for reviewers.
 
 ---
 
@@ -760,7 +294,7 @@ work. Renumber at submission.
 
 ### 2.1 Participants, recordings and preprocessing
 
-*Copied from [`methods.md` › N4](methods.md#participants-recordings-and-electrode-population), first paragraph.*
+*Copied from [`archive/methods.md` › N4](archive/methods.md#participants-recordings-and-electrode-population), first paragraph.*
 
 > Intracranial EEG was recorded from **[N participants]** while they performed the
 > Global/Local task. Broadband high-gamma activity (70–150 Hz) was extracted from
@@ -795,25 +329,34 @@ pre-stimulus baseline), used by F3, F4, S5 and S-BB.]**
 
 *Skeleton, drafted from `run_power_traces_dcc.py`,
 `windowed_anova.run_windowed_anova_cluster_correction` and
-[`n2_direction_tests.md`](n2_direction_tests.md) §1–§4. Check every parameter
+[`archive/n2_direction_tests.md`](archive/n2_direction_tests.md) §1–§4. Check every parameter
 against the reported run.*
 
 > We analysed **[n]** task-responsive lPFC electrodes from **[N]**
-> participants. For each electrode, high gamma on correct trials was averaged
-> within each cell of a block-balanced design: congruency × incongruent
-> proportion × switch proportion for the congruency effect, and switch type ×
-> incongruent proportion × switch proportion for the switch cost. Each
-> combination of the two proportions is one block type, so every cell came from
-> a single block type. The traces show the mean across electrodes of each
-> condition × proportion cell, weighting the two levels of the other proportion
-> equally, ± 1 SEM across electrodes.
+> participants. Each condition effect was tested against each proportion
+> manipulation in a separate 2 × 2 design: congruency × incongruent proportion,
+> switch type × switch proportion, congruency × switch proportion and switch
+> type × incongruent proportion. For each electrode, high gamma on correct
+> trials was averaged over all trials in each condition × proportion cell. The
+> traces show the mean across electrodes ± 1 SEM.
 >
-> Each condition effect was tested against each proportion manipulation with a
-> full-factorial ANOVA fitted across electrodes (ordinary least squares) in
-> sliding 250-ms windows (64 samples at 256 Hz, stepped by 62.5 ms). Because
-> every cell is one block type and every factor is in the model, each two-way
-> term is an equal-weight contrast, so a sustained difference between blocks
-> cannot enter it. The null distribution permuted cell labels within each
+> Each 2 × 2 was tested with a two-way ANOVA fitted across electrodes (ordinary
+> least squares) in sliding 250-ms windows (64 samples at 256 Hz, stepped by
+> 62.5 ms). Electrode was not a term in the model, so between-electrode
+> variance stays in the residual; the within-electrode permutation below keeps
+> the test valid.
+>
+> **[Author note, not paper text. Three things to settle. (1) In the two
+> cross-effect designs, each cell mixes the blocks of the other proportion
+> unequally. For example, at each switch-proportion level, congruent trials
+> come about 3:1 from the 25 % incongruent block and incongruent trials about
+> 1:3 (`condition_registry.py`, the comment on
+> `stimulus_lwpc_block_balanced_conditions`). (2) The behavioral analysis (F1)
+> weights all 16 cells equally, so the neural and behavioral cross terms are
+> defined differently (`analysis_plans.md` › Power-trace ANOVA design §2).
+> Decide how Methods states both. (3) Do not describe the cross-effects as
+> absent. LWPC and LWPS hold in the pooled, block-balanced and full-factorial
+> designs alike; the cross-effects depend on the design (same section, §6).]** The null distribution permuted cell labels within each
 > electrode, with the same permutation in every window (**[N_PERM]**
 > permutations). Windows whose *F* exceeded the 95th percentile of their null
 > formed candidate clusters. Candidates were split wherever the interaction's
@@ -888,10 +431,20 @@ parameter against the reported run.*
 ### 2.5 Anatomy: segregation and continuous anatomy (F5, S-N4)
 
 *Copied from §17.2 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#172-methods).
-It replaces the bracketed N4 template in `methods.md` for the all-lPFC analysis.*
+It replaces the bracketed N4 template in `archive/methods.md` for the all-lPFC analysis.*
+
+*Placement decided 2026-11-10: the anatomy on RT-adjusted scores and both
+confound-control tables (LWPC–LWPS, `overlap_controls.csv`; congruency–switch,
+`overlap_controls_main_effects.csv`) go to S-N4. Good-set numbers, all lPFC and
+task-significant: [`results_log.md`](results_log.md), 2026-11-10.*
+
+*2026-11-12: counts and settings updated to the good set (anatomy run
+`anatomy_a1_lpfc_window_0.0to1.5s_all_subjects-good`, its `summary.txt` and
+`score_anatomy.json`; segregation run `..._all_lpfc_..._main_effects_subjects-good`,
+200 splits).*
 
 > **Electrode population.** Anatomical analyses used every electrode in lateral
-> prefrontal cortex (lPFC; 398 electrodes, 254 left and 144 right, from 22
+> prefrontal cortex (lPFC; 371 electrodes, 238 left and 133 right, from 20
 > participants, 1–55 per participant). The set was defined by atlas label, not
 > by task responsiveness or by any effect, because these analyses ask how
 > effects are distributed across the region rather than whether they are
@@ -915,7 +468,7 @@ It replaces the bracketed N4 template in `methods.md` for the all-lPFC analysis.
 > interaction, or block-level differences into the main effect.
 >
 > **Disjoint trial halves.** Each electrode's trials were divided into random
-> halves 1,000 times, stratified on congruency, incongruent proportion, switch
+> halves 200 times, stratified on congruency, incongruent proportion, switch
 > type and switch proportion. All four scores were computed on each half. An
 > electrode's score was the mean over halves and splits. Every test that relates
 > two scores across electrodes took them from opposite halves within each split
@@ -937,7 +490,7 @@ It replaces the bracketed N4 template in `methods.md` for the all-lPFC analysis.
 > directions, every split) after both were regressed on responsiveness (mean
 > absolute high-gamma) and centred within participant. Spearman ρ was averaged
 > over splits. Participants with fewer than three electrodes were excluded
-> (397 electrodes, 21 participants remained). The null permuted electrode
+> (370 electrodes, 19 participants remained). The null permuted electrode
 > correspondence within participant, identically across splits. Electrodes
 > positive for each adaptation effect were compared in location by the distance
 > between their centroids, with electrode labels shuffled within participant.
@@ -945,8 +498,8 @@ It replaces the bracketed N4 template in `methods.md` for the all-lPFC analysis.
 > **Anatomical test.** Each balance was modelled as
 > balance = parcel + responsiveness + participant, with participants as fixed
 > effects. The statistic was the partial *F* for the parcel block. Destrieux
-> parcels sampled in at least three participants entered (19 parcels, 396
-> electrodes). The null exchanged the two effect labels independently within
+> parcels sampled in at least three participants entered (19 parcels, 370
+> electrodes, 20 participants). The null exchanged the two effect labels independently within
 > every electrode, which flips the sign of the balance while keeping each
 > electrode's participant, location, responsiveness and pair of scores
 > (10,000 permutations; *p* = (*b* + 1)/(*N* + 1)). Adjusted parcel means, with
@@ -999,14 +552,15 @@ manuscript:
 - The coordinate test, the exploratory follow-ups and Test 2 now report
   results that sit mainly in S-N4. Keep them here or move them to the
   supplementary methods, to match where the journal puts S-N4.
-- The task-responsive subset was scored on 200 splits, not 1,000, and its
-  label tests used the 15 parcels sampled in at least three of its
-  participants (N4 §18.1). Add to the supplementary methods: "In the
-  task-responsive subset, trials were split 200 times rather than 1,000."
+- On the good set both electrode sets were scored on 200 splits, so the old
+  "200 rather than 1,000" sentence for the subset is no longer needed. The
+  subset's label test used the 13 parcels sampled in at least three of its
+  participants (141 electrodes, 19 participants). Add that to the
+  supplementary methods.
 
 ✏️ **Units of inference, intervals, and local similarity** (skeleton,
 2026-10-02; electrode level first since 2026-10-06; §19 of the N4 doc and
-[`n4_section19_electrode_level.md`](n4_section19_electrode_level.md)). Add
+[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#1910-19-with-electrodes-as-the-unit)). Add
 after the coordinate test. The participant-level paragraph can move to the
 supplementary methods with S-N4.
 
@@ -1041,7 +595,7 @@ supplementary methods with S-N4.
 > (< 10, 10–20, 20–40, > 40 mm). For this analysis the trials were split once
 > per participant and repetition, and the same halves were used for all of its
 > electrodes, so that no electrode's half shared trials with another
-> electrode's other half (**[n]** splits). Each participant's baseline for a
+> electrode's other half (200 splits). Each participant's baseline for a
 > bin was its mean over shuffles of the participant's electrode positions, and
 > the excess over it was pooled over all electrode pairs. Because neighbouring
 > contacts share trial noise, pairs are not exchangeable, and a test that
@@ -1064,8 +618,10 @@ supplementary methods with S-N4.
 > **Alternative explanations of the overlap.** We repeated the overlap test
 > with, in turn, log and squared responsiveness, MNI coordinates, each half's
 > congruency and switch-type effects (from the same half as each adaptation
-> score), and each electrode's within-cell correlation between high gamma and
-> RT as additional covariates **[N4 §19.7; report what was run]**.
+> score), each electrode's within-cell correlation between high gamma and RT,
+> and all of these together, as additional covariates at the residualisation
+> step (10,000 permutations each), and with each participant left out
+> (1,000 permutations per fold).
 
 ### 2.6 Coding axes, subspace test and trajectories (F5 d–e, S5) ✏️
 
@@ -1075,8 +631,8 @@ supplementary methods with S-N4.
 here, so the cross-decoding and brain–behavior sections are now §2.7 and
 §2.8.*
 
-> **Coding axes.** For every lateral prefrontal electrode (398 electrodes,
-> 22 participants; the anatomy set; correct trials only) we computed the
+> **Coding axes.** For every lateral prefrontal electrode (371 electrodes,
+> 20 participants; the anatomy set; correct trials only) we computed the
 > congruency effect (mean high gamma on incongruent minus congruent trials,
 > the two incongruent-proportion levels weighted equally) and the switch-type
 > effect (switch minus repeat, the two switch-proportion levels weighted
@@ -1130,7 +686,7 @@ here, so the cross-decoding and brain–behavior sections are now §2.7 and
 > We swapped the halves, averaged over both directions and the 200 splits, and
 > obtained CIs by participant bootstrap. Electrodes without a trial in every
 > congruency × switch type × block cell of each half were left out of the
-> trajectories (**[389]** of 398 electrodes, **[21]** participants). The
+> trajectories (362 of 371 electrodes, 19 participants). The
 > fraction of the centred cells' reproducible variance that lies in the plane
 > was computed from cross-half products, which removes independent noise.
 >
@@ -1145,7 +701,7 @@ here, so the cross-decoding and brain–behavior sections are now §2.7 and
 
 ### 2.7 Congruency ↔ switch-type cross-decoding (S5)
 
-*Copied from [`methods.md` › A4](methods.md#a4-congruency--switch-type-cross-decoding), Methods.*
+*Copied from [`archive/methods.md` › A4](archive/methods.md#a4-congruency--switch-type-cross-decoding), Methods.*
 
 > **Data and electrodes.** We used the stimulus-locked high-gamma epochs described
 > above (70–150 Hz, −1.0 to 1.5 s, decimated to 256 Hz; correct trials only; the
@@ -1219,7 +775,7 @@ these are the base effects, not their adaptation.
 
 ### 2.8 Brain–behavior (S-BB)
 
-*Copied from [`methods.md` › A6](methods.md#a6-brainbehavior-supplement-s-bb).*
+*Copied from [`archive/methods.md` › A6](archive/methods.md#a6-brainbehavior-supplement-s-bb).*
 
 > **Participants and electrodes.** We asked whether participants whose lateral
 > prefrontal high-gamma activity adapted more to the proportion manipulations
@@ -1376,101 +932,118 @@ last one below, drafted from [`coding_axes.md`](coding_axes.md) §10.2–10.5 an
 §10.7. A4 (§3.6) stays in S5. The gradient paragraph points to Fig. 5a–c, the
 layout since 2026-10-10.*
 
-> **LWPC and LWPS share electrodes.** We scored every lPFC electrode (398
-> electrodes, 22 participants) for LWPC and LWPS. Across this anatomically
+*2026-11-12: rewritten on the good set and for the 2026-11-12 argument (§1.5):
+overlap, then "it goes with the base effects", then the base codes. Sources:
+the all-lPFC anatomy run's `continuous/summary.txt`, `score_anatomy.json`,
+`overlap_controls.csv`, `section19_controls_2026-11-10/overlap_loso.csv` and
+`scores_with_anatomy.csv` (means); the sig anatomy run's `summary.txt`; the
+coding-axes runs' `summary.json`, `subspace_summary.json`,
+`subspace_dimensions.csv`, `trajectory_summary.json` and `trajectories.csv`
+(window 14, 1.0 s). The gradient paragraph moved to §3.5 (S-N4), as §1.6
+decided. Figure letters are the new F4's. The prose still says "switch type";
+the figures say "task seq.", so pick one name for the paper.*
+
+> **LWPC and LWPS share electrodes.** We scored every lPFC electrode (371
+> electrodes, 20 participants) for LWPC and LWPS. Across this anatomically
 > defined set both adaptation effects were small on average (mean Cohen's
-> *d* = 0.01 for LWPC and 0.05 for LWPS; 49 % and 56 % of electrodes positive),
-> and single-electrode estimates were noisy (full-data split-half reliability
-> 0.27–0.30), so we tested only population-level summaries. The two effects
-> shared electrodes. LWPC and LWPS scores from separate halves of the trials
-> were positively correlated within participants (Spearman *r* = 0.10,
-> 95 % CI **[electrode bootstrap, run]**, *p* < 0.001; 397 electrodes,
-> 21 participants; Fig. 5b), and electrodes positive for each effect did not
-> differ in location (centroid distance 1.4 mm, *p* = 0.95).
-> **[Overlap controls, N4 §19.8: "The overlap did not depend on nonlinear
-> responsiveness, on location (MNI coordinates partialled, r = 0.10), on RT
-> coupling, or on any one participant (r = 0.08–0.11 with each left out), but
-> it largely disappeared when each half's congruency and switch-type effects
-> were partialled out (r = 0.03, p = 0.23)." Then the Test 1 paragraph as the
-> explanation.]** **[Local similarity, electrode level, from the rerun
-> (`n4_section19_electrode_level.md` §5): the balance's near-range excess and
-> its within-participant reliability against LWPC's, with the positive
-> control; wording as in N4 §19.8, "one population rather than two intermixed
-> ones". The participant-level version goes to S-N4.]** The base effects that the two adaptations act on,
-> congruency and switch type, were scored from the same trials and halves with
-> the proportion blocks weighted equally. They also shared electrodes
-> (*r* = 0.23, *p* < 0.001).
+> *d* = 0.00 for LWPC and 0.03 for LWPS; 47 % and 55 % of electrodes
+> positive), and single-electrode estimates were noisy (full-data split-half
+> reliability 0.34 for LWPC and 0.09 for LWPS), so we tested only
+> population-level summaries. LWPC and LWPS scores from separate halves of the
+> trials were positively correlated within participants (Spearman *r* = 0.11,
+> 95 % CI [0.06, 0.16], *p* < 0.001; 370 electrodes, 19 participants;
+> Fig. 4a), and electrodes positive for each effect did not differ in location
+> (centroid distance 3.0 mm, *p* = 0.80). The overlap did not depend on
+> nonlinear responsiveness (*r* = 0.10), on location (MNI coordinates
+> partialled, *r* = 0.11), on each electrode's coupling to RT (*r* = 0.09) or
+> on any one participant (*r* = 0.09–0.12 with each left out, all
+> *p* ≤ 0.003). It was not detectable, however, once each half's congruency
+> and switch-type effects were partialled out (*r* = 0.03, *p* = 0.19;
+> Supplementary **[S-N4]**).
 >
-> **Each adaptation tracks the effect it regulates.** Electrode by electrode,
-> on separate trial halves, each adaptation effect correlated more with its
-> own base effect than with the other one (congruency–LWPC *r* = 0.22 vs
-> switch–LWPC 0.12; switch–LWPS 0.17 vs congruency–LWPS 0.13; Supplementary
-> **[S-N4]**). We
-> tested this difference with the correlation between congruency − switch and
+> **Each adaptation tracks the effect it regulates.** The base effects that the
+> two adaptations act on, congruency and switch type, were scored from the same
+> trials and halves with the proportion blocks weighted equally. They shared
+> electrodes more strongly than the adaptations did (*r* = 0.24, *p* < 0.001),
+> and each adaptation effect correlated more with its own base effect than with
+> the other one (congruency–LWPC *r* = 0.23 vs switch–LWPC 0.13; switch–LWPS
+> 0.16 vs congruency–LWPS 0.13; Supplementary **[S-N4]**). We tested this
+> difference with the correlation between congruency − switch and
 > LWPC − LWPS, whose covariance equals the two matched covariances minus the
 > two crossed ones, so that anything common to all four scores cancels. It was
-> positive (*r* = 0.09, *p* < 0.001) and held with MNI coordinates partialled
-> out (*r* = 0.09, *p* < 0.001), so the link is local rather than a gradient
+> positive (*r* = 0.08, *p* = 0.002) and held with MNI coordinates partialled
+> out (*r* = 0.08, *p* = 0.002), so the link is local rather than a gradient
 > that the two maps share. For LWPS the matched base effect was the less
-> reliable map (within-participant split-half reliability 0.35 for switch,
-> 0.46 for congruency, from trial splits shared by all of a participant's
-> electrodes; N4 §19.8) and still correlated more, so that difference is not
-> one of reliability **[electrode-bootstrap CIs for the two reliabilities and
-> their difference, run]**. All four correlations were positive: electrodes with
-> larger base effects of either kind adapted more on both.
+> reliable map (within-participant split-half reliability 0.34 [0.25, 0.41]
+> for switch type, 0.48 [0.41, 0.53] for congruency, from trial splits shared
+> by all of a participant's electrodes) and still correlated more, so that
+> difference is not one of reliability **[CI of the reliability difference,
+> run]**. Because the base effects are also the best available proxy for an
+> electrode's signal-to-noise ratio, partialling them cannot by itself separate
+> "inherited from the base effects" from "shared signal quality"; the
+> process-specific matched > crossed pattern argues for the former.
 >
-> **The balance between the two adaptations varies modestly across lPFC.** The
-> balance between the two effects (LWPC − LWPS within each electrode) differed
-> across Destrieux parcels (19 parcels sampled in at least three participants;
-> *F* = 1.91, label-exchange permutation *p* = 0.010; *p* = 0.003–0.057 with
-> each participant left out), although no single parcel differed from zero
-> after FDR correction (all *q* ≥ 0.13). It also varied with position (MNI
-> coordinates: block *F* = 2.85, *p* = 0.031): relative to LWPS, LWPC was
-> weaker dorsally (*z* slope −0.0077 SD/mm, 95 % CI **[electrode bootstrap,
-> run]**, *p* = 0.008; Bonferroni-corrected over three axes, *p* = 0.023). The
-> predicted anterior–posterior axis showed no effect (*p* = 0.58), and height
-> explained about 2 % of the balance's variance (Fig. 5a–c). This gradient,
-> its participant-level tests and its relation to the base effects are
-> described in Supplementary **[S-N4]**.
+> **[Local similarity, draft:]** Electrodes leaning toward LWPC or toward LWPS
+> did not form local patches: their balance (LWPC − LWPS) showed no excess
+> similarity between nearby electrodes (nearest minus farthest distance bin
+> −0.01, *p* = 0.55), whereas LWPC, congruency and switch type alone did
+> (0.17–0.23, *p* ≤ 0.003). The balance itself had no measurable reliability
+> (−0.06 [−0.24, 0.13]), so this is an absence of evidence for patches rather
+> than evidence that the two are intermixed.
 >
-> Together, LWPC and LWPS adaptation are carried by one intermixed lPFC
-> population, and each tracks the local strength of the effect it regulates.
-> The task-responsive subset (171 electrodes, 21 participants) gave the same
-> picture at lower power: both pairs of effects shared electrodes (LWPC–LWPS
-> *r* = 0.08, *p* = 0.055; congruency–switch *r* = 0.17, *p* = 0.001), and
-> each adaptation effect tracked its own base effect more closely than the
-> other by the same margins as in all lPFC (*r* = 0.08, *p* = 0.049). The
-> balance between LWPC and LWPS did not vary detectably across parcels or with
-> position there, as expected at that set's power (Supplementary **[S-N4]**).
+> The task-responsive subset (152 electrodes, 19 participants; 148 and 16 in
+> the overlap tests) pointed the same way at lower power: the point estimates
+> were about 60–75 % of those in all lPFC on 40 % of the electrodes. The base
+> effects shared electrodes (*r* = 0.15, *p* = 0.006), whereas the adaptation
+> overlap (*r* = 0.07, *p* = 0.086) and the matched-minus-crossed test
+> (*r* = 0.06, *p* = 0.16) did not reach significance (Supplementary
+> **[S-N4]**).
+>
+> Together, LWPC and LWPS share lPFC electrodes because each is expressed where
+> the effect it regulates is, and those base effects share electrodes. We
+> therefore asked how the base effects themselves are coded across the
+> population.
 >
 > **Congruency and switch type are coded by partly aligned population
 > patterns.** We treated each electrode's congruency and switch-type effects in
 > every 250-ms window as two population coding axes and compared them across
 > separate halves of the trials, against a label-shuffle null and the
-> split-half ceiling that noise sets (all lPFC, 398 electrodes,
-> 22 participants; Methods §2.6). Both codes were reliable from about 0.5 s
+> split-half ceiling that noise sets (all lPFC, 371 electrodes,
+> 20 participants; Methods §2.6). Both codes were reliable from about 0.5 s
 > after the stimulus (15 of 21 windows, 0.50–1.38 s). From 0.56 s on, the
 > congruency axis from one half was more aligned with the switch-type axis from
 > the other than either shuffle allowed (cluster-mass corrected), at about 0.7
 > of the most that noise allows (cross-half cosine 0.27 against a ceiling of
-> 0.37; alignment 0.69, 95 % participant-bootstrap CI [0.57, 0.89]; each
-> averaged over the reliable windows; Fig. 5e).
+> 0.36; alignment 0.72, 95 % participant-bootstrap CI [0.59, 0.97]; each
+> averaged over the reliable windows; Fig. 4b).
 > Over the whole trial each code was dominated by one pattern (the first
-> dimension held 16–21 % of the held-out variance, the next two about 1 % each),
+> dimension held 13–23 % of the held-out variance, the next two about 1 % each),
 > and the smallest principal angle between the two codes' subspaces was 63°
-> (cosine 0.45 against a ceiling of 0.61, or 0.74 [0.66, 0.93] of it): more
+> (cosine 0.45 against a ceiling of 0.60, or 0.75 [0.67, 0.94] of it): more
 > aligned than either shuffle allowed (*p* = 0.001), and below its ceiling. On
 > held-out trials, the switch conditions moved along the congruency axis by
-> about 60 % as much as the congruency conditions did, and the plane of the two
-> axes held about half of the reproducible condition-dependent activity (0.52
-> [0.40, 0.63]; Fig. 5d). Subtracting each trial's mean across a participant's
-> electrodes left the alignment unchanged (0.67 [0.48, 0.89]), so it is not a
-> uniform rise in activity. When RT was equated across the four cells, the
-> codes themselves largely disappeared (1–6 of 21 windows reliable, against
-> 9–12 in random subsets of the same size; five draws each), so the late codes
-> and their alignment are tied to RT. Removing the RT-linked component by
-> regression instead left the alignment in place (0.58 [0.37, 0.96];
-> Supplementary **[S5]**). **[Response-locked result, once run (§1.7).]**
+> about half as much as the congruency conditions did (0.86 against 1.65 at
+> 1.0 s), and the plane of the two axes held about half of the reproducible
+> condition-dependent activity (0.53 [0.39, 0.64]; 362 electrodes,
+> 19 participants; Fig. 4c). Subtracting each trial's mean across a
+> participant's electrodes left the alignment unchanged (0.72 [0.55, 1.00]), so
+> it is not a uniform rise in activity. When RT was equated across the four
+> cells, the codes themselves largely disappeared (0–4 of 21 windows reliable,
+> against 8–13 in random subsets of the same size; five draws each), so the
+> late codes and their alignment are tied to RT. Removing the RT-linked
+> component by regression instead left the alignment in place (0.61 [0.35,
+> 1.00]; Supplementary **[S5]**). The task-responsive subset gave the same
+> alignment (0.63 [0.49, 0.85]; 152 electrodes, 19 participants).
+> **[Response-locked result, once run (§1.7).]**
+>
+> **[F4d paragraph, to write: the block separations. All lPFC, 0–1.5 s axes
+> (`block_summary.json`): the switch-type separation was larger in 25 % than
+> in 75 % switch blocks (0.41, 95 % CI [0.11, 0.70], *p* = 0.020; own minus
+> other proportion 0.52 [0.22, 0.85], *p* = 0.06); the congruency separation
+> in 25 % than in 75 % incongruent blocks, 0.32 [0.06, 0.56], *p* = 0.13.
+> Decide whether the claim rests on the bootstrap CI or the block-permutation
+> *p* (§1.5) before writing. Task-responsive subset: switch 0.41, *p* = 0.006;
+> own minus other *p* = 0.008.]**
 
 ### 3.5 Anatomy supplement (S-N4)
 
@@ -1479,11 +1052,33 @@ layout since 2026-10-10.*
 the task-significant run with main effects (2026-10-01); §18.9 there gives
 each number's source. "Participants as the unit" is the §3.4 text that left the
 main text on 2026-10-06, when the main text settled on electrodes as the unit
-([`n4_section19_electrode_level.md`](n4_section19_electrode_level.md)). The
+([`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#1910-19-with-electrodes-as-the-unit)). The
 next two paragraphs ("The adaptation gradient", "The
 base-effect balance") are the §17.3 text that left the main text on 2026-10-01
 (§3.4 above). The others are written here from the numbers in §16.6.6 and the
 §17.3 supplement additions of that doc.*
+
+*2026-11-12: the paragraph below left §3.4 (the gradient is out of the main
+text, §1.6) and is on the good set (all-lPFC anatomy run, `summary.txt`;
+height share from `section15/summary_section15.txt`). The rest of this section
+is still all24 and still needs the same update.*
+
+> **The balance between the two adaptations varies modestly across lPFC.** The
+> balance between the two effects (LWPC − LWPS within each electrode) differed
+> across Destrieux parcels (19 parcels sampled in at least three participants,
+> 370 electrodes; *F* = 1.69, label-exchange permutation *p* = 0.047;
+> *p* = 0.017–0.097 with each participant left out), although no single parcel
+> differed from zero after FDR correction (all *q* ≥ 0.17). It also varied
+> with position (MNI coordinates: block *F* = 3.32, *p* = 0.018): relative to
+> LWPS, LWPC was weaker dorsally (*z* slope −0.0087 SD/mm, 95 % CI [−0.0140,
+> −0.0039] from an electrode bootstrap within participant, *p* = 0.003;
+> Bonferroni-corrected over three axes, *p* = 0.008). The predicted
+> anterior–posterior axis showed no effect (*p* = 0.44), and height explained
+> about 2 % of the balance's variance within participants. In the
+> task-responsive subset neither the parcel test (*F* = 0.74, *p* = 0.42;
+> 13 parcels, 141 electrodes) nor the coordinate test (*F* = 1.34, *p* = 0.34)
+> was significant, with a *z* slope of similar size (−0.0080 SD/mm,
+> *p* = 0.22).
 
 > **Task-responsive subset.** We repeated the anatomical analyses on the
 > task-responsive lPFC electrodes (171 electrodes, 21 participants), with the
@@ -1600,7 +1195,7 @@ scores as matched small multiples with shared axes and one legend
 
 ### 3.6 Congruency ↔ switch-type cross-decoding (S5)
 
-*Copied from [`methods.md` › A4](methods.md#results-draft), Results (draft). It
+*Copied from [`archive/methods.md` › A4](archive/methods.md#results-draft), Results (draft). It
 states only what the full-trial runs support. Choose the bracketed variants once
 the seeds and the electrode-matched region comparison are in.*
 
@@ -1622,7 +1217,7 @@ the seeds and the electrode-matched region comparison are in.*
 >
 > *(2026-10-16: "largely distinct" changed to "partly shared" here; the
 > coding axes put the noise-corrected alignment at about 0.7 (§3.4).
-> [`methods.md`](methods.md) and [`decoding.md` › A4 §13.8.4](decoding.md#138-results-2026-10-01)
+> [`archive/methods.md`](archive/methods.md) and [`decoding.md` › A4 §13.8.4](decoding.md#138-results-2026-10-01)
 > still have the old wording. The RT sentence for the main text is now §3.4's;
 > the bracketed RT choice below is for S5, once A4's own seeds are in.)*
 >
@@ -1645,7 +1240,7 @@ pre-stimulus ([`decoding.md` › A4 §13.8.3](decoding.md#138-results-2026-10-01
 
 ### 3.7 Brain–behavior (S-BB)
 
-*Copied from §14.2 of [`a6_brain_behavior.md`](a6_brain_behavior.md#142-results-supplement-s-bb).*
+*Copied from §14.2 of [`archive/a6_brain_behavior.md`](archive/a6_brain_behavior.md#142-results-supplement-s-bb).*
 
 > **Brain–behavior.** We asked whether participants whose lateral prefrontal
 > high gamma adapted more also adapted more in behavior. Of the 21 participants
@@ -1705,7 +1300,7 @@ support. It goes next to the N4 overlap result.*
 - The occipital comparison has not been run, so nothing is lPFC-specific.
 
 **Brain–behavior (S-BB).** *Copied from §14.3 of
-[`a6_brain_behavior.md`](a6_brain_behavior.md#143-discussion-sentence).*
+[`archive/a6_brain_behavior.md`](archive/a6_brain_behavior.md#143-discussion-sentence).*
 
 > We could not test whether individual differences in lPFC adaptation track
 > individual differences in behavioral adaptation. With 17 participants, the
@@ -1776,6 +1371,23 @@ encoding of fix 1 there, not the current figure.*
 
 ### 5.2 Fig. 5 (draft)
 
+*2026-11-12: draft for the new F4a, the scatter alone (§1.5). It replaces
+panel b of the old caption below; the old caption's panels a and c are out of
+the main text, and d–e (now F4b–c) need the "task seq." name and the
+2026-11-09 restyle (shuffle band, labelled bars, no grey background, Wong
+colours). The old caption's counts are updated to the good set (371 / 20;
+370 / 19 in the overlap; 362 / 19 in the trajectories; 200 splits).*
+
+> **a**, LWPC against LWPS in every lPFC electrode (370 electrodes,
+> 19 participants). Each point is one electrode's two scores from all trials
+> (Cohen's *d*, responsiveness regressed out and each participant's mean
+> subtracted, overall mean added back; SD units). The test (*p*, top right) is
+> pre-specified: the Spearman correlation of one score from one half of the
+> trials with the other score from the other half, averaged over 200 random
+> splits, against a within-participant permutation null; *r* = 0.11 (text).
+> Because the two full-data scores share trials and their noise, the points
+> correlate more strongly (*r* = 0.23) than the test, so no line is drawn.
+
 *Redrafted 2026-10-16 for the layout in §1.4: a–c are the anatomy as laid out
 since 2026-10-10 (rendered brain, scatter with the centroid zoom, the gradient
 in the test's units), and d–e are the coding axes, which replaced the A4
@@ -1789,17 +1401,17 @@ S-N4.*
 > **Fig. 5 | LWPC and LWPS adaptation share lPFC electrodes, with a shallow
 > dorsal–ventral bias in their balance; over the same electrodes, congruency
 > and switch type are coded by partly aligned population patterns.** All lPFC
-> electrodes (398 electrodes, 22 participants). **a**, Electrodes on the MNI
+> electrodes (371 electrodes, 20 participants). **a**, Electrodes on the MNI
 > template brain, coloured by tertile of height (MNI *z*; cuts at **[…]** and
 > **[…]** mm, drawn as lines); each tertile's centroid in each hemisphere is
 > drawn larger and darker. **b**, LWPC against LWPS: each point is one
 > electrode's score from all trials, after regressing out overall
 > responsiveness and subtracting each participant's mean, with each score's
-> overall mean added back (397 electrodes from the 21 participants with at
+> overall mean added back (370 electrodes from the 19 participants with at
 > least three; SD units). Colour as in **a**; large markers, tertile centroids.
 > Points above the identity line lean toward LWPS, points below it toward
 > LWPC. *r* is the pre-specified test: one score from one half of the trials
-> against the other score from the other half, averaged over 1,000 random
+> against the other score from the other half, averaged over 200 random
 > splits (Spearman; within-participant permutation null). Because each half
 > has half the trials, *r* is smaller than the correlation among the plotted
 > points. Right, the centroids enlarged from the dashed box, each with its
@@ -1817,11 +1429,11 @@ S-N4.*
 > of its four proportion blocks with the mean of the four conditions
 > subtracted, projected onto the congruency axis (*x*) and the part of the
 > switch-type axis orthogonal to it (*y*). Both axes were fit on the other half
-> of the trials over 0–1.5 s (389 electrodes from the 21 participants with
+> of the trials over 0–1.5 s (362 electrodes from the 19 participants with
 > every cell in each half). Open circle, first window; arrow, last. Below, *x*
 > and *y* over time, mean and 95 % participant-bootstrap CI. Where the codes
-> are shared, the switch conditions also move along *x*. The plane holds 0.52
-> [0.40, 0.63] of the reproducible condition-dependent activity. **e**, Cosine
+> are shared, the switch conditions also move along *x*. The plane holds 0.53
+> [0.39, 0.64] of the reproducible condition-dependent activity. **e**, Cosine
 > between the congruency axis from one half of the trials and the switch-type
 > axis from the other (cross; blue, with its Pearson version dashed) and the
 > ceiling set by noise (orange), in 250-ms windows every 62.5 ms. Grey band,
@@ -1846,7 +1458,7 @@ S-N4.*
 
 ### 5.3 Supplementary Fig. S-BB
 
-*Copied from §14.4 of [`a6_brain_behavior.md`](a6_brain_behavior.md#144-figure-caption-supplementary-fig-s-bb).
+*Copied from §14.4 of [`archive/a6_brain_behavior.md`](archive/a6_brain_behavior.md#144-figure-caption-supplementary-fig-s-bb).
 Use `participant_brain_behavior_scatter_rtadj`, annotated with r, its 95 % CI
 and the ceiling instead of R² (R² drops the sign; LWPS is r = −0.06).*
 

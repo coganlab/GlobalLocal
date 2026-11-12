@@ -90,25 +90,29 @@ def strip_leading_zeros(subject_id):
     return f"D{int(numbers)}{letters}"
 
 
-# Resolution of the TIFF written beside every brain PNG and legend, for the
-# journal. A brain screenshot keeps its pixels, so its print size at this dpi
+# Resolution of the TIFF and PDF written beside every brain PNG and legend,
+# for the journal. A brain screenshot keeps its pixels, so its print size at this dpi
 # is set by the render size (args.panel_px per panel; 1600 gives a tightened
 # split figure about 2200 px wide, ~4.9 in / 125 mm at 450 dpi).
 TIFF_DPI = 450
 
 
-def save_tiff_copy(png_path, dpi=TIFF_DPI):
-    """Write ``png_path`` again as an LZW-compressed TIFF tagged at ``dpi``
-    (same pixels, white background), next to it with a ``.tif`` suffix."""
+def save_print_copies(png_path, dpi=TIFF_DPI):
+    """Write ``png_path`` again, next to it, as an LZW-compressed ``.tif`` and
+    a ``.pdf``, both at ``dpi`` (same pixels, white background). A brain
+    screenshot is raster, so the PDF holds the image, not vectors; it is there
+    for layout tools that place PDFs. Returns the two paths."""
     from PIL import Image
-    tif_path = os.path.splitext(png_path)[0] + ".tif"
+    stem = os.path.splitext(png_path)[0]
     with Image.open(png_path) as im:
         if im.mode in ("RGBA", "LA", "P"):
             rgba = im.convert("RGBA")
             im = Image.new("RGB", rgba.size, (255, 255, 255))
             im.paste(rgba, mask=rgba.split()[-1])
-        im.convert("RGB").save(tif_path, dpi=(dpi, dpi), compression="tiff_lzw")
-    return tif_path
+        rgb = im.convert("RGB")
+        rgb.save(f"{stem}.tif", dpi=(dpi, dpi), compression="tiff_lzw")
+        rgb.save(f"{stem}.pdf", resolution=dpi)
+    return f"{stem}.tif", f"{stem}.pdf"
 
 
 def tighten_brain_png(path, n_panels):
@@ -125,8 +129,8 @@ def tighten_brain_png(path, n_panels):
 
 
 def save_brain_image(fig, path, n_panels=1):
-    """Screenshot a :class:`mne.viz.Brain` to ``path`` and a TIFF copy beside
-    it (`save_tiff_copy`), headless-safe. With ``n_panels`` > 1 (hemi='split')
+    """Screenshot a :class:`mne.viz.Brain` to ``path`` and TIFF and PDF copies beside
+    it (`save_print_copies`), headless-safe. With ``n_panels`` > 1 (hemi='split')
     the panels are first pulled together (`tighten_brain_png`).
 
     ``Brain.save_image`` grabs the plotter's framebuffer. On a headless node the
@@ -154,7 +158,7 @@ def save_brain_image(fig, path, n_panels=1):
             return False
     if n_panels > 1:
         tighten_brain_png(path, n_panels)
-    print(f"  Saved TIFF ({TIFF_DPI} dpi) -> {save_tiff_copy(path)}")
+    print(f"  Saved TIFF and PDF ({TIFF_DPI} dpi) -> {', '.join(save_print_copies(path))}")
     return True
 
 
@@ -449,8 +453,9 @@ def plot_roi_histogram(counts, title, save_path, color=(0.2, 0.4, 0.8), top_n=No
     ax.margins(x=0.08)
     fig.tight_layout()
     fig.savefig(save_path, dpi=200, bbox_inches="tight")
+    fig.savefig(os.path.splitext(save_path)[0] + ".pdf", bbox_inches="tight")   # vector
     plt.close(fig)
-    print(f"  Saved ROI histogram -> {save_path}")
+    print(f"  Saved ROI histogram -> {save_path} (+ .pdf)")
 
 
 def plot_color_legend(entries, save_stem, formats=("svg", "pdf", "png", "tif")):

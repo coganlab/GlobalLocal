@@ -602,6 +602,8 @@ def plot_accuracies_with_multiple_sig_clusters(
     xtick_step: float = 0.5,
     n_yticks: int = 5,
     sig_band_frac: float = 0.16,
+    sig_row_slots: Optional[int] = None,
+    sig_split_contrasts: bool = False,
     contrast_bar_linewidth: float = 3.0,
     chance_bar_linewidth: float = 1.6,
     chance_bar_color: Optional[str] = None,
@@ -659,6 +661,15 @@ def plot_accuracies_with_multiple_sig_clusters(
         significance strip. The data keeps exactly ``ylim``; the axes are
         extended upward, and traces and error bands are clipped at ``ylim[1]``
         so nothing bleeds into the strip.
+    sig_row_slots : int, optional
+        Lay the significance strip out for this many rows, whatever this plot
+        holds, so that panels passing the same number keep every row at the
+        same height (the first row always on top). ``None`` (default) spreads
+        this plot's own rows over the strip.
+    sig_split_contrasts : bool
+        Give each contrast direction its own row instead of sharing the top
+        row. Use it when both directions are drawn in one colour, where
+        adjacent clusters of opposite direction would merge into one bar.
     chance_bar_color : str, optional
         Colour for every against-chance bar. ``None`` (default) draws each in
         its own trace's colour, which ties the bar to its line without
@@ -747,8 +758,11 @@ def plot_accuracies_with_multiple_sig_clusters(
         # opposite tails of one test), so they share the top row and read as
         # one test. Two conditions can both beat chance at the same moment, so
         # those get a row each or one would be drawn over the other.
-        rows = ([{'entries': contrast_entries, 'kind': 'contrast'}]
-                if contrast_entries else [])
+        if sig_split_contrasts:
+            rows = [{'entries': [e], 'kind': 'contrast'} for e in contrast_entries]
+        else:
+            rows = ([{'entries': contrast_entries, 'kind': 'contrast'}]
+                    if contrast_entries else [])
         rows += [{'entries': [e], 'kind': 'chance'} for e in chance_entries]
     else:
         # No caller-declared kinds: a caller written against the old
@@ -801,7 +815,9 @@ def plot_accuracies_with_multiple_sig_clusters(
 
         # --- limits, with a clean strip reserved on top for the bars ------
         data_lo, data_hi = float(ylim[0]), float(ylim[1])
-        band_frac = sig_band_frac if rows else 0.0
+        # With row slots the strip is part of a shared layout: keep it even
+        # when this plot has nothing to draw, so the data area still lines up.
+        band_frac = sig_band_frac if (rows or sig_row_slots) else 0.0
         axes_hi = data_lo + (data_hi - data_lo) / (1.0 - band_frac) if band_frac else data_hi
         ax.set_ylim(data_lo, axes_hi)
 
@@ -824,6 +840,7 @@ def plot_accuracies_with_multiple_sig_clusters(
             chance_bar_linewidth=chance_bar_linewidth,
             chance_bar_color=chance_bar_color,
             base_fontsize=base_fontsize,
+            row_slots=sig_row_slots,
         )
         label_rows = show_sig_legend and sig_legend_loc == 'rows'
         if label_rows:
@@ -912,7 +929,7 @@ def plot_accuracies_with_multiple_sig_clusters(
 
 def _draw_sig_strip(ax, time_points, xlim, rows, band_frac, *,
                     contrast_bar_linewidth, chance_bar_linewidth,
-                    chance_bar_color, base_fontsize):
+                    chance_bar_color, base_fontsize, row_slots=None):
     """Draw the significance rows; return the colours used for chance bars and
     each row's height (axes fraction)."""
     if not rows:
@@ -922,8 +939,9 @@ def _draw_sig_strip(ax, time_points, xlim, rows, band_frac, *,
     # the data limits are.
     transform = ax.get_xaxis_transform()
     top, bottom = 1.0 - 0.02, 1.0 - band_frac + 0.015
-    row_ys = ([(top + bottom) / 2.0] if len(rows) == 1
-              else list(np.linspace(top, bottom, len(rows))))
+    n_slots = max(len(rows), row_slots or 0)
+    row_ys = ([(top + bottom) / 2.0] if n_slots == 1
+              else list(np.linspace(top, bottom, n_slots))[:len(rows)])
 
     chance_colors = []
     for row, y in zip(rows, row_ys):

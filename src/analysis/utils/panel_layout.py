@@ -16,6 +16,8 @@ calls ``draw(ax)`` once on a fresh panel and writes, per format,
 
 Tick labels, legends and keys stay in every variant. PDFs keep text as text
 (TrueType, editable in Illustrator).
+
+save_figure(fig, stem) saves any figure as PDF, PNG and 450-dpi TIFF.
 """
 
 import os
@@ -25,7 +27,7 @@ import matplotlib.pyplot as plt
 # Canvas and axes box, mm. 89 mm is one Nature column. The right margin holds
 # the key column (significance-row labels and legend, drawn at x > 1 in axes
 # coordinates); the left and bottom margins hold the tick and axis labels.
-PANEL_MM = dict(width=89.0, height=60.0, left=13.0, right=31.0, bottom=10.0, top=3.0)
+PANEL_MM = dict(width=89.0, height=60.0, left=13.0, right=21.0, bottom=10.0, top=3.0)
 
 VARIANTS = {'': (True, True), '_noxlabel': (False, True),
             '_noylabel': (True, False), '_nolabels': (False, False)}
@@ -54,6 +56,20 @@ def overflow_mm(fig, ax):
             'bottom': (fig_box.y0 - box.y0) * mm, 'top': (box.y1 - fig_box.y1) * mm}
 
 
+def save_figure(fig, stem, formats=('pdf', 'png', 'tif'), dpi=450, **savefig_kwargs):
+    """Save ``fig`` once per format to ``<stem>.<fmt>``; returns the paths.
+    ``dpi`` applies to the raster formats; TIFFs are LZW-compressed. Extra
+    keywords go to ``savefig`` (e.g. ``bbox_inches='tight'``)."""
+    os.makedirs(os.path.dirname(os.path.abspath(stem)), exist_ok=True)
+    paths = []
+    for fmt in formats:
+        path = f'{stem}.{fmt}'
+        fig.savefig(path, dpi=dpi, **savefig_kwargs,
+                    **({'pil_kwargs': {'compression': 'tiff_lzw'}} if fmt == 'tif' else {}))
+        paths.append(path)
+    return paths
+
+
 def save_panel_variants(draw, stem, geometry=None, formats=('png', 'pdf', 'tif'), dpi=450):
     """Draw one panel with ``draw(ax)`` and save it in every `VARIANTS`
     variant and format to ``<stem><variant>.<fmt>``; returns the paths.
@@ -78,10 +94,6 @@ def save_panel_variants(draw, stem, geometry=None, formats=('png', 'pdf', 'tif')
         for tag, (keep_x, keep_y) in VARIANTS.items():
             ax.set_xlabel(xlabel if keep_x else '')
             ax.set_ylabel(ylabel if keep_y else '')
-            for fmt in formats:
-                path = f'{stem}{tag}.{fmt}'
-                fig.savefig(path, dpi=dpi, facecolor='white',
-                            **({'pil_kwargs': {'compression': 'tiff_lzw'}} if fmt == 'tif' else {}))
-                paths.append(path)
+            paths += save_figure(fig, f'{stem}{tag}', formats, dpi, facecolor='white')
         plt.close(fig)
     return paths

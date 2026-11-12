@@ -39,6 +39,7 @@ from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 from ieeg.viz.parula import parula_map
 import numpy as np
 from src.analysis.utils.general_utils import calculate_RTs, get_good_data, get_trials, get_trials_with_outlier_analysis
+from src.analysis.config.plotting_parameters import REFERENCE_LINE_STYLE
 
 import matplotlib.pyplot as plt
 
@@ -970,7 +971,7 @@ def plot_channel_spectrogram(spec, ch_name: str, ax: Optional[plt.Axes] = None,
                          vmin=vlim[0], vmax=vlim[1], shading='gouraud',
                          rasterized=True)
     ax.set_yscale(yscale)
-    ax.axvline(0, color='k', linestyle='--', linewidth=1)  # stimulus onset
+    ax.axvline(0, **REFERENCE_LINE_STYLE)  # stimulus onset, as in the power traces
     if band is not None:
         for f in band:
             ax.axhline(f, color='w', linestyle=':', linewidth=1)

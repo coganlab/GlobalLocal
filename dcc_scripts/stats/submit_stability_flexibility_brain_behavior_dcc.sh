@@ -3,7 +3,7 @@
 # adaptation? Per-participant continuous scores (raw and RT-adjusted, with
 # reliabilities: the across-participant result), the label-based across-subject
 # summaries (comparison only), and the within-subject single-trial mixed models.
-# How to run it and read the outputs: docs/a6_brain_behavior.md.
+# How to run it and read the outputs: docs/archive/a6_brain_behavior.md.
 #
 # Usage:
 #   bash submit_stability_flexibility_brain_behavior_dcc.sh                       # real data

@@ -29,7 +29,8 @@ The two tests of §3.2, both needed for "partly shared":
   * Anything shared? `cross_cosine_null` rescored with one factor's labels
     shuffled, tested on the RAW cross cosine, cluster-corrected over windows by
     cluster mass (`shared_windows`, which says why not A4's run length).
-  * Not one code? A participant bootstrap of ceiling - cross: its CI excludes 0.
+  * Not one code? A bootstrap of ceiling - cross (electrodes resampled within
+    participant, the paper's unit; `boot_unit`): its CI excludes 0.
 Windows whose ceilings' CIs include 0 carry no reliable code and are flagged.
 `compare_coding_axes` computes all of it from the in-memory tables.
 
@@ -44,6 +45,7 @@ import numpy as np
 import pandas as pd
 
 from . import stability_flexibility_segregation as sfs
+from ..utils.resampling import bootstrap_counts
 
 AXIS_COLS = ('mxA', 'mxB', 'myA', 'myB')        # congruency A/B, switch type A/B
 DESIGN_COLS = ('congruency', 'switchType', 'incongruent_proportion', 'switch_proportion')
@@ -75,22 +77,20 @@ def axis_arrays(per_split):
     return subjects, {c: d[c].to_numpy(float).reshape(shape) for c in AXIS_COLS}
 
 
-def _pair_sums(arrays, subjects, center=False):
-    """Per participant, the sums over its electrodes of every product in
-    `_PAIRS`: ``{name: (windows, splits, participants)}``. A cosine over any
-    weighted set of participants is a ratio of weighted sums of these, which is
-    what makes the participant bootstrap cheap. `center=True` first centres each
-    vector across the pooled electrodes (cosine -> Pearson r)."""
+def _pair_products(arrays, center=False):
+    """Per electrode, every product in `_PAIRS`: ``{name: (windows, splits,
+    electrodes)}``. A cosine over any weighting of the electrodes is a ratio of
+    weighted sums of these, which is what makes the bootstrap cheap (a draw is
+    a weighting, `utils.resampling.bootstrap_counts`). `center=True` first
+    centres each vector across the pooled electrodes (cosine -> Pearson r)."""
     if center:
         arrays = {c: a - a.mean(axis=-1, keepdims=True) for c, a in arrays.items()}
-    codes = pd.factorize(subjects)[0]
-    onehot = np.eye(codes.max() + 1)[codes]                       # electrodes x participants
-    return {name: (arrays[a] * arrays[b]) @ onehot for name, (a, b) in _PAIRS.items()}
+    return {name: arrays[a] * arrays[b] for name, (a, b) in _PAIRS.items()}
 
 
 def _cosines(sums, weights=None):
     """Split-averaged ``(cross, ceil_c, ceil_s)``, each (windows,) or, with
-    `weights` (participants, n), (n, windows): one row per weighting."""
+    `weights` (electrodes, n), (n, windows): one row per weighting."""
     s = {k: (v.sum(-1) if weights is None else v @ weights) for k, v in sums.items()}
 
     def cos(ab, aa, bb):
@@ -115,8 +115,8 @@ def coding_axis_cosines(per_split):
     """The point estimates of §3.2 per window: cross, the two ceilings, ceiling and
     alignment, as cosines and (``_pearson``) as correlations. One row per window."""
     subjects, arrays = axis_arrays(per_split)
-    cross, cc, cs = _cosines(_pair_sums(arrays, subjects))
-    cross_p, cc_p, cs_p = _cosines(_pair_sums(arrays, subjects, center=True))
+    cross, cc, cs = _cosines(_pair_products(arrays))
+    cross_p, cc_p, cs_p = _cosines(_pair_products(arrays, center=True))
     ceiling, ceiling_p = _ceiling(cc, cs), _ceiling(cc_p, cs_p)
     return pd.DataFrame(dict(
         window=np.arange(len(cross)), n_electrodes=len(subjects),
@@ -248,8 +248,8 @@ def cross_cosine(per_split):
     """The split-averaged raw cross cosine per window (the `cross` column of
     `coding_axis_cosines`), without the rest of the table: what a null draw
     records."""
-    subjects, arrays = axis_arrays(per_split)
-    return _cosines(_pair_sums(arrays, subjects))[0]
+    _, arrays = axis_arrays(per_split)
+    return _cosines(_pair_products(arrays))[0]
 
 
 def cross_cosine_null(df, hg_windows, factor, n_perm=1000, n_splits=20, seed=0,
@@ -305,19 +305,21 @@ def shared_windows(cross, null, percentile=95, cluster_percentile=95):
     return mask
 
 
-def _bootstrap(sums, n_boot, rng, chunk=200):
-    """Participant-bootstrap draws of (cross, ceil_c, ceil_s), each (n_boot, windows):
-    participants resampled with replacement, keeping their real labels."""
-    n_part = next(iter(sums.values())).shape[-1]
+def _bootstrap(products, subjects, n_boot, rng, unit='electrode', chunk=200):
+    """Bootstrap draws of (cross, ceil_c, ceil_s), each (n_boot, windows).
+    `unit` as `utils.resampling.bootstrap_counts`: 'electrode' (default)
+    resamples each participant's electrodes, the unit of the paper's other
+    analyses; 'participant' resamples whole participants, the independent
+    units (more conservative; the option for a reviewer)."""
     draws = []
     for start in range(0, n_boot, chunk):
-        n = min(chunk, n_boot - start)
-        weights = rng.multinomial(n_part, np.full(n_part, 1 / n_part), size=n).T
-        draws.append(_cosines(sums, weights.astype(float)))
+        weights = bootstrap_counts(subjects, min(chunk, n_boot - start), rng, unit).T
+        draws.append(_cosines(products, weights))
     return tuple(np.concatenate(d) for d in zip(*draws))
 
 
-def compare_coding_axes(per_split, null=None, n_boot=2000, seed=0, alpha=0.05):
+def compare_coding_axes(per_split, null=None, n_boot=2000, seed=0, alpha=0.05,
+                        boot_unit='electrode'):
     """Everything §3.2 reports, per window, and its summary.
 
     `per_split` is the real-label table (module docstring). `null` maps a factor
@@ -340,12 +342,14 @@ def compare_coding_axes(per_split, null=None, n_boot=2000, seed=0, alpha=0.05):
         shared          shared under every factor's null: neither "no congruency
                         code" nor "no switch code" explains the cross cosine
 
-    CIs are the central 1 - `alpha` of the bootstrap. `summary` holds the
+    CIs are the central 1 - `alpha` of the bootstrap, which resamples
+    `boot_unit` ('electrode', default: electrodes within participant;
+    'participant': whole participants), and so are `reliable` and `not_one_code`. `summary` holds the
     alignment averaged over the reliable windows with its bootstrap CI (the
     number for the text), the windows of each marked run, and the settings.
     """
     subjects, arrays = axis_arrays(per_split)
-    sums = _pair_sums(arrays, subjects)
+    products = _pair_products(arrays)
     table = coding_axis_cosines(per_split)
     grid_cols = [c for c in ('window_tmin', 'window_tmax', 'window_center') if c in per_split]
     if grid_cols:
@@ -353,7 +357,7 @@ def compare_coding_axes(per_split, null=None, n_boot=2000, seed=0, alpha=0.05):
         table = table.merge(grid, on='window', how='left')
 
     rng = np.random.default_rng(seed)
-    b_cross, b_cc, b_cs = _bootstrap(sums, n_boot, rng)
+    b_cross, b_cc, b_cs = _bootstrap(products, subjects, n_boot, rng, boot_unit)
     b_ceiling = _ceiling(b_cc, b_cs)
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', RuntimeWarning)
@@ -391,6 +395,6 @@ def compare_coding_axes(per_split, null=None, n_boot=2000, seed=0, alpha=0.05):
                                if reliable.any() else None),
         not_one_code_windows=table.loc[table['not_one_code'], 'window'].tolist(),
         shared_windows=(table.loc[table['shared'], 'window'].tolist() if null else None),
-        n_boot=n_boot, seed=seed, alpha=alpha,
+        n_boot=n_boot, boot_unit=boot_unit, seed=seed, alpha=alpha,
         n_perm={f: int(len(d)) for f, d in (null or {}).items()})
     return table, summary

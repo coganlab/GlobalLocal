@@ -30,17 +30,19 @@ only remember one thing about the layout, remember this:
 | If you want… | Read |
 |---|---|
 | **What each file does** | Part 1 below — the codebase map |
-| **What the paper plans to do next, and why each analysis is designed the way it is** | [`docs/analysis_plans.md`](docs/analysis_plans.md) — every analysis plan, newest first. The [closing figure plan](docs/analysis_plans.md#closing-figure-plan) is current: which analyses carry the ending, how to run the main-effect anatomy, the electrode-set choice, and the weekly figure table |
+| **The paper's figures, and where each one is made** | [`docs/paper_draft.md` §1](docs/paper_draft.md#1-figure-plan) — the current figure plan (2026-11-10, F1–F4): every panel's figure file, the code that draws it, and the redraw and rerun commands. §2–§5 hold the Methods, Results and captions |
+| **Why each analysis is designed the way it is**, and the history of the plans | [`docs/analysis_plans.md`](docs/analysis_plans.md) — every analysis plan and superseded figure plan, newest first |
+| **What each batch of cluster jobs showed** | [`docs/results_log.md`](docs/results_log.md), newest first |
 | **How to run an analysis** (motivation, method, knobs, outputs) | [`docs/analysis_guide.md`](docs/analysis_guide.md) — the single guide to every analysis path, including the stability-vs-flexibility A1–A7 battery |
-| **How to run and interpret the N2 direction tests** | [`docs/n2_direction_tests.md`](docs/n2_direction_tests.md) — which way the LWPC and LWPS effects go, the sign convention, and every output |
+| **How to run and interpret the N2 direction tests** (archived; not in the paper) | [`docs/archive/n2_direction_tests.md`](docs/archive/n2_direction_tests.md) — which way the LWPC and LWPS effects go, the sign convention, and every output |
 | **How to run and interpret decoding and cross-decoding** | [`docs/decoding.md`](docs/decoding.md) — the ordinary decoding job (choosing the electrodes, true-vs-shuffle and block-comparison figures), [A4 cross-decoding](docs/decoding.md#a4-cross-decoding) with the task-transfer controls, [N3b block transfer](docs/decoding.md#n3b-block-transfer), and [what to do when a transfer fails](docs/decoding.md#cross-decoding-controls) |
 | **How to run and interpret N4 continuous-score anatomy** | [`docs/n4_continuous_anatomy.md`](docs/n4_continuous_anatomy.md) — primary ROI/Destrieux test, continuous brain maps, reliability, and descriptive medoids |
-| **How to run and interpret A6 brain–behavior** | [`docs/a6_brain_behavior.md`](docs/a6_brain_behavior.md) — one neural and one behavioral LWPC/LWPS score per participant, the RT confound, reliabilities, and how to read each output |
+| **How to run and interpret A6 brain–behavior** (archived; not in the paper) | [`docs/archive/a6_brain_behavior.md`](docs/archive/a6_brain_behavior.md) — one neural and one behavioral LWPC/LWPS score per participant, the RT confound, reliabilities, and how to read each output |
 | **How to run the main-effect cross-decoding, decoding and power traces, and the task positive controls** | [`docs/analysis_guide.md` §17.5](docs/analysis_guide.md#175-runbook-main-effect-populations-and-the-task-positive-controls) — the step-by-step runbook, in submission order |
-| **What shape the data is at each step** of A1–A7, and **what each output file means** | [`docs/stability_flexibility_battery.md`](docs/stability_flexibility_battery.md) |
-| **Manuscript Methods text** | [`docs/methods.md`](docs/methods.md) |
+| **What shape the data is at each step** of A1–A7, and **what each output file means** | [`docs/walkthroughs/stability_flexibility_battery.md`](docs/walkthroughs/stability_flexibility_battery.md) |
+| **Manuscript Methods text** | [`docs/paper_draft.md` §2](docs/paper_draft.md#2-methods) (the 2026-10-01 version is [`docs/archive/methods.md`](docs/archive/methods.md)) |
 | **How to change a figure's look and redraw it without rerunning** (subspace, Figure 5 anatomy, window-mean bars and curves) | [`docs/figure_editing_guide.md`](docs/figure_editing_guide.md) |
-| **How to break up a file that got too big**, and **duplicated code that could be consolidated** | [`docs/code_maintenance.md`](docs/code_maintenance.md) |
+| **How to break up a file that got too big**, and **duplicated code that could be consolidated** | [`docs/analysis_guide.md`](docs/analysis_guide.md#part-iv--code-maintenance) |
 | **Using Claude Code / AI agents or VS Code with the DCC** (without breaking login-node policy) | [`docs/dcc_ai_agents.md`](docs/dcc_ai_agents.md); agent rules are in [`CLAUDE.md`](CLAUDE.md) |
 | **Environment setup, BIDS conversion, VPN, cluster access, running the experiment** | Parts 2–6 of this README |
 
@@ -164,7 +166,7 @@ The main "what does the signal do over time" path.
 ## 1.8 `src/analysis/decoding/` — classification
 
 The largest subpackage. Already split out of a 4,752-line monolith (see
-[`docs/code_maintenance.md`](docs/code_maintenance.md#refactoring-guide)).
+[`docs/analysis_guide.md`](docs/analysis_guide.md#23-refactoring-guide)).
 
 **Core pipeline**
 
@@ -183,7 +185,7 @@ The largest subpackage. Already split out of a 4,752-line monolith (see
 | `coupling_comparison.py` | 417 | Reads the per-electrode-set `MASTER_RESULTS` pickles back and tests coupled vs. the distribution over matched control draws |
 | `cross_decoding.py` | 615 | **A4.** Train on one contrast, score against another, to ask whether "both"-selective electrodes carry one shared code or two orthogonal ones. Includes circularity guards and a synthetic-data generator with planted geometry |
 | `context_comparison.py` | 366 | Top-level context comparisons (e.g. the same contrast decoded in a 25% vs 75% block) and the cross-block overlay plot |
-| `window_mean_decoding.py` | 216 | Decoding from each electrode's window-mean HG, and comparing electrode groups (sig / nonsig / all) at a matched electrode count (or unmatched) with a membership-permutation test ([`docs/new_analyses_walkthrough.md`](docs/new_analyses_walkthrough.md) §2) |
+| `window_mean_decoding.py` | 216 | Decoding from each electrode's window-mean HG, and comparing electrode groups (sig / nonsig / all) at a matched electrode count (or unmatched) with a membership-permutation test ([`docs/decoding.md`](docs/decoding.md#the-2026-10-13-decoding-analyses-long-version) §2) |
 | `score_electrode_selection.py` | 139 | Electrode sets from the top fraction of a per-electrode score (LWPC, LWPS, congruency, switch type) chosen on held-out trials, with their unique and overlap sets; reads the selection file back for decoding and power traces (§3 of the same doc) |
 
 **Thin orchestration wrappers** (called by `decoding_dcc.py`, one concern each):
@@ -237,7 +239,7 @@ coding axes and the cosine between them, with null, ceiling and bootstrap),
 index between the two codes' subspaces) and `coding_trajectories.py` (the
 held-out condition-mean trajectories). Runbook
 [`docs/coding_axes.md`](docs/coding_axes.md); the math worked through in
-[`docs/subspace_math_walkthrough.md`](docs/subspace_math_walkthrough.md).
+[`docs/walkthroughs/subspace_math_walkthrough.md`](docs/walkthroughs/subspace_math_walkthrough.md).
 
 ## 1.11 `src/analysis/pac/` — envelope coupling and connectivity
 
@@ -309,20 +311,16 @@ Run with `make test` (all), `make test-fast` (skip `slow`), `make test-cov`
 
 | File | What it is |
 |---|---|
-| `analysis_guide.md` | **The** analysis reference — motivation, method and scripts for every path |
-| `analysis_plans.md` | Every analysis plan, newest first: the closing figure plan (current), the concurrent-regulation plan (the N1–N4 framework), the simplification plan, the nested electrode selection plan, and the original figure plan |
-| `n2_direction_tests.md` | N2 runbook: the direction tests on the LWPC and LWPS effects |
-| `decoding.md` | Decoding runbooks: the ordinary decoding job, A4 cross-decoding with the task-transfer controls, N3b block transfer, and the cross-decoding troubleshooting protocol |
-| `n4_continuous_anatomy.md` | N4 runbook and results: §0 has the current results, how they were computed, the figures, and Methods and Results text; then the anatomical tests, brain maps, the main-effect reference (§16) and §19 |
-| `segregation_walkthrough.md` | The A1/A2 segregation statistics line by line: every step of `stability_flexibility_segregation.py` and why it is there; companion notebook `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb` runs each step on a planted demo electrode |
-| `n4_code_walkthrough.md` | The N4 code line by line (mostly §19), with comprehension questions; companion notebook `dcc_scripts/stats/n4_code_walkthrough.ipynb` |
-| `new_analyses_walkthrough.md` | The 2026-10-13 analyses (channels-as-features decoding, window-mean sig/nonsig/all decoding, top-20 % score sets, the redrawn Figure 5): how to run each, its code step by step, and its statistics |
-| `coding_axes.md` | Runbook for the subspace trajectory plan's job: coding axes and their cosine, the subspace test, the trajectories, the controls, every output and how to read it |
-| `subspace_math_walkthrough.md` | The math behind the subspace test and the trajectories (vectors, SVD, why not PCA, choosing k, principal angles, the alignment index, ceiling and null, Gram–Schmidt), each with a small worked example |
-| `a6_brain_behavior.md` | A6 runbook: the per-participant brain–behavior scores, the RT adjustment, the 2026-09-27 block-map fix, every output and how to read it |
-| `methods.md` | Manuscript-ready Methods text: N4 segregation and anatomy, and the segregation analysis in a `cluster` and a `cohens_d` version |
-| `stability_flexibility_battery.md` | One fake dataset followed through A1–A7 with every intermediate table printed (generated by `docs/examples/stability_flexibility_data_flow_demo.py`, which runs anywhere with no cluster or iEEG data), and what each output PNG/CSV/JSON/TXT means |
-| `code_maintenance.md` | How the big modules were split and how to split the next one, and the duplicated code that could be consolidated |
+| `paper_draft.md` | The paper: §1 the current figure plan (F1–F4) with each panel's file, code and commands; §2–§5 the Methods, Results, Discussion sentences and captions |
+| `analysis_guide.md` | **The** analysis reference — motivation, method and scripts for every path; Part IV is code maintenance (how the big modules were split, and duplicated code that could be consolidated) |
+| `analysis_plans.md` | Every analysis plan and superseded figure plan, newest first: why each analysis is designed the way it is |
+| `results_log.md` | What each batch of cluster jobs showed, newest first |
+| `decoding.md` | Decoding runbooks: the ordinary decoding job, A4 cross-decoding with the task-transfer controls, N3b block transfer, the cross-decoding troubleshooting protocol, RT matching, the overall-activity control, and the 2026-10-13 analyses (channels as features, window-mean sig/nonsig/all decoding with the electrode-count curves, top-20 % score sets) |
+| `n4_continuous_anatomy.md` | N4 runbook and results: §0 has the current results; then the anatomical tests, brain maps, the main-effect reference (§16) and §19, including Figure 5 (§19.9) and the electrode-level versions (§19.10) |
+| `coding_axes.md` | Runbook and results for the coding axes and their cosine, the subspace test, the trajectories and the controls |
+| `figure_editing_guide.md`, `subspace_figure_todos.md` | How to change a paper figure's look and redraw it; open items from the figure discussion |
+| `walkthroughs/` | Line-by-line learning docs: the segregation statistics, the N4 code, the subspace math, and the A1–A7 data flow (`stability_flexibility_battery.md`, generated by `docs/examples/stability_flexibility_data_flow_demo.py`) |
+| `archive/` | Analyses no longer in the paper, kept as the record: A6 brain–behavior, N2 direction tests, DLPFC results, the 2026-10-01 Methods text |
 | `dcc_ai_agents.md` | Running Claude Code / AI agents and VS Code against the DCC through the `dcc-ssh-proxy` aliases, so nothing runs on login nodes |
 | `skeletons/a1…a6_*.py` | Runnable assignment stubs for each battery step, with the drop-in target named at the top |
 | `learning_assignments/segregation_bootstrap/` | A7 — a build-a-feature self-check with a pytest grader |
@@ -389,7 +387,7 @@ Worth knowing before you clone or push:
   PyPI, and the `sys.path.append(".../IEEG_Pipelines/")` hack it existed for has
   been removed from the maintained modules (though it survives in the legacy
   root notebooks and a few `src` files).
-- **Duplicated code** — see [`code_maintenance.md` › Consolidation candidates](docs/code_maintenance.md#consolidation-candidates).
+- **Duplicated code** — see [`analysis_guide.md` §24 › Consolidation candidates](docs/analysis_guide.md#24-consolidation-candidates).
 
 ---
 

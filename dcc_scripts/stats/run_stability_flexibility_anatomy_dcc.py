@@ -233,10 +233,14 @@ _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else (
     else f'synthetic_enr{SYNTHETIC_ENRICHMENT}')
 _scope = ROI_FILTER if isinstance(ROI_FILTER, str) else (
     '-'.join(ROI_FILTER) if ROI_FILTER else 'wholebrain')
+# Scores from an RT-adjusted segregation run (RT_ADJUST_HG=1) get their own
+# folder, so they never overwrite the unadjusted anatomy.
+_rt_tag = ('_rt_adjusted' if SCORES_CSV and
+           '_rt_adjusted' in os.path.basename(os.path.dirname(SCORES_CSV)) else '')
 SAVE_DIR = os.path.join(
     current_script_dir, 'results', _tag,
     f'anatomy_{LABEL_SOURCE}_{_scope}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
-    f'{SUBJECT_SET_SUFFIX}')
+    f'{_rt_tag}{SUBJECT_SET_SUFFIX}')
 
 
 def run_analysis():

@@ -657,10 +657,15 @@ def main(args):
              'label': i.get('label', i['name'])}
             for i in anova_interactions
         ] if anova_interactions else [],
+        # Every entry-point setting (subjects, electrodes, n_perm, thresholds,
+        # windows, ...), so the file records what produced the outputs beside it.
+        'run_parameters': {k: v for k, v in vars(args).items() if k != 'plot_style'},
     }
+    # One file per condition set and ROI set: runs of the same conditions on
+    # other ROIs share save_dir and would otherwise overwrite it.
     with open(os.path.join(save_dir,
-                           f'{conditions_save_name}_metadata.json'), 'w') as f:
-        json.dump(metadata, f, indent=2)
+                           f'{conditions_save_name}_{"-".join(rois)}_metadata.json'), 'w') as f:
+        json.dump(metadata, f, indent=2, default=str)
 
 
 if __name__ == "__main__":

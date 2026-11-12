@@ -110,7 +110,13 @@ ROIS_DICT = select_rois(ROIS)
 N_SPLITS = int(os.environ.get('N_SPLITS', '200'))           # split halves, real labels
 N_PERM = int(os.environ.get('N_PERM', '1000'))              # shuffles per factor
 N_NULL_SPLITS = int(os.environ.get('N_NULL_SPLITS', '20'))  # split halves per shuffle
-N_BOOT = int(os.environ.get('N_BOOT', '2000'))              # participant resamples
+N_BOOT = int(os.environ.get('N_BOOT', '2000'))              # bootstrap resamples
+# BOOT_UNIT: what the bootstrap resamples. 'electrode' (default): electrodes
+# within participant, the unit of the paper's other analyses; 'participant':
+# whole participants (utils/resampling.py). Folders of electrode runs end
+# '_bootelectrode', so they are not mistaken for the earlier runs, which
+# resampled participants and have no suffix.
+BOOT_UNIT = os.environ.get('BOOT_UNIT', 'electrode').strip().lower()
 # The shuffled-blocks null of the §6 block contrasts and proportion changes
 # (`coding_trajectories.block_null`): N_BLOCK_PERM draws of N_BLOCK_NULL_SPLITS
 # halves each; 0 skips it (each draw rescores the trajectory sums).
@@ -147,6 +153,12 @@ SAVE_DIR = os.path.join(current_script_dir, 'results', _tag, 'coding_axes',
                         + ('_remove_mean' if REMOVE_MEAN else '')
                         + {'none': '', 'adjust': '_rt_adjust'}.get(
                             RT_CONTROL, f'_rt_{RT_CONTROL}{RT_MATCH_BINS}')
+                        # only when the block null's splits differ from the
+                        # default 20, so earlier runs keep their folder names
+                        + (f'_blocknull{N_BLOCK_PERM}x{N_BLOCK_NULL_SPLITS}'
+                           if N_BLOCK_PERM and N_BLOCK_NULL_SPLITS != 20 else '')
+                        # electrode runs only (earlier runs were participant runs)
+                        + ('' if BOOT_UNIT == 'participant' else f'_boot{BOOT_UNIT}')
                         + SUBJECT_SET_SUFFIX)
 
 
@@ -174,6 +186,7 @@ def run_analysis():
         n_perm=N_PERM,
         n_null_splits=N_NULL_SPLITS,
         n_boot=N_BOOT,
+        boot_unit=BOOT_UNIT,
         n_block_perm=N_BLOCK_PERM,
         n_block_null_splits=N_BLOCK_NULL_SPLITS,
         alpha=ALPHA,
@@ -197,7 +210,7 @@ def run_analysis():
     print(f"RT control:       {RT_CONTROL}" + (f" ({RT_MATCH_BINS} bins)" if RT_CONTROL in ('match', 'random') else ""))
     print(f"Electrodes:       {ELECTRODES} | ROIs: {list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")
     print(f"n_splits:         {N_SPLITS} | null: {N_PERM} x {N_NULL_SPLITS} splits per factor")
-    print(f"n_boot:           {N_BOOT} | alpha: {ALPHA} | seed: {SEED}")
+    print(f"n_boot:           {N_BOOT} ({BOOT_UNIT}) | alpha: {ALPHA} | seed: {SEED}")
     print(f"block null:       {N_BLOCK_PERM} x {N_BLOCK_NULL_SPLITS} splits" if N_BLOCK_PERM
           else "block null:       off")
     print(f"Subspace k_max:   {K_MAX}")

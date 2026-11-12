@@ -386,7 +386,7 @@ def test_figure5_height_main_effects_pair_is_the_same_figure_under_its_own_names
                  'fig5_height_main_effects_points.csv',
                  'fig5_height_main_effects_brain_centroids.csv'):
         assert (tmp_path / name).exists()
-    assert 'congruency vs switch' in me['lines'][0]
+    assert 'congruency vs task seq.' in me['lines'][0]
 
     lines, out = sfa.section19(tab, None, str(tmp_path / 's19'), n_perm=50, n_boot=20,
                                sections=(4,), pairs=('adaptation', 'main_effects'))

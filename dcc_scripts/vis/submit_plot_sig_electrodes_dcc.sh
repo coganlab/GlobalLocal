@@ -19,8 +19,8 @@
 # Fig 2: every localized contact (bad ones included), then analyzed LPFC, then
 # task-significant analyzed LPFC. PLOT_SETS order is draw order, so later sets
 # draw on top.
-# export PLOT_SETS="all_lpfc_elecs,sig_lpfc_elecs"
-export PLOT_SETS="all_recon_elecs"
+export PLOT_SETS="all_lpfc_elecs,sig_lpfc_elecs"
+# export PLOT_SETS="all_recon_elecs"
 
 export PLOT_SET_LABEL="lpfc_power_trace_sets"
 
@@ -35,7 +35,7 @@ export ANOVA_EPOCHS_ROOT="Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and
 
 # Subject set (src/analysis/config/subjects.py); a set other than all24 writes
 # to figs_subjects-<set>/.  e.g.  SUBJECT_SET=good bash submit_plot_sig_electrodes_dcc.sh
-export SUBJECT_SET=${SUBJECT_SET:-all24}
+export SUBJECT_SET=${SUBJECT_SET:-good}
 
 export ANOVA_UNIT="electrode"
 

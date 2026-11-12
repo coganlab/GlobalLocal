@@ -6,6 +6,177 @@ the owning docs linked from each block.
 
 ---
 
+## 2026-11-10: power traces in the four-way design (job 61509912)
+
+Drafted by Claude; not yet reviewed.
+
+**What ran:** the windowed ANOVA with cluster correction, on the full 16-cell
+design (`CONDITIONS=stimulus_experiment_conditions`). Good set, task-significant
+lPFC (152 electrodes), 500 permutations. COMPLETED in 23 min. No electrodes
+were dropped.
+
+**Why:** to match the behavioral four-way ANOVA. In the three-way designs, the
+cross terms carry half of any congruency × switch-type interaction
+([`analysis_plans.md` › Power-trace ANOVA design](analysis_plans.md#power-trace-anova-design-two-way-three-way-or-four-way-2026-11-10)).
+
+**Result** (full table in §6 of that section):
+- **LWPC and LWPS hold**, in the adaptation direction, over nearly the same
+  windows as in the three-way:
+  - LWPC: 0.50–1.50 s
+  - LWPS: 0.75–1.50 s
+- **Congruency × switch proportion** is now significant from 0.69 to 1.31 s,
+  with a smaller congruency effect in 75 % S blocks. The three-way's trial mix
+  had hidden it.
+- **Switch type × incongruent proportion** has only a pre-stimulus cluster
+  (−0.50 to 0.25 s). That's a baseline difference, not an adaptation.
+- **Congruency × switch type** shows no cluster.
+
+**What to do (revised later on 2026-11-10):**
+- The paper reports the pooled two-ways (below).
+  - `dcc_scripts/vis/paper_panels/` has the pooled panels.
+  - The three-way and four-way panels are in `paper_panels_three_way/` and
+    `paper_panels_four_way/`.
+- The cross-effects are shown from the pooled two-ways, with no claim of
+  independence.
+- If a reviewer asks about the cross-effects or why the neural and behavioral
+  designs differ, the four-way result above is the answer.
+
+**Pooled two-ways (jobs 61512114–20, added later on 2026-11-10):** the four
+4-cell pooled sets, same electrodes and settings. All COMPLETED, 17–29 min,
+with no electrodes dropped.
+- **LWPC and LWPS hold**, over the same windows as the other designs:
+  - LWPC: 0.50–1.50 s
+  - LWPS: 0.62–1.50 s
+- **No cross-effect cluster.**
+- Post-stimulus, congruency × switch proportion is −0.005 here, against
+  +0.025 in the three-way and +0.037 in the four-way. Details:
+  [`analysis_plans.md` › Power-trace ANOVA design](analysis_plans.md#power-trace-anova-design-two-way-three-way-or-four-way-2026-11-10)
+  §6.
+- These runs wrote the first ROI-named metadata files
+  (`…_23_subjects_lpfc_metadata.json`).
+
+**Found along the way:** the run metadata JSON is named without its ROI. A
+dlpfc run on 2026-10-30 therefore overwrote the lpfc three-way runs' metadata
+(`stimulus_lwp{c,s}_block_balanced_conditions_23_subjects_metadata.json` now
+says `rois: ["dlpfc"]`). The lpfc result files themselves are intact.
+Fixed the same day: `power_traces_dcc.py` now writes
+`…_<rois>_metadata.json`, with every entry-point setting under
+`run_parameters`.
+
+---
+
+## 2026-11-10: lPFC coverage on the good set; F4 decoding on good; sig anatomy and RT-adjusted scoring submitted
+
+Drafted by Claude; not yet reviewed. **Partial:** the jobs below are running.
+
+### Which good participants have lPFC electrodes
+
+Counted with `resolve_electrodes_to_keep` (the selection every `ELECTRODES=all`
+/ `sig` run uses), `ROIS=lpfc`, `SUBJECT_SET=good` (23 participants):
+
+| Set | n | Participants | Electrodes |
+|---|---|---|---|
+| any lPFC electrode (anatomy, coding axes) | 20 | D0057, D0059, D0063, D0065, D0069, D0090, D0094, D0102, D0103, D0107A, D0110, D0116, D0121, D0133, D0134, D0137, D0138, D0139A, D0145, D0146 | 390 analyzed (371 enter the anatomy) |
+| task-significant lPFC electrode (F2–F4) | 19 | the 20 above minus **D0069** (one lPFC electrode, not significant) | 152 |
+| no lPFC electrode | 3 | D0077, D0100, D0130 | 0 |
+
+Restricting an electrode-pooled analysis to these participants changes none of
+its numbers (participants without electrodes contribute nothing); it matters
+only for participant-level analyses such as behavior (F1). The behavior rerun
+on the 20 or 19 is for the user to run.
+
+### dec (F4, S5b) on the good set: completes the 2026-10-29 entry
+
+- **Status:** 60508450–53 COMPLETED 2026-10-30 (34–38 h). Folder
+  `decoding/figs/<epochs>_subjects-good/`, 23 participants requested,
+  task-significant electrodes.
+- **Result** (read off the job's comparison figures, lPFC):
+
+  | Decoder | good | all24 |
+  |---|---|---|
+  | LWPC: congruency, 25% I > 75% I | ~0.5 s to epoch end | ~0.5 s to epoch end |
+  | LWPS: switch type, 25% S > 75% S | ~0.3 s to epoch end | ~0.5 s to epoch end |
+  | congruency × switch proportion | 25% S > 75% S, ~0.6–1.1 s | |
+  | switch type × incongruent proportion | 25% I > 75% I at −0.4 to 0.3 s, then 75% I > 25% I | |
+
+- **Interpretation:** both adaptation decoders hold. The switch type ×
+  incongruent proportion contrast starts before stimulus onset, which the
+  proportion manipulation acting on the trial cannot produce; check trial
+  counts and baseline before using it.
+- **Paper panels:** `paper_panels.py` read the all24 jobs regardless of
+  `--subject-set`; it now takes them from `DECODING_JOBS` per set, and the
+  panels were redrawn on good (`dcc_scripts/vis/paper_panels/`). The two
+  `sfig4_*` panels have overlapping, partly wrong significance labels
+  (`figure_editing_guide.md` §11.7).
+
+### Anatomy controls on the good set (what exists, what was submitted)
+
+The HG control (responsiveness, mean |HG|, regressed out) is built into every
+overlap and coordinate test (`split_resolved_corr`, `_nuisance_design`); there
+is no switch to turn it off. So the good-set all-lPFC anatomy (2026-10-29) is
+already "HG-controlled", for the main effects (congruency–switch r = 0.237)
+and the adaptations (LWPC–LWPS r = 0.106). Its `overlap_controls.csv` adds,
+for LWPC–LWPS only: nonlinear responsiveness 0.103, RT coupling 0.091, and
+everything together (with MNI and base effects) 0.041, p = 0.078.
+
+Submitted 2026-11-10, `SUBJECT_SET=good`, `ROIS=lpfc`, `MAIN_EFFECTS=1`,
+`EFFECT_MEASURE=cohens_d`, 200 splits:
+
+| Job | What | Output (`stats/results/<epochs>/…`) |
+|---|---|---|
+| 61504193 | all lPFC, RT removed from HG before scoring (HG + RT control, both effects) | `segregation_results/window_0.0to1.5s_all_lpfc_…_main_effects_rt_adjusted_subjects-good` |
+| 61504276 | sig lPFC, main-effects scoring | `…_sig_lpfc_…_main_effects_subjects-good` |
+| 61504277 | sig, scatter-only long table (§19 input) | `…_sig_lpfc_…_scatter_only_splits0_subjects-good` |
+| 61504278 | sig, RT-adjusted scatter-only (§19 RT input) | `…_sig_lpfc_…_rt_adjusted_scatter_only_splits200_subjects-good` |
+| 61504279 | sig, RT removed before scoring | `…_sig_lpfc_…_main_effects_rt_adjusted_subjects-good` |
+| 61504280 | sig anatomy with §15/16/19, held on 61504276–78 | `anatomy_a1_lpfc_window_0.0to1.5s_sig_subjects-good` |
+
+`submit_stability_flexibility_segregation_dcc.sh` now honours `ELECTRODES`
+from the environment (it was fixed to `all`).
+
+**Results** (all six COMPLETED, 3–18 min). Separate-half r, 10,000
+within-participant permutations, responsiveness regressed out in every row:
+
+| | all lPFC | sig lPFC |
+|---|---|---|
+| electrodes / participants in the overlap | 370 / 19 | 148 / 16 (participants need ≥ 3 electrodes) |
+| LWPC–LWPS | 0.106, p = 0.0001 | 0.073, p = 0.086 |
+| LWPC–LWPS, RT removed before scoring | 0.098, p = 0.0002 | 0.071, p = 0.096 |
+| congruency–switch | 0.237, p = 0.0001 (noise-corrected 0.83) | 0.150, p = 0.006 (0.58) |
+| congruency–switch, RT removed before scoring | 0.133, p = 0.0002 (0.71) | 0.061, p = 0.23 (0.32) |
+| height (MNI z) slope of the balance | −0.0087/mm, p = 0.0028 | −0.0080/mm [−0.018, +0.002], p = 0.22 |
+
+The sig anatomy's confound table (LWPC–LWPS, 148 / 16): nonlinear
+responsiveness 0.063 (p = 0.14), RT coupling 0.068 (p = 0.11), base effects
+0.026 (p = 0.51), all together 0.032 (p = 0.45); leave one participant out
+0.051–0.089, p 0.047–0.26.
+
+- **Interpretation:** in the task-significant subset the adaptation overlap
+  and the height gradient are no longer significant: the point estimates are
+  about 70 % (overlap) and 90 % (slope) of the all-lPFC ones, on 40 % of the
+  electrodes and 16 of 19 participants, so this is what lost power predicts;
+  it is not evidence against the all-lPFC result. The base effects still
+  overlap in sig (p = 0.006). RT removal leaves the adaptation overlap
+  unchanged in both sets and roughly halves the base-effect overlap, as in
+  all24 (N4 §18.10).
+- **Effect on the paper's story:** relevant to the open question of using sig
+  electrodes everywhere: F5 a–c would then report a non-significant overlap
+  and gradient. Keeping all lPFC for F5 a–c (pre-specified) keeps both.
+- **Recommendation:** supplement (decided 2026-11-10): the RT-adjusted
+  anatomy and both confound-control tables go to S-N4.
+
+**Submitted after these** (code approved 2026-11-10):
+
+| Job | What | Output |
+|---|---|---|
+| 61512141 / 61512143 | anatomy on the RT-adjusted scores, all / sig (`RT_ADJUST_HG=1`; folder now gets `_rt_adjusted`, §19 inputs all RT-adjusted) | `anatomy_a1_lpfc_window_0.0to1.5s_{all,sig}_rt_adjusted_subjects-good/` |
+| 61512142 / 61512144 | §19 section 5 on the existing all / sig good anatomy: confound controls for LWPC–LWPS and, new, for congruency–switch | `anatomy_a1_lpfc_window_0.0to1.5s_{all,sig}_subjects-good/continuous/section19_controls_2026-11-10/` (`overlap_controls_main_effects.csv`) |
+
+New anatomy runs on a main-effects segregation run write both control tables
+themselves (`overlap_controls.csv`, `overlap_controls_main_effects.csv`).
+
+---
+
 ## 2026-10-30: anatomy vs coding-axes overlap; block-projection null submitted
 
 Drafted by Claude; not yet reviewed. **Partial:** the block-null runs are
@@ -185,9 +356,9 @@ electrodes) and D0144 (16).
 - **Effect on the paper's story:** none, pending the remaining seeds.
 - **Recommendation: main text,** as planned; update the n.
 
-### dec (F4, S5b): within-block decoding — pending
+### dec (F4, S5b): within-block decoding
 
-60508450–53 running (up to 48 h).
+60508450–53 COMPLETED 2026-10-30; results in the 2026-11-10 entry.
 
 ### Oddities
 
@@ -707,7 +878,7 @@ supplement panel, or one Methods sentence?
 
 ### dec_wmgroups: window-mean decoding in sig, nonsig and all electrodes
 
-Owning doc: [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §2.6
+Owning doc: [`decoding.md` › 2026-10-13 analyses](decoding.md#the-2026-10-13-decoding-analyses-long-version) §2.6
 (pointer in [`decoding.md`](decoding.md) §3.6).
 
 - **Status:** 2 jobs, both COMPLETED (58726163 congruency, 2 h 03 min;
@@ -734,7 +905,7 @@ Owning doc: [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §2.6
 
 ### sbatch_score_electrode_selection: top / negative / absolute 20 % sets
 
-Owning doc: [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §3.5
+Owning doc: [`decoding.md` › 2026-10-13 analyses](decoding.md#the-2026-10-13-decoding-analyses-long-version) §3.5
 (pointer in [`decoding.md`](decoding.md) §3.7).
 
 - **Status:** 3 jobs COMPLETED, ~10 min each (58726651 positive, 58726655
@@ -810,7 +981,7 @@ Owning doc: [`coding_axes.md`](coding_axes.md) §10.
 | `sf_anatomy_a1_real` (A3/N4 anatomy; sig lPFC, sig DLPFC, all DLPFC, all lPFC) | 58726853, 58726855, 58726860, 58726861 | **Not an analysis failure.** Each log ends with "✓ Analysis completed successfully!" and the figures and tables were written. The job's exit code 1 comes from `xvfb-run` cleanup: its own Xvfb server had already exited, so `kill $XVFBPID` failed under `set -e` and `xvfb-run` returned 1 instead of Python's 0. All four jobs ran at once on the same node (dcc-coganlab-gpu-ferc-s-aa32-29) and all report display `:99`, so a display-number collision is the likely reason the Xvfb servers died early (not verified). The two sig runs also skipped the §19 RT-adjusted follow-up (`RT_LONG_DF_CSV not found`). | No. The outputs were not reviewed in this entry; check the brain renders are not blank before using them |
 
 Owning doc for the `dec_a0e0` failures:
-[`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §1.7.
+[`decoding.md` › 2026-10-13 analyses](decoding.md#the-2026-10-13-decoding-analyses-long-version) §1.7.
 
 ### Still outstanding (not documented)
 
@@ -850,7 +1021,7 @@ before starting, superseded by 58739251–54).
    (0.58–0.67); we nonetheless analyze all lPFC electrodes, as specified
    before analysis."
 5. **§1.5 Supplement, S-N4 row, append:** "the sig / nonsig / all window-mean
-   decoding bars (new_analyses_walkthrough.md §2.6)".
+   decoding bars (decoding.md › 2026-10-13 analyses §2.6)".
 
 ### Downloads
 

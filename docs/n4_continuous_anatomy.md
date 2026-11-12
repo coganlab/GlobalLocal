@@ -16,7 +16,7 @@ switch-type main effects as the reference.
 
 Section numbers have not changed, so references from the scripts and other docs
 (`n4_section15_followups.py`, "N4 §19.8", …) still resolve. For a line-by-line
-guide to the code, see [`n4_code_walkthrough.md`](n4_code_walkthrough.md) and
+guide to the code, see [`walkthroughs/n4_code_walkthrough.md`](walkthroughs/n4_code_walkthrough.md) and
 its notebook, `dcc_scripts/stats/n4_code_walkthrough.ipynb`, which runs on the
 real all-lPFC outputs.
 
@@ -35,7 +35,7 @@ folder and `anatomy_a1_lpfc_window_0.0to1.5s_all/` hold DLPFC (277
 electrodes), not all lPFC; the last lPFC summaries are at `3461b20^`. The
 numbers in this doc are still the lPFC ones. DLPFC now has its own folder
 (`anatomy_a1_dlpfc_window_0.0to1.5s_all/`, same numbers). Its results, set
-against this section's, are in [`dlpfc_results.md`](dlpfc_results.md) §5–§6,
+against this section's, are in [`archive/dlpfc_results.md`](archive/dlpfc_results.md) §5–§6,
 and the lPFC restore is in its §8.1.*
 
 ### 0.1 The question, the scores and the population
@@ -105,7 +105,7 @@ The segregation submitter defaults to `RT_ADJUST_HG=1` and 200 splits, so step 1
 sets both. Code: scoring and the overlap tests are in
 `src/analysis/stats/stability_flexibility_segregation.py`; everything after is
 in `src/analysis/stats/stability_flexibility_anatomy.py` (§1 maps the
-functions; [`n4_code_walkthrough.md`](n4_code_walkthrough.md) goes line by
+functions; [`walkthroughs/n4_code_walkthrough.md`](walkthroughs/n4_code_walkthrough.md) goes line by
 line). DCC paths are in §17.1.
 
 ### 0.3 The results at a glance (all lPFC)
@@ -335,7 +335,7 @@ run writes it to `continuous/`.
 |---|---|---|---|
 | Fig. 5a | `fig5_height.png`, panel a (from `fig5_height_brain.png`) | The electrodes on fsaverage, coloured by height tertile, with each tertile's centroid per hemisphere (§19.4); cuts at *z* = 16.3 and 38.1 mm; positions in `fig5_height_brain_centroids.csv`. Without a render, the panel falls back to a sagittal projection (MNI *y* against *z*). Layout revised 2026-10-10 | Main |
 | Fig. 5b | panel b | LWPC against LWPS (the test's residualised scores), coloured by tertile, identity line, *r* = 0.097, *p* = 0.0001, the tertile centroids; beside it a zoom on the centroids with their 95 % bootstrap regions (the old panel c); dorsal sits above the identity line | Main |
-| Fig. 5c | panel c | Every electrode's LWPC − LWPS against MNI *z*, with participant, responsiveness and MNI *x* and *y* removed, and the coordinate test's *z* slope as the line (the line has exactly the test's slope; [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §4.4). Replaces the tertile means ± SEM | Main |
+| Fig. 5c | panel c | Every electrode's LWPC − LWPS against MNI *z*, with participant, responsiveness and MNI *x* and *y* removed, and the coordinate test's *z* slope as the line (the line has exactly the test's slope; §19.9.4). Replaces the tertile means ± SEM | Main |
 | Fig. 5d | A4 cross-decoding traces ([`decoding.md`](decoding.md#138-results-2026-10-01)) | Congruency ↔ switch codes over the same electrodes | Main if its controls hold ([`paper_draft.md`](paper_draft.md) §1.4) |
 | S-N4 | `fig5.png`, panel b | Matched vs crossed base-effect × adaptation correlations (Test 1) | Supplement |
 | S-N4 | `section19/local_similarity.png` | Excess similarity by distance for the balance and each single score | Supplement |
@@ -777,13 +777,13 @@ whole-brain run; §0.2 has the commands as run for lPFC.
 | Descriptive centres | same file: `score_centers_per_subject` |
 | Overlap test and its participant-level version | `stability_flexibility_segregation.py`: `split_resolved_corr`, `participant_split_corr`, `_residualised_split_matrices`; shared splits: `compute_sensitivities_per_split(shared_split=True)` |
 | Main-effect reference (§16) | `stability_flexibility_anatomy.py`: `delta_tracking_test`, `tilt_with_main_effect_covariate`; follow-ups `dcc_scripts/stats/n4_section16_followups.py` |
-| §19 | `stability_flexibility_anatomy.py`: `coordinate_slope_by_participant`, `coordinate_slope_loso`, `overlap_controls`, `local_similarity`, `figure5_height`, `section19`; script `dcc_scripts/stats/n4_section19_followups.py`; line by line in [`n4_code_walkthrough.md`](n4_code_walkthrough.md) |
+| §19 | `stability_flexibility_anatomy.py`: `coordinate_slope_by_participant`, `coordinate_slope_loso`, `overlap_controls`, `local_similarity`, `figure5_height`, `section19`; script `dcc_scripts/stats/n4_section19_followups.py`; line by line in [`walkthroughs/n4_code_walkthrough.md`](walkthroughs/n4_code_walkthrough.md) |
 | DCC orchestration and output writing | `dcc_scripts/stats/stability_flexibility_anatomy_dcc.py`: `load_scores`, `run_score_anatomy`, `write_score_summary` |
 | Environment-variable entry point | `dcc_scripts/stats/run_stability_flexibility_anatomy_dcc.py` |
 | Slurm submitter / display wrapper | `dcc_scripts/stats/submit_stability_flexibility_anatomy_dcc.sh`, `sbatch_stability_flexibility_anatomy_dcc.sh` |
 | Recommended upstream score-producing run | `dcc_scripts/stats/submit_stability_flexibility_segregation_dcc.sh` |
 | Ground-truth regression tests | `tests/analysis/stats/test_stability_flexibility_anatomy.py` |
-| §19 with electrodes as the unit (2026-10-06; main text, participant level to the supplement) | `coordinate_slope_by_electrode`, `electrode_split_corr`, `local_similarity`'s `*_electrode` columns, `figure5_height(unit=...)`; written up in [`n4_section19_electrode_level.md`](n4_section19_electrode_level.md) |
+| §19 with electrodes as the unit (2026-10-06; main text, participant level to the supplement) | `coordinate_slope_by_electrode`, `electrode_split_corr`, `local_similarity`'s `*_electrode` columns, `figure5_height(unit=...)`; written up in [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#1910-19-with-electrodes-as-the-unit) |
 
 ### Do not choose the wrong arm
 
@@ -1672,13 +1672,13 @@ For every reported run archive:
 
 Related reading:
 
-- [`n2_direction_tests.md`](n2_direction_tests.md) — the direction test that
+- [`archive/n2_direction_tests.md`](archive/n2_direction_tests.md) — the direction test that
   should be settled before N4;
 - [`analysis_plans.md` › Concurrent-regulation plan](analysis_plans.md#concurrent-regulation-plan)
   §§5–7 — the statistical rationale and reporting hierarchy;
-- [`stability_flexibility_battery.md` › Data flow walk-through](stability_flexibility_battery.md#data-flow-walk-through) —
+- [`walkthroughs/stability_flexibility_battery.md` › Data flow walk-through](walkthroughs/stability_flexibility_battery.md#data-flow-walk-through) —
   broader A1–A6 data flow; and
-- [`stability_flexibility_battery.md` › Outputs guide](stability_flexibility_battery.md#outputs-guide)
+- [`walkthroughs/stability_flexibility_battery.md` › Outputs guide](walkthroughs/stability_flexibility_battery.md#outputs-guide)
   — the wider segregation/anatomy output family.
 
 ---
@@ -2606,7 +2606,7 @@ run (the gradient and Test 1 on RT-adjusted scores) has not been recorded.
 
 *Added 2026-10-02 after the advisor meeting; run on the real data on 2026-10-05
 (results in §19.8). A line-by-line guide to this code is
-[`n4_code_walkthrough.md`](n4_code_walkthrough.md), and
+[`walkthroughs/n4_code_walkthrough.md`](walkthroughs/n4_code_walkthrough.md), and
 `dcc_scripts/stats/n4_code_walkthrough.ipynb` steps through it on the real
 all-lPFC outputs.*
 
@@ -2780,7 +2780,7 @@ Before 2026-10-10 the figure had four panels in one row: a sagittal projection
 (a), the scatter with a box (b), the enlarged centroids (c), and the tertile
 means ± SEM of the adjusted balance (d). The tertile means are still written to
 `fig5_height_balance.csv`. The statistics behind panel c are in
-[`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §4.4.
+§19.9.4.
 
 Choices, and why:
 
@@ -3252,6 +3252,388 @@ clusters. A 0–0.5 s rerun of A6 would check a window before most responses.
 
 ---
 
+### 19.9 Figure 5 redrawn: the brain, the scatter, and every electrode along z (long version)
+
+*Moved here on 2026-11-10 from `new_analyses_walkthrough.md` §4, so a bare §4.x below means §19.9.x and §1–§3 mean [`decoding.md`](decoding.md) › 2026-10-13 decoding analyses. The scatter alone (no height colouring) is `fig5_height_scatter`, F4a of the 2026-11-10 story ([`paper_draft.md`](paper_draft.md) §1.5).*
+
+
+#### 19.9.1 What changed
+
+| Panel | Before (2026-10-06) | Now (2026-10-10) |
+|---|---|---|
+| a | Sagittal projection of the electrodes (MNI y against z), coloured by height tertile; the brain was a separate file | **The rendered brain** (`fig5_height_brain.png`, white margins trimmed) across the top row, with the tertile cuts in the title. The sagittal projection is now only the fallback when no render exists |
+| b | LWPC against LWPS, coloured by tertile, with a box marking c | LWPC against LWPS with the tertile centroids, and beside it a zoom on the centroids with their 95 % bootstrap ellipses, tied to the scatter by connector lines (old b and c merged) |
+| c | The centroids enlarged | **Every electrode's LWPC − LWPS against its MNI z**, with participant, responsiveness and MNI x and y removed, and the coordinate test's z slope as the line (§4.4) |
+| d | The tertile means ± SEM of the adjusted balance | Removed from the figure. The numbers stay in `fig5_height_balance.csv` |
+
+The layout is now 7.2 × 5.0 in, two rows. `paper_draft.md`'s F5 table describes
+the same panels (it calls the cross-decoding panel d).
+
+#### 19.9.2 How to run it
+
+**On a new anatomy run** (Figure 5 is part of §19, which runs when `FOLLOWUPS`
+contains 19, the default):
+
+```bash
+cd dcc_scripts/stats
+ARM=continuous ROI_FILTER=lpfc ANAT_LEVEL=destrieux N_PERM=10000 MAKE_BRAIN=1 BRAIN_HEMI=split \
+    bash submit_stability_flexibility_anatomy_dcc.sh
+```
+
+- `ELECTRODES` and `SEG_RUN` are plain assignments near the top of the
+  submitter, not environment variables. The current Figure 5 uses all lPFC
+  (397 electrodes), so set `ELECTRODES=all` there (line 39) and check that
+  `SEG_RUN` points at the `_main_effects` segregation run you want.
+- With `CONTRAST_MODE=condition` (the submitter's current default) and scores
+  from a `MAIN_EFFECTS=1` segregation run, the job also draws the same figure on
+  congruency against switch type: `fig5_height_main_effects*`. With
+  `CONTRAST_MODE=proportion` it draws only LWPC/LWPS.
+- The batch script runs under `xvfb-run`, which the brain render needs.
+
+**From an existing anatomy run** (no epochs, atlases or recon files except for
+the brain):
+
+```bash
+xvfb-run -a python dcc_scripts/stats/n4_section19_followups.py \
+    --anatomy-dir <anatomy run>/continuous \
+    --seg-dir     <the _main_effects segregation run it read> \
+    --sections 1,4 --brain --brain-hemi split
+```
+
+Run this in a Slurm job, not on a login node. Keep section 1 with section 4: it
+supplies the electrode-bootstrap interval printed in `fig5_height.png` and the
+participant-level p printed in `fig5_height_participants.png`. The script draws
+only the LWPC/LWPS pair. Without `--brain`, panel a reuses a
+`fig5_height_brain.png` already in the output folder, or falls back to the
+sagittal projection.
+
+**Outputs** (in `continuous/`, or `<anatomy run>/continuous/section19/` for the
+script):
+
+| File | What |
+|---|---|
+| `fig5_height.png`/`.pdf` | The figure, electrodes as the unit (main text) |
+| `fig5_height_participants.png`/`.pdf` | The same with participant-bootstrap ellipses (supplement) |
+| `fig5_height_points.csv` | Panel b's points |
+| `fig5_height_centroids.csv` | Each tertile's centroid, its balance with a 95 % interval, and the bootstrap covariance for the ellipse |
+| `fig5_height_partials.csv` | Panel c's points: `subject`, `electrode`, `mni_z`, `band`, `partial` |
+| `fig5_height_balance.csv` | The tertile means ± SEM that the old panel d drew |
+| `fig5_height_brain.png`, `_legend.png`, `fig5_height_brain_centroids.csv` | Panel a and the centroid positions (N4 §19.4) |
+| `summary_section19.txt` | The numbers; the line `c  line through the N electrodes: ...` checks panel c's slope against the test's |
+
+#### 19.9.3 The code, step by step
+
+`figure5_height` (`src/analysis/stats/stability_flexibility_anatomy.py:2788`),
+called by `section19` (`:3601`) once per pair and level:
+
+1. `figure5_height_points` (`:2236`): panel b's points. LWPC and LWPS with
+   responsiveness regressed out and participant-centred (`prepare_continuous`),
+   on `delta`'s pooled scale with each score's mean added back, so the identity
+   line means LWPC = LWPS. Tertile edges of MNI z over every electrode with
+   coordinates.
+2. `_figure5_test`: panel b's r, the pre-specified separate-half LWPC–LWPS
+   correlation, from the segregation run's `correlation.json`.
+3. `height_centroids` (`:2269`): each tertile's centroid and a bootstrap (2000
+   draws; electrodes within participant for `unit='electrode'`, whole
+   participants for `'participant'`) for the 95 % ellipse and the balance
+   interval.
+4. `height_partial_residuals` (`:2357`): panel c's points (§4.4).
+5. `relative_score_coordinate_test` (`:1239`), unless the anatomy job passes its
+   result in: the slope and p printed in panel c.
+6. **The brain first, then the figure.** `plot_height_bands_on_brain` (`:2705`)
+   renders `fig5_height_brain.png` when `make_brain` is on. The render now
+   happens before the figure is drawn, so panel a can use it. Without a new
+   render, panel a looks for one from an earlier run in the same folder.
+7. `plot_figure5_height` (`:2432`) draws the panels; panel a goes through
+   `trim_whitespace` (`src/analysis/utils/image_utils.py:6`), which crops the
+   render to the box around its non-white, non-transparent pixels plus 4 px.
+
+#### 19.9.4 The statistics behind panel c
+
+**The test.** The gradient is the pre-specified coordinate test
+(`relative_score_coordinate_test`):
+
+```
+delta ~ mni_y + mni_z + mni_x + responsiveness + participant
+```
+
+over all electrodes with coordinates, where `delta = LWPC_s − LWPS_s` (each
+score divided by its SD across all electrodes, `attach_scores`), and participant
+is a fixed effect (dummies). The z slope's p comes from the within-electrode
+swap null: under "LWPC and LWPS are exchangeable at each electrode", swapping
+them flips the sign of delta, so the null is built from sign flips of delta,
+refitted each time (10,000 permutations). The interval in the figure is the
+electrode bootstrap of `coordinate_slope_by_electrode`. On the all-lPFC run:
+z slope −0.0077 SD/mm, 95 % CI [−0.0124, −0.0032], p = 0.0074
+([`paper_draft.md`](paper_draft.md), F5).
+
+**The points.** Plotting raw delta against z would mix the z effect with
+everything else the model removes (participant offsets, responsiveness, the y
+and x gradients), and a line fitted through them would not be the test. Panel c
+plots each electrode's **component plus residual** instead:
+
+```
+partial_i = residual_i + β_z (z_i − mean z) + mean(delta)
+```
+
+where β_z and the residuals come from the fit above. The residuals of an OLS fit
+are orthogonal to every column of its design, including the centred z, so a
+straight line fitted through (z_i, partial_i) has slope exactly β_z
+(Frisch–Waugh–Lovell). **The line in panel c is the test's slope, not a separate
+fit**, and the vertical scatter around it is the scatter the test sees. The
+summary line `c  line through the N electrodes` checks this and flags any
+difference, which would mean the coordinate test was fitted on other electrodes.
+`test_height_partial_residuals_carry_the_coordinate_tests_slope` checks it on
+synthetic data.
+
+**What it shows and what it doesn't.** The slope uses every electrode, so no
+choice of bins affects it. The tertile colours and the dashed cut lines are for
+display; the test does not use them. Points below zero lean LWPS, above zero
+LWPC. The y axis is in SD units of the pooled scores, the x axis in mm. At about
+2 % of variance explained, the points scatter widely around the line; panel c
+shows that honestly, which the old tertile means ± SEM did not.
+
+**Why the brain moved to panel a.** The advisors read the anatomy on the brain,
+not on an abstract y–z projection. The brain shows the same tertiles in the
+same colours, with each tertile's centroid per hemisphere (N4 §19.4 has the
+centroid conventions).
+
+#### 19.9.5 Variant: the top LWPC and LWPS electrodes picked out (2026-10-22)
+
+Asked for at the advisor meeting: the same figure with only the most LWPC and
+most LWPS electrodes highlighted, and the height slope refit on them.
+`sfa.figure5_top` draws it as `fig5_height_top20.png` beside `fig5_height.png`:
+
+- **The sets.** The top 20 % of the figure's own LWPC scores and, separately,
+  of its LWPS scores (responsiveness regressed out, participant-centred,
+  positive tail), with the electrodes pooled. That gives three groups: LWPC
+  only (blue), LWPS only (orange) and both (green). Everything else is grey.
+- **a** puts the groups on the brain with the tertile cuts. **b** is the
+  scatter, over the points' full range so no extreme is cropped, with each
+  score's 20 % cut as a dashed line. There is no centroid zoom.
+- **c** fits the coordinate test (participant, responsiveness, MNI x and y
+  removed; 10,000 swaps) twice: on every electrode (dashed, F5's slope) and on
+  the union of the three groups (solid). A participant with one top electrode
+  only moves its own intercept; the summary counts those that inform the slope.
+- **Selection bias.** Picking the extremes of LWPC and of LWPS also picks the
+  extremes of LWPC − LWPS, the balance that c fits. Selecting on the outcome
+  pushes a slope away from zero by itself, so a steeper top slope would not by
+  itself mean a stronger gradient. The p is still valid as a test of whether
+  these electrodes have a gradient at all.
+
+Run it from a finished anatomy run's tables, for all four runs, with
+`bash submit_fig5_top_sets_dcc.sh` in `dcc_scripts/stats` (one job each,
+under `xvfb-run` for the brain), or for one run:
+
+```bash
+python dcc_scripts/stats/fig5_top_sets.py --anatomy-dir <run>/continuous \
+    --seg-dir <segregation run> [--frac 0.2] [--brain]
+```
+
+It writes `fig5_height_top20.png`/`.pdf`, `_points.csv`, `_partials.csv`,
+`_brain.png`, `summary_fig5_height_top20.txt` and `fig5_height_top20.json`
+(numbers and parameters) into the run's `continuous/` folder.
+
+### 19.10 §19 with electrodes as the unit
+
+*Moved here on 2026-11-10 from `n4_section19_electrode_level.md` (added 2026-10-06). A bare §1–§6 below means §19.10.1–§19.10.6.*
+
+*Added 2026-10-06. Companion to §19 of
+[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md). Code is in place and
+tested; the electrode-level numbers below marked **[run]** need one rerun of
+`n4_section19_followups.py` (§5).*
+
+#### 19.10.1 The decision
+
+§19 added participant-level versions of the anatomy tests after the advisors
+asked whether participant is a random effect. The pre-specified tests treat
+participant as a **fixed** effect and electrodes as the units of inference.
+That is the level the paper reports at: **electrodes as the unit in the main
+text, participants as the unit in the supplement** (S-N4), for a reviewer who
+asks how far the results generalise across participants.
+
+Every §19 part now reports both, electrode level first. Nothing that was
+computed before has changed: the participant-level numbers in §19.8 of the N4
+doc stand, and the electrode-level estimates are the same estimates with a
+different inference.
+
+What "electrodes as the unit" means here: participant enters as a fixed effect
+(centring or dummies), and the uncertainty comes from which electrodes were
+sampled and from trial noise, given these participants. It does not say how
+the result would vary in new participants; that is what the supplement's
+participant-level tests are for.
+
+#### 19.10.2 Each part at the two levels
+
+| Part | Electrodes as the unit (main text) | Participants as the unit (supplement) |
+|---|---|---|
+| §19.1 height slope | `sfa.coordinate_slope_by_electrode`: the coordinate test's slope and swap-null p (each electrode's LWPC and LWPS swapped), plus a 95 % interval from an electrode bootstrap within participant (each participant keeps its electrode count; residualised values recentred per draw) | `coordinate_slope_by_participant` (weighted sign-flip, unweighted t, mixed models), `coordinate_slope_loso` |
+| §19.2 overlap r | `sfs.electrode_split_corr`: `split_resolved_corr`'s r and permutation p, plus electrode-bootstrap intervals for r, both within-participant reliabilities and the noise-corrected r (100 evenly spaced splits; the noise-corrected interval only when both reliabilities are positive in ≥ 90 % of draws) | `participant_split_corr` |
+| §19.3 local similarity | `sfa.local_similarity`'s `*_electrode` columns: SE, ± 1.96 SE interval and one-sided p for every bin, the contrast and the reliability; the share-of-reliability comparison by the delta method (§3) | the same function's participant sign-flip p and participant-bootstrap intervals |
+| §19.4 Figure 5 | `sfa.figure5_height(unit='electrode')` → `fig5_height.png`: c, 95 % electrode-bootstrap ellipses; d, electrode means ± SEM, annotated with the slope, its electrode-bootstrap CI and p | `unit='participant'` → `fig5_height_participants.png`: participant-bootstrap ellipses, participant means ± SEM, participant and random-slope p |
+| §19.7 overlap controls | already electrode level (within-participant permutation) | leave one participant out (`overlap_loso.csv`) |
+
+On the shared-split table (section 3 of the script), `electrode_split_corr` runs
+on LWPC–LWPS and, from a main-effects table, on congruency–switch. That gives
+the within-participant reliabilities the paper quotes (LWPC 0.21, LWPS 0.04,
+congruency 0.46, switch 0.35 on raw high gamma) their electrode-level
+intervals, an interval on congruency − switch (the paper's "switch type is the
+less reliable map"), and the noise-corrected overlap its interval, which §19.8
+said it needed before it could be quoted. On the pipeline's per-electrode split
+the reliabilities are biased (§19.3 of the N4 doc), so section 2 prints r and p
+there but not the reliabilities.
+
+#### 19.10.3 Local similarity: why it needed new inference, and what it uses
+
+The obvious electrode-level test, shuffling electrode positions within
+participant, is invalid here. Neighbouring contacts share trial noise, so one
+dataset's estimation noise is spatially smooth, near pairs are not
+exchangeable with far ones, and the shuffle's null is too narrow: 13 % false
+positives at α = 0.05 (§19.3 of the N4 doc). That is why §19.3 used participant
+sign flips. An electrode-level test has to carry the shared noise explicitly.
+
+**The method** (`_LocalElectrodeCov`). Write each split's halves as
+S ± D: S = (A + B)/2 is the full-data score, D = (A − B)/2 the half
+difference. With one split per participant, D is the electrodes' trial noise
+with random signs, so `mean_k D_k D_k'` estimates the noise covariance between
+every pair of a participant's electrodes, including what neighbours share.
+
+1. Every local-similarity estimate is a quadratic form in S. A participant's
+   excess in a bin is Σ W_ij C_ij with W_ij = 1[pair in bin] − (the bin's share
+   of the participant's pairs), the second term being the position-shuffle
+   baseline's exact expectation; the reliability is the trace of C; the
+   contrast is a difference of two bins' forms.
+2. Under no local structure, the covariance of S across a participant's
+   electrodes is Γ = σ² P + N: exchangeable signal (σ² from the same-electrode
+   cross-half similarity, P the within-participant centring) plus the noise
+   covariance N from the half differences.
+3. The variance of a Gaussian quadratic form is tr(WΓWΓ)/2 (Isserlis), summed
+   over participants. The per-split standardisation divides every estimate by
+   the scores' mean square; the delta method carries that through. It matters
+   for the reliability (its SE shrinks by 1 − reliability), hardly for an
+   excess near zero.
+4. p is one-sided normal (more similar than baseline), intervals ± 1.96 SE.
+
+The point estimates are unchanged: `excess` already pooled every electrode
+pair. Only the inference is new.
+
+**Calibration.** Null worlds built like the real data: 21 participants, 2–4
+shafts of 4–7 contacts 3.5 mm apart, trial noise correlated between contacts
+as exp(−(d/ℓ)²), halves that are disjoint trial sets of one dataset, 40 shared
+splits, no local structure. Near bin (< 10 mm), α = 0.05, 300 datasets per
+row, range over LWPC, LWPS and the balance:
+
+| World | Reliability | Electrode level | Participant sign-flip | SD of excess / mean SE |
+|---|---|---|---|---|
+| ℓ = 5 mm | 0.24 | 4.0–4.3 % | 1.7–3.0 % | 0.94–1.01 |
+| ℓ = 8 mm | 0.26 | 4.0–4.7 % | 1.7–3.0 % | 0.89–0.98 |
+| ℓ = 5 mm | 0.49 | 4.3–5.7 % | 2.3–4.3 % | 1.02–1.10 |
+| ℓ = 5 mm | 0.80 | 5.0–6.7 % | 1.0–4.0 % | 1.10–1.19 |
+
+The nearest-minus-farthest contrast behaves the same (3.3–7.0 %). The
+reliability's SE matches its spread to within about 10 % at reliabilities up to
+0.5.
+At reliability 0.8 the test runs slightly liberal; with Pearson instead of
+Spearman it does not (SD/SE 1.00–1.13), so the excess comes from ranking. The
+real reliabilities are 0.0–0.46, the calibrated range.
+
+**Power.** With a smooth field planted in LWPC only (field SD 0.6, length
+6 mm): near-bin detection at α = 0.05 in 97 % of datasets at the electrode
+level against 93 % with participant sign flips; for the balance, 56 % against
+40 %. LWPS, which had no field, stayed at 3.7 % and 2.0 %.
+
+**What the interval is.** The SE is computed under no local structure, so it
+is the right yardstick for the p-value. When an excess is real, the true spread
+is larger: in the planted world the excess's SD was about 1.3 times the SE.
+Report the electrode-level p; treat the ± 1.96 SE interval as approximate when
+the excess is clearly non-zero.
+
+**What it does not change.** The reading table in §19.3 of the N4 doc holds at
+either level. With reliabilities near zero (the balance's −0.04 on all lPFC) the
+null still cannot show intermixing; what the electrode level adds is power for
+the positive control and a tighter interval on the balance's own reliability.
+
+Tests: `tests/analysis/stats/test_section19_anatomy.py`, section "electrodes as
+the unit". One of them repeats the calibration on 40 smaller null datasets
+(excess SD / SE within 0.7–1.35; reliability within 0.6–1.4).
+
+#### 19.10.4 Outputs
+
+New runs of the anatomy job and `n4_section19_followups.py` write, in addition
+to the §19.5 files:
+
+| File | What |
+|---|---|
+| `summary_section19.txt` | every part twice: `..., ELECTRODES AS THE UNIT` first, `..., PARTICIPANTS AS THE UNIT` second |
+| `section19.json` | new keys `slope_by_electrode`, `electrode_corr`, `main_effects_shared`, `figure5_height_participants`; `overlap_shared` now carries the intervals |
+| `local_similarity.csv`, `_contrasts.csv`, `_comparison.csv` | the participant-level columns as before, plus `se_electrode`, `excess_lo_electrode`/`_hi_electrode`, `p_greater_electrode`, `similarity_lo_electrode`/`_hi_electrode` (same-electrode row), `relative_*_electrode`; comparison `*_electrode` and `note_electrode` |
+| `local_similarity.png` | **now electrode level** (± 1.96 SE) |
+| `local_similarity_by_participant.png` | the participant-bootstrap version (was `local_similarity.png`) |
+| `fig5_height.png/.pdf`, `fig5_height_centroids.csv`, `fig5_height_balance.csv` | **now electrode level**; the balance table has `n_electrodes` |
+| `fig5_height_participants.png/.pdf`, `_participants_centroids.csv`, `_participants_balance.csv`, `fig5_height_balance_by_participant.csv` | the participant-level figure (was `fig5_height.*`) |
+| `fig5_height_brain.png`, `fig5_height_brain_centroids.csv` | the bands and their centroids on the brain (`--brain` / `MAKE_BRAIN`; N4 §19.4). The same at both levels, so drawn once, with the electrode-level figure |
+
+Two file names changed meaning: `local_similarity.png` and `fig5_height.*`
+are electrode level now. Older folders hold the participant-level versions
+under those names.
+
+#### 19.10.5 Getting the electrode-level numbers
+
+Same commands as the 2026-10-05 runs (§19.5 and §19.8 of the N4 doc), all
+sections. The variables are the ones used there.
+
+```bash
+git pull
+# primary: all lPFC, raw high gamma, shared splits for section 3
+python dcc_scripts/stats/n4_section19_followups.py \
+  --anatomy-dir $R/anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous \
+  --seg-dir $SEG \
+  --long-df $RAW/long_df.csv
+# RT-adjusted companion (writes section19_rt_adjusted/)
+python dcc_scripts/stats/n4_section19_followups.py \
+  --anatomy-dir $R/anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous \
+  --seg-dir $SEG \
+  --long-df $RTRUN/long_df.csv --rt-coupling $RTRUN/rt_adjustment_slopes.csv
+```
+
+Each takes the rescoring time (5–10 minutes) plus about 2 minutes. The
+participant-level numbers come out the same as on 2026-10-05 (same seeds).
+
+Or, since 2026-10-07, rerun the anatomy job, which does both and the §15 and
+§16 follow-ups (N4 doc §19.5). The raw run's files (`summary_section19.txt`,
+`section19.json` and the tables) land in `continuous/` itself rather than
+`continuous/section19/`; the RT-adjusted ones in
+`continuous/section19_rt_adjusted/` as before:
+
+```bash
+cd dcc_scripts/stats
+ARM=continuous ROI_FILTER=lpfc ANAT_LEVEL=destrieux N_PERM=10000 \
+  bash submit_stability_flexibility_anatomy_dcc.sh
+```
+
+Numbers to collect for the main text **[run]**: the z slope's
+electrode-bootstrap CI; the overlap r's CI; the shared-split reliabilities'
+CIs, the congruency − switch reliability difference with its CI, and the
+noise-corrected r with its CI (or "not estimable", likely with LWPS at 0.04);
+every local-similarity p and interval at the electrode level.
+
+#### 19.10.6 What to report where
+
+Supersedes the reporting order of §19.6 of the N4 doc.
+
+| Result | Main text (electrode level) | Supplement (participant level) |
+|---|---|---|
+| Height slope | −0.0077 SD/mm, p = 0.0074, 95 % CI **[run]** | weighted sign-flip p = 0.041, random slope p = 0.037, unweighted p = 0.078, leave-one-out p 0.002–0.099 |
+| Overlap r | 0.097, p = 0.0002, 95 % CI **[run]**; on shared splits 0.111, p = 0.0002 | weighted r = 0.098, p = 0.031; unweighted 0.043, p = 0.35 |
+| Reliabilities (shared splits) | LWPC 0.21, LWPS 0.04, congruency 0.46, switch 0.35, each with CI **[run]** | participant-bootstrap CIs in `local_similarity.csv` |
+| Local similarity | electrode-level p and interval per score **[run]**, with the positive control | §19.8's participant-level table |
+| Fig. 5 c, d | `fig5_height.png` | `fig5_height_participants.png` |
+| Overlap controls | as in §19.8 | leave-one-out range |
+
+Methods and Results wording: [`paper_draft.md`](paper_draft.md) §2.5 and §3.4.
+
+---
+
 ## Archive: superseded results and drafts
 
 *Everything below is superseded by §0 and §16–§19. It keeps its original
@@ -3546,7 +3928,7 @@ electrode is individually significant for LWPC in either run (all lPFC: 0 LWPC,
 0 LWPS; task-significant: 0 LWPC, 8 LWPS), so there are no groups to compare and
 the odds ratio is `nan`. The segregation summary's "segregated (n.s.)" label
 comes from the missing odds ratio, not from evidence of segregation. Report the
-test as not computable (see `stability_flexibility_battery.md` › Outputs guide).
+test as not computable (see `walkthroughs/stability_flexibility_battery.md` › Outputs guide).
 
 **Thresholded maps look disjoint whatever the truth.** With 49 % of all-lPFC
 electrodes LWPC-positive and 56 % LWPS-positive, independence alone would leave
@@ -4074,7 +4456,7 @@ panel summarizes electrodes; single electrodes are not interpretable (§15.4).
 *Archived: superseded by §0.7, which adds the §19 analyses.*
 
 Manuscript-ready text for this run. It replaces the bracketed N4 template in
-[`methods.md`](methods.md#n4-segregation-and-continuous-anatomy) for the
+[`archive/methods.md`](archive/methods.md#n4-segregation-and-continuous-anatomy) for the
 all-lPFC analysis, which still describes 200 splits and does not cover the main
 effects. Preprocessing is not repeated here. Take it from the general iEEG
 Methods, and check that it describes the epochs file this run used

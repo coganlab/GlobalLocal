@@ -1,7 +1,7 @@
 """Trajectories of the four condition means in the coding plane
 (docs/analysis_plans.md, subspace plan §4), and adaptation as block-split
 projections onto the same axes (§6). The worked math is in
-docs/subspace_math_walkthrough.md §6.
+docs/walkthroughs/subspace_math_walkthrough.md §6.
 
 For every split of each participant's trials into halves A and B:
 
@@ -31,7 +31,8 @@ Axes and cells never come from the same trials, so noise in the axes cannot
 push the cells apart.
 
 Every quantity is a ratio of sums over electrodes, so it is computed from
-per-participant sums, and a participant bootstrap only re-weights them.
+per-electrode sums, and a bootstrap (electrodes within participant by
+default, `boot_unit`) only re-weights them.
 
 **How much of the condition-dependent activity the plane holds** (§4 step 5),
 per time bin and overall:
@@ -99,6 +100,7 @@ import pandas as pd
 
 from . import coding_axes as ca
 from . import stability_flexibility_segregation as sfs
+from ..utils.resampling import bootstrap_counts
 
 # The four cells in (`_scond`, `_fcond`) levels (1 = incongruent / switch), and
 # the four proportion blocks, (incProp, switchProp), in (`_smod`, `_fmod`)
@@ -170,8 +172,10 @@ def _participant_axes(axes, subj, elecs):
             for c in ('mxA', 'mxB', 'myA', 'myB')}
 
 
-def trajectory_sums(df, hg_windows, axis_hg, n_splits=200, seed=0, remove_mean=False):
-    """Per-participant sums everything in the trajectories is built from.
+def trajectory_sums(df, hg_windows, axis_hg, n_splits=200, seed=0, remove_mean=False,
+                    by='participant'):
+    """Per-participant (or, `by='electrode'`, per-electrode) sums everything in
+    the trajectories is built from.
 
     `df` is the long table (one row per electrode x trial, with `trial` and the
     four design columns); `hg_windows` (rows of `df`, time bins) the HG the
@@ -180,7 +184,10 @@ def trajectory_sums(df, hg_windows, axis_hg, n_splits=200, seed=0, remove_mean=F
 
     Directions: d = 0 takes the axes from half A and the cells from half B,
     d = 1 the reverse. Returns ``(sums, info)``: `sums` maps a name to a
-    (participants, ...) array,
+    (units, ...) array, one unit per participant (`by='participant'`, enough
+    for a total, as the null needs) or per kept electrode (`by='electrode'`,
+    which the bootstrap needs: any weighting of electrodes or participants is
+    then a weighted sum over units),
 
         cc, ss, cs      c.c, s.s, c.s                 (n_axes, splits, 2)
         cQ, sQ          c.p, s.p of every cell in every proportion block,
@@ -195,16 +202,21 @@ def trajectory_sums(df, hg_windows, axis_hg, n_splits=200, seed=0, remove_mean=F
 
     over each participant's electrodes defined everywhere (axes on every split
     and axis window; every cell of every block on every split, half and time
-    bin). `info` has the subjects, and the electrodes kept and dropped per
-    participant.
+    bin). `info` has the subjects, the electrodes kept and dropped per
+    participant, and `unit_subjects`, each unit's participant.
     """
     axis_hg = np.asarray(axis_hg, float)
     if axis_hg.ndim == 1:
         axis_hg = axis_hg[:, None]
     halves = sfs.shared_halves(df, n_splits=n_splits, seed=seed)
     axes = sfs.main_effect_mean_diffs(df, axis_hg, remove_mean=remove_mean, halves=halves)
+    if by not in ('participant', 'electrode'):
+        raise ValueError(f"by must be 'participant' or 'electrode', not {by!r}")
     parts = {k: [] for k in _TRAJECTORY_SUMS}
-    info = dict(subjects=[], n_kept=[], n_dropped=[])
+    info = dict(subjects=[], n_kept=[], n_dropped=[], unit_subjects=[])
+    # per-electrode products, then summed over the participant's electrodes
+    # unless the units are electrodes
+    unit = (lambda x: x) if by == 'electrode' else (lambda x: x.sum(0))
     for subj, elecs, blocks in cell_block_means(df, hg_windows, halves, remove_mean):
         ax = _participant_axes(axes, subj, elecs)
         c = np.stack([ax['mxA'], ax['mxB']], -1)        # (e, axes, splits, d): d=0 -> A
@@ -218,17 +230,20 @@ def trajectory_sums(df, hg_windows, axis_hg, n_splits=200, seed=0, remove_mean=F
         info['n_kept'].append(int(ok.sum()))
         info['n_dropped'].append(int((~ok).sum()))
         c, s, centred, blocks = c[ok], s[ok], centred[ok], blocks[ok]
-        parts['cc'].append(np.einsum('eakd,eakd->akd', c, c))
-        parts['ss'].append(np.einsum('eakd,eakd->akd', s, s))
-        parts['cs'].append(np.einsum('eakd,eakd->akd', c, s))
+        info['unit_subjects'] += [subj] * (int(ok.sum()) if by == 'electrode' else 1)
+        parts['cc'].append(unit(c * c))
+        parts['ss'].append(unit(s * s))
+        parts['cs'].append(unit(c * s))
         for name, axis in (('c', c), ('s', s)):
-            parts[f'{name}Q'].append(np.einsum('eakd,etkdxb->akdtxb', axis, blocks))
-        parts['PP'].append(np.einsum('etkdx,etkdx->kdt', centred, centred))
-        parts['PAPB'].append(np.einsum('etkx,etkx->kt', centred[:, :, :, 1], centred[:, :, :, 0]))
+            parts[f'{name}Q'].append(unit(np.einsum('eakd,etkdxb->eakdtxb', axis, blocks)))
+        parts['PP'].append(unit(np.einsum('etkdx,etkdx->ekdt', centred, centred)))
+        parts['PAPB'].append(unit(np.einsum('etkx,etkx->ekt', centred[:, :, :, 1],
+                                            centred[:, :, :, 0])))
     if not sum(info['n_kept']):
         raise ValueError("no electrode has every cell in every half; the trajectories need "
                          "at least one trial per cell and proportion block in each half")
-    return {k: np.stack(v) for k, v in parts.items()}, info
+    join = np.concatenate if by == 'electrode' else np.stack
+    return {k: join(v) for k, v in parts.items()}, info
 
 
 def _projections(sums, weights):
@@ -281,23 +296,29 @@ def _weighted(sums, weights):
 
 
 def _present_sums(df, hg_windows, axis_hg, axis_labels, n_splits, seed, remove_mean, keys):
-    """``(sums, info, axis_labels)``: `trajectory_sums` kept to `keys` and to the
-    participants with an electrode left (one with none would enter a bootstrap
-    as zeros), and the axis labels checked against the axis windows (default
-    '0', '1', ...)."""
+    """``(sums, info, axis_labels)``: `trajectory_sums` per kept electrode,
+    kept to `keys`, and the axis labels checked against the axis windows
+    (default '0', '1', ...). Per electrode, so that `_boot_weights` can
+    resample electrodes or participants."""
     sums, info = trajectory_sums(df, hg_windows, axis_hg, n_splits=n_splits, seed=seed,
-                                 remove_mean=remove_mean)
+                                 remove_mean=remove_mean, by='electrode')
     n_ax = sums['cc'].shape[1]
     axis_labels = [str(i) for i in range(n_ax)] if axis_labels is None else list(axis_labels)
     if len(axis_labels) != n_ax:
         raise ValueError(f"{len(axis_labels)} axis labels for {n_ax} axis windows")
-    present = np.array(info['n_kept']) > 0
-    return {k: sums[k][present] for k in keys}, info, axis_labels
+    return {k: sums[k] for k in keys}, info, axis_labels
+
+
+def _boot_weights(info, n, rng, unit):
+    """(electrodes, n) bootstrap weights over `_present_sums`' electrodes:
+    `utils.resampling.bootstrap_counts`, 'electrode' (the default of the
+    analyses: within participant) or 'participant' (whole participants)."""
+    return bootstrap_counts(info['unit_subjects'], n, rng, unit).T
 
 
 def condition_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, seed=0,
                            remove_mean=False, first='congruency', n_boot=1000, alpha=0.05,
-                           boot_seed=None, chunk=25):
+                           boot_seed=None, chunk=25, boot_unit='electrode'):
     """The four condition-mean trajectories in the coding plane (§4).
 
     Arguments as for `trajectory_sums`; with the coding axes' `n_splits` and
@@ -308,14 +329,16 @@ def condition_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=2
     the unit c and unit s axes. Those axes are oblique (`axis_cosine`), so
     distances in a perpendicular plot are not distances in electrode space. The
     fractions are always those of the plane, whatever `first` is. `boot_seed`
-    seeds the bootstrap (default `seed`).
+    seeds the bootstrap (default `seed`); `boot_unit` is what it resamples:
+    'electrode' (default: within participant, the paper's unit) or
+    'participant' (whole participants).
 
     Returns ``(trajectories, fractions, summary)``:
 
     trajectories  one row per axis window, cells ('centred' or 'uncentred'),
                   cell and time bin (`window`, 0-based): x, y, averaged over
                   splits and both directions; for centred cells also
-                  x_lo/x_hi, y_lo/y_hi, the participant-bootstrap CI.
+                  x_lo/x_hi, y_lo/y_hi, the bootstrap CI (`boot_unit`).
     fractions     one row per axis window and time bin, plus `window` = -1
                   for all bins together: plane_fraction, plane_fraction_signal
                   (module docstring), with bootstrap CIs on the overall row.
@@ -327,17 +350,17 @@ def condition_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=2
     """
     sums, info, axis_labels = _present_sums(df, hg_windows, axis_hg, axis_labels, n_splits,
                                             seed, remove_mean, _TRAJECTORY_SUMS)
-    n_part = len(sums['cc'])
-    total = _weighted(sums, np.ones(n_part))
+    n_units = len(sums['cc'])          # kept electrodes
+    total = _weighted(sums, np.ones(n_units))
     q = [100 * alpha / 2, 100 * (1 - alpha / 2)]
     plane = first or 'congruency'
 
-    # participant bootstrap of the centred coordinates and the fractions
+    # bootstrap (electrodes within participant, or participants: `boot_unit`)
+    # of the centred coordinates and the fractions
     rng = np.random.default_rng(seed if boot_seed is None else boot_seed)
     b_x, b_y, b_raw, b_sig = [], [], [], []
     for start in range(0, n_boot, chunk):
-        w = rng.multinomial(n_part, np.full(n_part, 1 / n_part),
-                            size=min(chunk, n_boot - start)).T.astype(float)
+        w = _boot_weights(info, min(chunk, n_boot - start), rng, boot_unit)
         weighted = _weighted(sums, w)                    # each (draws in chunk, ...)
         for j in range(w.shape[1]):
             one = {k: v[j] for k, v in weighted.items()}
@@ -391,8 +414,8 @@ def condition_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=2
                    n_electrodes_dropped=int(sum(info['n_dropped'])),
                    dropped_by_subject={s: d for s, d in zip(info['subjects'], info['n_dropped'])
                                        if d},
-                   n_splits=n_splits, n_boot=n_boot, seed=seed, boot_seed=boot_seed,
-                   alpha=alpha, remove_mean=bool(remove_mean))
+                   n_splits=n_splits, n_boot=n_boot, boot_unit=boot_unit, seed=seed,
+                   boot_seed=boot_seed, alpha=alpha, remove_mean=bool(remove_mean))
     return pd.DataFrame(rows), pd.DataFrame(frac_rows), summary
 
 
@@ -455,7 +478,7 @@ def _with_overall(a, axis=-2):
 
 def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, seed=0,
                       remove_mean=False, unique=False, n_boot=1000, alpha=0.05, boot_seed=None,
-                      chunk=25, null=None):
+                      chunk=25, null=None, boot_unit='electrode'):
     """Adaptation in the trajectories (plan §6): the held-out congruency and
     switch separations within each proportion block, each projected on its own
     unit axis and on the other variable's (module docstring).
@@ -477,7 +500,7 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
                  block (`inc_prop`, `switch_prop`: 'low' / 'high') and time
                  bin (`window`, 0-based; -1 = the mean over all bins):
                  separation (HG units along the unit axis), and its
-                 participant-bootstrap CI (lo, hi).
+                 bootstrap CI (lo, hi; `boot_unit`).
     contrasts    one row per axis window, variable, axis, contrast and window:
                  estimate, lo, hi, excludes_0 (the CI excludes 0), and with
                  `null` p (two-sided, against the shuffled blocks).
@@ -500,18 +523,17 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
     """
     sums, info, axis_labels = _present_sums(df, hg_windows, axis_hg, axis_labels, n_splits,
                                             seed, remove_mean, _PROJECTION_SUMS)
-    n_part = len(sums['cc'])
-    total = _separations(_weighted(sums, np.ones(n_part)), unique)
+    n_units = len(sums['cc'])          # kept electrodes
+    total = _separations(_weighted(sums, np.ones(n_units)), unique)
     seps, cons = _with_overall(total), _with_overall(_contrasts(total))
     p = None if null is None else _perm_p(cons, null['contrasts_unique' if unique else 'contrasts'])
 
-    # participant bootstrap; everything is a ratio of participant sums, so a
+    # bootstrap (`boot_unit`); everything is a ratio of electrode sums, so a
     # draw only re-weights them
     rng = np.random.default_rng(seed if boot_seed is None else boot_seed)
     b_seps, b_cons = [], []
     for start in range(0, n_boot, chunk):
-        w = rng.multinomial(n_part, np.full(n_part, 1 / n_part),
-                            size=min(chunk, n_boot - start)).T.astype(float)
+        w = _boot_weights(info, min(chunk, n_boot - start), rng, boot_unit)
         draws = _separations(_weighted(sums, w), unique)   # (draws, variables, 2, axes, time, blocks)
         b_seps.append(_with_overall(draws))
         b_cons.append(_with_overall(_contrasts(draws)))
@@ -549,12 +571,58 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
                               for j, con in enumerate(CONTRASTS)}
             summary[label][var] = dict(overall[0], own_proportion=OWN_PROPORTION[var],
                                        other_axis=overall[1])
-    summary = dict(axes=summary, n_electrodes=int(sum(info['n_kept'])), n_subjects=n_part,
+    summary = dict(axes=summary, n_electrodes=int(sum(info['n_kept'])),
+                   n_subjects=int(sum(k > 0 for k in info['n_kept'])), boot_unit=boot_unit,
                    n_electrodes_dropped=int(sum(info['n_dropped'])),
                    n_splits=n_splits, n_boot=n_boot, seed=seed, boot_seed=boot_seed,
                    alpha=alpha, remove_mean=bool(remove_mean), unique=bool(unique),
                    n_null=None if null is None else int(len(null['contrasts'])))
-    return pd.DataFrame(sep_rows), pd.DataFrame(con_rows), summary
+    cons = pd.DataFrame(con_rows)
+    if null is not None:
+        cons = contrast_clusters(cons, null['contrasts_unique' if unique else 'contrasts'],
+                                 alpha=alpha)
+    return pd.DataFrame(sep_rows), cons, summary
+
+
+def contrast_clusters(contrasts, null, alpha=0.05):
+    """`contrasts` (`block_separations`' table) with the block null per row:
+    `null_lo`, `null_mid`, `null_hi`, its alpha / 2, 50 and 1 - alpha / 2
+    percentiles (the band a figure draws as chance), and `cluster`: +1 where
+    the time-resolved contrast is inside a cluster of windows above the null,
+    -1 inside one below it, 0 elsewhere (and on the overall rows, window -1,
+    which are tested by `p`).
+
+    Two-sided, alpha / 2 per tail, each tail by `coding_axes.shared_windows`
+    (the cosine figure's test: pointwise threshold at the null's percentile,
+    clusters judged by mass against the null's largest cluster masses).
+    `null` is the matching `block_null` draws, ``(n_perm, variables, 2 axes,
+    axis windows, time + 1, contrasts)``: 'contrasts' for the raw table,
+    'contrasts_unique' for the unique one. Axis windows are in the order they
+    first appear in `contrasts`, as `block_separations` writes them."""
+    out = contrasts.copy()
+    out['cluster'] = 0
+    pct = 100 * (1 - alpha / 2)
+    band = (100 * alpha / 2, 50, pct)
+    for a, label in enumerate(dict.fromkeys(contrasts['axes'])):
+        for v, var in enumerate(VARIABLES):
+            for o, axis in enumerate(AXES_OF[var]):
+                for j, con in enumerate(CONTRASTS):
+                    rows = out.index[(out['axes'] == label) & (out['variable'] == var)
+                                     & (out['axis'] == axis) & (out['contrast'] == con)
+                                     & (out['window'] >= 0)]
+                    rows = out.loc[rows].sort_values('window').index
+                    obs = out.loc[rows, 'estimate'].to_numpy(float)
+                    draws = null[:, v, o, a, :len(obs), j]
+                    all_rows = out.index[(out['axes'] == label) & (out['variable'] == var)
+                                         & (out['axis'] == axis) & (out['contrast'] == con)]
+                    windows = out.loc[all_rows, 'window'].to_numpy()
+                    full = null[:, v, o, a, windows, j]            # window -1 -> overall
+                    for col, q in zip(('null_lo', 'null_mid', 'null_hi'), band):
+                        out.loc[all_rows, col] = np.percentile(full, q, axis=0)
+                    up = ca.shared_windows(obs, draws, pct, pct)
+                    down = ca.shared_windows(-obs, -draws, pct, pct)
+                    out.loc[rows, 'cluster'] = up.astype(int) - down.astype(int)
+    return out
 
 
 PROPORTION_SETS = tuple((v, p) for v in _LEVELS for p in _PROPS)
@@ -649,7 +717,7 @@ def block_null(df, hg_windows, axis_hg, n_perm=500, n_splits=20, seed=0, remove_
 
 def proportion_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, seed=0,
                             remove_mean=False, n_boot=1000, alpha=0.05, boot_seed=None,
-                            chunk=25, null=None):
+                            chunk=25, null=None, boot_unit='electrode'):
     """Adaptation as trajectories (plan §6): for each variable crossed with each
     proportion, the held-out means of the variable's two levels in the 25 % and
     75 % blocks, on the congruency and switch axes (oblique coordinates, module
@@ -670,7 +738,7 @@ def proportion_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=
                   incProp', ...), condition ('i25', 'c25', 'i75', 'c75'; 's',
                   'r' for switch type; the number is the set's proportion) and
                   time bin: `congruency` and `switch` coordinates (HG), with
-                  participant-bootstrap CIs (`*_lo`, `*_hi`); `own` marks the
+                  bootstrap CIs (`*_lo`, `*_hi`; `boot_unit`); `own` marks the
                   own sets.
     changes       one row per axis window, set, `axis` ('congruency',
                   'switch') and time bin (-1 = mean over bins): the change in
@@ -685,19 +753,18 @@ def proportion_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=
     """
     sums, info, axis_labels = _present_sums(df, hg_windows, axis_hg, axis_labels, n_splits,
                                             seed, remove_mean, _PROJECTION_SUMS)
-    n_part = len(sums['cc'])
+    n_units = len(sums['cc'])          # kept electrodes
 
-    total = _weighted(sums, np.ones(n_part))
+    total = _weighted(sums, np.ones(n_units))
     coords, changes = _proportion_changes(total)
     p = None if null is None else _perm_p(changes, null['changes'])
     cos_axes = (total['cs'] / np.sqrt(total['cc'] * total['ss'])).mean((1, 2))
 
-    # participant bootstrap; a draw only re-weights the participant sums
+    # bootstrap (`boot_unit`); a draw only re-weights the electrode sums
     rng = np.random.default_rng(seed if boot_seed is None else boot_seed)
     b_coords, b_changes = [], []
     for start in range(0, n_boot, chunk):
-        w = rng.multinomial(n_part, np.full(n_part, 1 / n_part),
-                            size=min(chunk, n_boot - start)).T.astype(float)
+        w = _boot_weights(info, min(chunk, n_boot - start), rng, boot_unit)
         bc, bch = _proportion_changes(_weighted(sums, w))
         b_coords.append(bc)
         b_changes.append(bch)
@@ -733,7 +800,8 @@ def proportion_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=
                          ci=[float(ch_lo[a, -1, s, j]), float(ch_hi[a, -1, s, j])],
                          **({} if p is None else dict(p=float(p[a, -1, s, j]))))
                 for j, ax in enumerate(_AXIS_NAMES)})
-    summary = dict(axes=summary, n_electrodes=int(sum(info['n_kept'])), n_subjects=n_part,
+    summary = dict(axes=summary, n_electrodes=int(sum(info['n_kept'])),
+                   n_subjects=int(sum(k > 0 for k in info['n_kept'])), boot_unit=boot_unit,
                    n_electrodes_dropped=int(sum(info['n_dropped'])),
                    n_splits=n_splits, n_boot=n_boot, seed=seed, boot_seed=boot_seed,
                    alpha=alpha, remove_mean=bool(remove_mean),
